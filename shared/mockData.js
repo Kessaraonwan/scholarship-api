@@ -81,22 +81,78 @@ export const mockScholarships = [
 ];
 
 // Mock Users (ใช้สำหรับ service-auth และ service-notification)
+// Password hashes are for development only
 export const mockUsers = [
   {
     id: "u1",
     email: "test@example.com",
     name: "Test User",
-    apiKey: "sk-test-1234567890abcdef",
+    password: "$2b$10$oJPqLlPxQhcg2V9gWEJpGuJwJ9fO5JKZ7eKsLZJhfM5Hqu7ZxXpNe", // "password123"
     tier: "free",
     createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
   },
   {
     id: "u2",
     email: "pro@example.com",
     name: "Pro User",
-    apiKey: "sk-pro-abcdef1234567890",
+    password: "$2b$10$oJPqLlPxQhcg2V9gWEJpGuJwJ9fO5JKZ7eKsLZJhfM5Hqu7ZxXpNe", // "password123"
     tier: "pro",
     createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
+  },
+  {
+    id: "admin",
+    email: "admin@example.com",
+    name: "Admin User",
+    password: "$2b$10$oJPqLlPxQhcg2V9gWEJpGuJwJ9fO5JKZ7eKsLZJhfM5Hqu7ZxXpNe", // "password123"
+    tier: "pro",
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
+  },
+];
+
+// Mock API Keys (ใช้สำหรับ dev)
+export const mockApiKeys = [
+  {
+    id: "key1",
+    userId: "u1",
+    key: "sk-test1234567890abcdef",
+    name: "Test Key 1",
+    isActive: true,
+    lastUsed: "2025-01-15T10:30:00Z",
+    createdAt: "2025-01-01T00:00:00Z",
+  },
+  {
+    id: "key2",
+    userId: "u2",
+    key: "sk-pro1234567890abcdef1",
+    name: "Pro Key 1",
+    isActive: true,
+    lastUsed: "2025-01-16T14:20:00Z",
+    createdAt: "2025-01-02T00:00:00Z",
+  },
+];
+
+// Mock Ingestion Logs (ใช้สำหรับ service-ingestion)
+export const mockIngestionLogs = [
+  {
+    id: "log1",
+    source: "กยศ.",
+    status: "success",
+    countNew: 5,
+    errorMsg: null,
+    startedAt: "2025-01-10T08:00:00Z",
+    finishedAt: "2025-01-10T08:15:00Z",
+  },
+  {
+    id: "log2",
+    source: "Chevening",
+    status: "success",
+    countNew: 3,
+    errorMsg: null,
+    startedAt: "2025-01-10T14:00:00Z",
+    finishedAt: "2025-01-10T14:08:00Z",
   },
 ];
 
@@ -112,5 +168,16 @@ export const mockNotificationRules = [
     webhookUrl: null,
     email: "test@example.com",
     createdAt: "2025-01-01T00:00:00Z",
+  },
+  {
+    id: "r2",
+    userId: "u2",
+    field: null,
+    level: null,
+    country: "ไทย",
+    isActive: true,
+    webhookUrl: "https://webhook.example.com/scholarships",
+    email: "pro@example.com",
+    createdAt: "2025-01-02T00:00:00Z",
   },
 ];

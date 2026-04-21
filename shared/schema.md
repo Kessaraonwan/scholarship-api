@@ -33,6 +33,43 @@ type ScholarshipLevel =
 
 ---
 
+## User Object
+
+```typescript
+interface User {
+  id: string;           // UUID
+  email: string;        // Unique email
+  name: string;
+  tier: "free" | "pro"; // User subscription tier
+  createdAt: string;    // ISO 8601 datetime
+  updatedAt: string;    // ISO 8601 datetime
+}
+
+// Note: password is stored separately in DB (bcrypt hash), never sent in API
+```
+
+---
+
+## API Key Object
+
+```typescript
+interface ApiKey {
+  id: string;              // UUID
+  userId: string;          // Reference to User
+  key: string;             // Format: sk-<16 hex chars> (e.g., sk-1234567890abcdef)
+  name?: string;           // User-defined name for key
+  isActive: boolean;
+  lastUsed?: string;       // ISO 8601 datetime
+  createdAt: string;       // ISO 8601 datetime
+}
+
+// Rate limits per tier
+// FREE: 100 requests/hour, 1000/day
+// PRO:  1000 requests/hour, 10000/day
+```
+
+---
+
 ## API Response Format
 
 ทุก Service ต้องส่ง response หน้าตาแบบนี้เสมอ
