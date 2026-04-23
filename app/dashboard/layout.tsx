@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
 import { Key, BarChart3, LogOut, Shield } from 'lucide-react'
 
 export default function DashboardLayout({
@@ -12,22 +11,6 @@ export default function DashboardLayout({
 }) {
   const router = useRouter()
   const pathname = usePathname()
-  const [isAdmin, setIsAdmin] = useState(false)
-
-  useEffect(() => {
-    checkAdminStatus()
-  }, [])
-
-  const checkAdminStatus = async () => {
-    try {
-      const response = await fetch('/api/admin/check-admin')
-      if (response.ok) {
-        setIsAdmin(true)
-      }
-    } catch (error) {
-      // ไม่เป็น admin ก็ไม่เป็นไร
-    }
-  }
 
   const handleLogout = async () => {
     try {
@@ -43,11 +26,6 @@ export default function DashboardLayout({
     { name: 'API Keys', href: '/dashboard/keys', icon: Key },
     { name: 'Usage Stats', href: '/dashboard/usage', icon: BarChart3 },
   ]
-
-  // เพิ่ม Admin menu ถ้าเป็น admin
-  if (isAdmin) {
-    navigation.unshift({ name: 'Admin Panel', href: '/admin/users', icon: Shield })
-  }
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans">
