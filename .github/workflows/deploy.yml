@@ -1,0 +1,65 @@
+name: Deploy Services
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://scholarship-api.example.com
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push all services
+        run: |
+          docker-compose build
+          # Push each service
+          for service in service-landing service-auth service-core service-analytics service-notification service-ingestion; do
+            docker push ghcr.io/${{ github.repository }}/$service:latest
+          done
+
+      - name: Deploy to production
+        run: |
+          # This is a placeholder. Implement your deployment logic here.
+          # Options:
+          # 1. Deploy to Kubernetes: kubectl apply -f k8s/
+          # 2. Deploy to Docker Swarm: docker stack deploy -c docker-compose.prod.yml scholarship-api
+          # 3. Deploy to cloud services (GCP Cloud Run, AWS ECS, etc.)
+          echo "Deploying to production..."
+
+      - name: Health check
+        run: |
+          # Wait for services to be healthy
+          for i in {1..60}; do
+            if curl -f https://scholarship-api.example.com/status 2>/dev/null; then
+              echo "✅ Services are healthy"
+              exit 0
+            fi
+            echo "Waiting for services... ($i/60)"
+            sleep 1
+          done
+          echo "❌ Services did not become healthy"
+          exit 1
+
+      - name: Slack notification
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          text: 'Deployment ${{ job.status }}'
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
