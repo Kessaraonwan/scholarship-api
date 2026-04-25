@@ -89,12 +89,6 @@ npm run dev
 docker-compose up
 ```
 
-จากนั้นเข้าที่:
-- **Landing Page**: http://localhost:3000
-- **API Docs**: http://localhost:3000/docs
-- **Quickstart**: http://localhost:3000/docs/quickstart
-- **System Status**: http://localhost:3000/status
-
 ---
 
 ## โครงสร้าง
