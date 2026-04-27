@@ -66,4 +66,21 @@ export async function getUserApiKeys(userId: string) {
   })
 }
 
+export async function verifyApiKeyExists(key: string) {
+  return prisma.apiKey.findUnique({
+    where: { key },
+    include: {
+      user: {
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          isActive: true,
+        },
+      },
+    },
+  })
+}
+
 export { prisma }

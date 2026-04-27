@@ -1,0 +1,108 @@
+version: "3.8"
+
+services:
+  # ─── Infrastructure ───────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: scholarship_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  # ─── Services ─────────────────────────────────────────────────
+  service-landing:
+    build: ./service-landing
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://service-auth:3001
+      - INGESTION_SERVICE_URL=http://service-ingestion:3002
+      - CORE_SERVICE_URL=http://service-core:3003
+      - ANALYTICS_SERVICE_URL=http://service-analytics:3004
+      - NOTIFICATION_SERVICE_URL=http://service-notification:3005
+    depends_on:
+      - service-auth
+
+  service-auth:
+    build: ./service-auth
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=change-this-in-production
+      - INTERNAL_SECRET=internal-secret-key
+    depends_on:
+      - postgres
+      - redis
+
+  service-ingestion:
+    build: ./service-ingestion
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
+      - INTERNAL_SECRET=internal-secret-key
+      - NOTIFICATION_SERVICE_URL=http://service-notification:3005
+    depends_on:
+      - postgres
+
+  service-core:
+    build: ./service-core
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
+      - REDIS_URL=redis://redis:6379
+      - AUTH_SERVICE_URL=http://service-auth:3001
+      - INTERNAL_SECRET=internal-secret-key
+    depends_on:
+      - postgres
+      - redis
+      - service-auth
+
+  service-analytics:
+    build: ./service-analytics
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
+      - AUTH_SERVICE_URL=http://service-auth:3001
+      - INTERNAL_SECRET=internal-secret-key
+    depends_on:
+      - postgres
+      - service-auth
+
+  service-notification:
+    build: ./service-notification
+    ports:
+      - "3005:3005"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
+      - AUTH_SERVICE_URL=http://service-auth:3001
+      - INTERNAL_SECRET=internal-secret-key
+      - SMTP_HOST=smtp.example.com
+      - SMTP_PORT=587
+      - SMTP_USER=
+      - SMTP_PASS=
+    depends_on:
+      - postgres
+      - service-auth
+
+volumes:
+  postgres_data:

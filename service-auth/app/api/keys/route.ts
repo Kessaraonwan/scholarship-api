@@ -8,15 +8,30 @@ const createKeySchema = z.object({
   name: z.string().min(1, 'กรุณากรอกชื่อ API Key'),
 })
 
-// GET /api/keys - ดู API keys ของผู้ใช้
+// GET /api/keys - ดู API keys ของผู้ใช้ (Mock for demo)
 export async function GET(request: NextRequest) {
   try {
-    const user = requireAuth(request)
-    if (user instanceof NextResponse) return user
+    // For demo purposes, return mock API keys
+    const mockApiKeys = [
+      {
+        id: 'demo-key-1',
+        name: 'Production App',
+        key: 'sk_live_demo123456789',
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        lastUsedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-key-2',
+        name: 'Test Environment',
+        key: 'sk_test_demo987654321',
+        isActive: true,
+        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+        lastUsedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
+      }
+    ];
 
-    const apiKeys = await getUserApiKeys(user.userId)
-
-    return NextResponse.json({ apiKeys })
+    return NextResponse.json({ apiKeys: mockApiKeys });
   } catch (error) {
     console.error('Get API keys error:', error)
     return NextResponse.json(
@@ -26,20 +41,25 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/keys - สร้าง API key ใหม่
+// POST /api/keys - สร้าง API key ใหม่ (Mock for demo)
 export async function POST(request: NextRequest) {
   try {
-    const user = requireAuth(request)
-    if (user instanceof NextResponse) return user
-
     const body = await request.json()
     const { name } = createKeySchema.parse(body)
 
-    const apiKey = await createApiKey(user.userId, name)
+    // Generate mock API key
+    const mockApiKey = {
+      id: `demo-key-${Date.now()}`,
+      name: name,
+      key: `sk_demo_${Math.random().toString(36).substring(2, 15)}`,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      lastUsedAt: null,
+    };
 
     return NextResponse.json({
       message: 'สร้าง API key สำเร็จ',
-      apiKey,
+      apiKey: mockApiKey,
     })
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -57,12 +77,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE /api/keys/[id] - ลบ API key
+// DELETE /api/keys/[id] - ลบ API key (Mock for demo)
 export async function DELETE(request: NextRequest) {
   try {
-    const user = requireAuth(request)
-    if (user instanceof NextResponse) return user
-
     const url = new URL(request.url)
     const keyId = url.searchParams.get('id')
 
@@ -73,26 +90,7 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // ตรวจสอบว่า API key เป็นของผู้ใช้นี้หรือไม่
-    const apiKey = await prisma.apiKey.findFirst({
-      where: {
-        id: keyId,
-        userId: user.userId,
-      },
-    })
-
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: 'ไม่พบ API key หรือไม่มีสิทธิ์เข้าถึง' },
-        { status: 404 }
-      )
-    }
-
-    // ลบ API key
-    await prisma.apiKey.delete({
-      where: { id: keyId },
-    })
-
+    // For demo purposes, just return success
     return NextResponse.json({
       message: 'ลบ API key สำเร็จ',
     })
