@@ -1,34 +1,47 @@
-const scholarships = [
+export const mockScholarships = [
   {
     id: "1",
-    name: "ทุนรัฐบาลญี่ปุ่น MEXT",
-    country: "ญี่ปุ่น",
+    name: "ทุน กยศ.",
     level: "ปริญญาตรี",
-    amount: 150000,
-    deadline: "2025-05-31T00:00:00.000Z",
-    description: "ทุนรัฐบาลญี่ปุ่นสำหรับนักศึกษาต่างชาติ",
-    isOpen: true
+    field: "ทุกสาขา",
+    country: "ไทย",
+    deadline: "2026-06-30",   // ← เปลี่ยนเป็นปีนี้
+    amount: 30000,
+    currency: "THB",
+    url: "https://www.studentloan.or.th",
+    source: "กยศ.",
+    description: "กองทุนเงินให้กู้ยืมเพื่อการศึกษา",
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
   },
   {
     id: "2",
-    name: "ทุน ADB–JSP",
-    country: "เอเชีย",
+    name: "ทุนรัฐบาลญี่ปุ่น (MEXT)",
     level: "ปริญญาโท",
-    amount: 200000,
-    deadline: "2025-06-15T00:00:00.000Z",
-    description: "ทุนธนาคารพัฒนาเอเชียสำหรับปริญญาโท",
-    isOpen: true
+    field: "วิศวกรรมศาสตร์",
+    country: "ญี่ปุ่น",
+    deadline: "2026-05-15",   // ← เปลี่ยน
+    amount: null,
+    currency: null,
+    url: "https://www.th.emb-japan.go.jp",
+    source: "MEXT",
+    description: "ทุนรัฐบาลญี่ปุ่นสำหรับนักศึกษาต่างชาติ",
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
   },
   {
     id: "3",
     name: "ทุน Fulbright",
+    level: "ปริญญาโท",
+    field: "ทุกสาขา",
     country: "สหรัฐอเมริกา",
-    level: "ปริญญาเอก",
-    amount: 500000,
-    deadline: "2024-12-01T00:00:00.000Z",
-    description: "ทุนรัฐบาลสหรัฐสำหรับปริญญาเอก",
-    isOpen: false
-  }
+    deadline: "2026-04-30",   // ← เปลี่ยน (ใน 30 วัน = upcoming)
+    amount: null,
+    currency: "USD",
+    url: "https://www.fulbrightthai.org",
+    source: "Fulbright",
+    description: "ทุนแลกเปลี่ยนการศึกษาไทย-อเมริกา",
+    createdAt: "2025-01-01T00:00:00Z",
+    updatedAt: "2025-01-01T00:00:00Z",
+  },
 ]
-
-module.exports = scholarships
