@@ -1,4 +1,6 @@
-import { BaseScraper, Scholarship } from './baseScraper'
+import { BaseScraper } from './baseScraper'
+import { XMLParser } from 'fast-xml-parser'
+import { Scholarship } from '../types'
 
 export class KyosScraper extends BaseScraper {
   constructor() {
@@ -7,38 +9,25 @@ export class KyosScraper extends BaseScraper {
 
   async scrape(): Promise<Scholarship[]> {
     try {
-      // Note: This is a mock implementation since actual Kyos website might be complex
-      // In real implementation, you would scrape from actual Kyos website
-      const mockScholarships: Scholarship[] = [
-        {
-          name: 'ทุน กยศ. 2567',
-          level: 'ปริญญาตรี',
-          field: 'ทุกสาขา',
-          country: 'ไทย',
-          deadline: '2025-06-30',
-          amount: 30000,
-          currency: 'THB',
-          url: 'https://www.studentloan.or.th',
-          source: this.source,
-          description: 'ทุนกู้ยืมเพื่อการศึกษา ปีการศึกษา 2567'
-        },
-        {
-          name: 'ทุน กยศ. สำหรับนักศึกษาปริญญาโท',
-          level: 'ปริญญาโท',
-          field: 'ทุกสาขา',
-          country: 'ไทย',
-          deadline: '2025-07-15',
-          amount: 50000,
-          currency: 'THB',
-          url: 'https://www.studentloan.or.th/graduate',
-          source: this.source,
-          description: 'ทุนสำหรับนักศึกษาระดับปริญญาโทและเอก'
-        }
-      ]
+      const html = await this.fetchPage('https://ioscholarships.com/feed')
+      const parser = new XMLParser()
+      const result = parser.parse(html)
+      const items = result?.rss?.channel?.item || []
 
-      return mockScholarships
+      return items.slice(0, 10).map((item: any) => ({
+        name: item.title || 'ไม่มีชื่อ',
+        level: 'ทุกระดับ',
+        field: 'ทุกสาขา',
+        country: 'International',
+        deadline: this.parseDate(item.pubDate || '') || undefined,
+        amount: undefined,
+        currency: undefined,
+        url: item.link || '',
+        source: this.source,
+        description: item.description?.replace(/<[^>]*>/g, '').slice(0, 500) || undefined,
+      }))
     } catch (error) {
-      console.error('Error scraping Kyos:', error)
+      console.error('Error scraping กยศ.:', error)
       throw error
     }
   }

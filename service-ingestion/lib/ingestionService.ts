@@ -1,15 +1,7 @@
 import pool from './db'
-import { Scholarship } from './scrapers/baseScraper'
+import { Scholarship, IngestionLog } from './types'
 
-export interface IngestionLog {
-  id: string
-  source: string
-  status: 'success' | 'error' | 'running'
-  count_new: number
-  error_msg: string | null
-  started_at: string
-  finished_at: string | null
-}
+
 
 export class IngestionService {
   async createLog(source: string): Promise<string> {

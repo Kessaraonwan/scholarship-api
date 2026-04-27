@@ -1,18 +1,8 @@
 import axios from 'axios'
 import * as cheerio from 'cheerio'
+import { Scholarship } from '../types'
 
-export interface Scholarship {
-  name: string
-  level: string
-  field: string
-  country: string
-  deadline?: string
-  amount?: number
-  currency?: string
-  url: string
-  source: string
-  description?: string
-}
+
 
 export abstract class BaseScraper {
   protected source: string
