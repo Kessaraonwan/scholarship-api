@@ -54,10 +54,16 @@ export default function IngestionPage() {
                 headers: { authorization: 'Bearer sk_ozaxkamfl6rmoe3l28y' }
             })
             const data = await res.json()
-            setMessage(`sync สำเร็จ — พบทุนใหม่ ${data.data.countNew} รายการ`)
+
+            if (res.ok) {
+                setMessage(`sync สำเร็จ — พบทุนใหม่ ${data.data.totalNew} รายการ`)
+            } else {
+                setMessage(`sync ไม่สำเร็จ: ${data.error || 'Unknown error'}`)
+            }
+
             fetchData()
         } catch (e) {
-            setMessage('sync ไม่สำเร็จ')
+            setMessage('sync ไม่สำเร็จ: Network error')
         } finally {
             setSyncing(false)
         }
