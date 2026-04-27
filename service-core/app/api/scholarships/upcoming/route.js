@@ -1,23 +1,19 @@
-import { NextResponse } from 'next/server'
-import scholarships from '../../../../data/mockData'
+import { mockScholarships } from '../../../../data/mockData.js'
 
 export async function GET() {
-  try {
-    const now = new Date()
+  const today = new Date()
+  const in30days = new Date()
+  in30days.setDate(today.getDate() + 30)
 
-    const upcoming = scholarships
-      .filter(s => new Date(s.deadline) > now && s.isOpen)
-      .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
-
-    return NextResponse.json({
-      data: upcoming,
-      meta: { total: upcoming.length, page: 1, limit: upcoming.length }
+  const result = mockScholarships
+    .filter(s => {
+      const deadline = new Date(s.deadline)
+      return deadline >= today && deadline <= in30days
     })
+    .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
 
-  } catch (err) {
-    return NextResponse.json(
-      { error: 'Internal server error', code: 500 },
-      { status: 500 }
-    )
-  }
+  return Response.json({
+    data: result,
+    meta: { total: result.length, page: 1, limit: result.length }
+  })
 }
