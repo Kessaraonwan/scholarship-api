@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SyncService } from '@/lib/syncService'
+import { SyncService } from '../../../../../lib/syncService'
 
 const syncService = new SyncService()
 

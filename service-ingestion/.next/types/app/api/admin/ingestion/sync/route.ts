@@ -1,8 +1,8 @@
 // File: c:\Users\MickH\Downloads\ws\scholarship-api\service-ingestion\src\app\api\admin\ingestion\sync\route.ts
-import * as entry from '../../../../../../../src/app/api/admin/ingestion/sync/route.js'
+import * as entry from '../../../../../../../app/api/admin/ingestion/sync/route.js'
 import type { NextRequest } from 'next/server.js'
 
-type TEntry = typeof import('../../../../../../../src/app/api/admin/ingestion/sync/route.js')
+type TEntry = typeof import('../../../../../../../app/api/admin/ingestion/sync/route.js')
 
 // Check that the entry is a valid entry
 checkFields<Diff<{

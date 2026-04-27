@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { IngestionService } from '@/lib/ingestionService'
+import { IngestionService } from '../../../../lib/ingestionService'
 
 const ingestionService = new IngestionService()
 

@@ -1,5 +1,4 @@
 {
-  "/_not-found/page": "app/_not-found/page.js",
   "/api/admin/ingestion/sync/route": "app/api/admin/ingestion/sync/route.js",
   "/api/admin/ingestion/logs/route": "app/api/admin/ingestion/logs/route.js",
   "/api/admin/ingestion/route": "app/api/admin/ingestion/route.js",
