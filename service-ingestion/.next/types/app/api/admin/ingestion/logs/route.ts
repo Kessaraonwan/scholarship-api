@@ -1,4 +1,4 @@
-// File: c:\Users\MickH\Downloads\ws\scholarship-api\service-ingestion\src\app\api\admin\ingestion\logs\route.ts
+// File: C:\Users\bankt\Desktop\project wbms\scholarship-api\service-ingestion\src\app\api\admin\ingestion\logs\route.ts
 import * as entry from '../../../../../../../src/app/api/admin/ingestion/logs/route.js'
 import type { NextRequest } from 'next/server.js'
 
