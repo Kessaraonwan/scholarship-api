@@ -1,61 +1,55 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Calendar, MapPin, GraduationCap, Briefcase } from "lucide-react"
+import { Search, Calendar, MapPin, GraduationCap, Briefcase, Key, RefreshCw } from "lucide-react"
 import { type Scholarship } from "@/lib/scholarships-data"
 
 const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
 const fields = ["ทุกสาขา", "IT", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
 const countries = ["ทุกประเทศ", "ไทย", "UK", "US", "Japan", "Germany"]
 
+// ... (ScholarshipCard และ ScholarshipSkeleton เหมือนเดิม)
 function ScholarshipCard({ scholarship }: { scholarship: Scholarship }) {
-  const daysUntilDeadline = Math.ceil(
-    (new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-  )
+  // 🛡️ กันพัง: เช็คก่อนว่ามี deadline ไหม ถ้าไม่มีให้เป็น 0
+  const daysUntilDeadline = scholarship.deadline
+    ? Math.ceil((new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null;
 
   return (
     <Link href={`/scholarships/${scholarship.id}`}>
       <Card className="h-full transition-shadow hover:shadow-lg">
         <CardHeader>
           <div className="flex items-start justify-between">
-            <CardTitle className="text-lg text-foreground">{scholarship.name}</CardTitle>
-            {daysUntilDeadline <= 30 && daysUntilDeadline > 0 && (
+            <CardTitle className="text-lg text-foreground">{scholarship.name || "ไม่มีชื่อทุน"}</CardTitle>
+            {daysUntilDeadline !== null && daysUntilDeadline <= 30 && daysUntilDeadline > 0 && (
               <Badge className={daysUntilDeadline <= 7 ? "bg-red-500 text-white" : "bg-orange-500 text-white"}>
                 {daysUntilDeadline} วัน
               </Badge>
             )}
           </div>
-          <CardDescription className="line-clamp-2">{scholarship.description}</CardDescription>
+          <CardDescription className="line-clamp-2">{scholarship.description || "ไม่มีรายละเอียด"}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <GraduationCap className="h-3 w-3" />
-              {scholarship.level}
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <Briefcase className="h-3 w-3" />
-              {scholarship.field}
-            </Badge>
-            <Badge variant="secondary" className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {scholarship.country}
-            </Badge>
+            <Badge variant="secondary" className="flex items-center gap-1"><GraduationCap className="h-3 w-3" />{scholarship.level || "ไม่ระบุ"}</Badge>
+            <Badge variant="secondary" className="flex items-center gap-1"><Briefcase className="h-3 w-3" />{scholarship.field || "ไม่ระบุ"}</Badge>
+            <Badge variant="secondary" className="flex items-center gap-1"><MapPin className="h-3 w-3" />{scholarship.country || "ไม่ระบุ"}</Badge>
           </div>
           <div className="mt-4 flex items-center justify-between text-sm">
             <div className="flex items-center gap-1 text-muted-foreground">
               <Calendar className="h-4 w-4" />
-              <span>หมดเขต: {scholarship.deadline}</span>
+              {/* 🛡️ กันพัง: ถ้าไม่มีวันหมดเขตให้โชว์ว่า "ไม่ระบุ" */}
+              <span>หมดเขต: {scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString('th-TH') : "ไม่ระบุ"}</span>
             </div>
             {scholarship.amount && (
               <span className="font-medium text-primary">
-                {scholarship.amount.toLocaleString()} {scholarship.currency}
+                {Number(scholarship.amount).toLocaleString()} {scholarship.currency || "THB"}
               </span>
             )}
           </div>
@@ -68,21 +62,8 @@ function ScholarshipCard({ scholarship }: { scholarship: Scholarship }) {
 function ScholarshipSkeleton() {
   return (
     <Card className="h-full">
-      <CardHeader>
-        <div className="h-6 w-3/4 animate-pulse rounded bg-muted" />
-        <div className="mt-2 h-4 w-full animate-pulse rounded bg-muted" />
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2">
-          <div className="h-6 w-20 animate-pulse rounded bg-muted" />
-          <div className="h-6 w-16 animate-pulse rounded bg-muted" />
-          <div className="h-6 w-16 animate-pulse rounded bg-muted" />
-        </div>
-        <div className="mt-4 flex justify-between">
-          <div className="h-4 w-32 animate-pulse rounded bg-muted" />
-          <div className="h-4 w-20 animate-pulse rounded bg-muted" />
-        </div>
-      </CardContent>
+      <CardHeader><div className="h-6 w-3/4 animate-pulse rounded bg-muted" /><div className="mt-2 h-4 w-full animate-pulse rounded bg-muted" /></CardHeader>
+      <CardContent><div className="flex gap-2"><div className="h-6 w-20 animate-pulse rounded bg-muted" /><div className="h-6 w-16 animate-pulse rounded bg-muted" /><div className="h-6 w-16 animate-pulse rounded bg-muted" /></div><div className="mt-4 flex justify-between"><div className="h-4 w-32 animate-pulse rounded bg-muted" /><div className="h-4 w-20 animate-pulse rounded bg-muted" /></div></CardContent>
     </Card>
   )
 }
@@ -92,127 +73,134 @@ export default function ScholarshipsPage() {
   const [level, setLevel] = useState("ทุกระดับ")
   const [field, setField] = useState("ทุกสาขา")
   const [country, setCountry] = useState("ทุกประเทศ")
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
 
+  const [apiKey, setApiKey] = useState("")
   const [scholarships, setScholarships] = useState<Scholarship[]>([])
   const [totalPages, setTotalPages] = useState(1)
 
+  // 1. โหลดคีย์จากเครื่อง
   useEffect(() => {
-    const fetchScholarships = async () => {
-      setIsLoading(true)
-      const params = new URLSearchParams({
-        keyword: search,
-        level: level,
-        field: field,
-        country: country,
-        page: String(currentPage),
-        limit: String(itemsPerPage),
+    const savedKey = localStorage.getItem("user_api_key")
+    if (savedKey) setApiKey(savedKey)
+  }, [])
+
+  // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
+  const fetchScholarships = useCallback(async () => {
+    if (!apiKey) return; // 🛑 ถ้าไม่มีคีย์ ไม่ต้องยิงให้เปลืองแรงและ Error
+
+    setIsLoading(true)
+    const params = new URLSearchParams();
+
+    if (search) params.append("keyword", search);
+
+    // 🛡️ ถ้าเลือก "ทุกระดับ" ไม่ต้องส่งค่าไป ให้หลังบ้านดึงมาทั้งหมด
+    if (level !== "ทุกระดับ") params.append("level", level);
+    if (field !== "ทุกสาขา") params.append("field", field);
+    if (country !== "ทุกประเทศ") params.append("country", country);
+
+    params.append("page", String(currentPage));
+    params.append("limit", String(itemsPerPage));
+
+    try {
+      const response = await fetch(`/api/scholarships?${params.toString()}`, {
+        method: 'GET',
+        headers: {
+          // ✅ ส่งแค่ API Key อย่างเดียว ป้องกันภาษาไทยหลุดเข้า Header
+          "x-api-key": apiKey.trim()
+        }
       })
 
-      try {
-        const response = await fetch(`/api/scholarships?${params.toString()}`)
-        const data = await response.json()
-        setScholarships(data.data)
-        setTotalPages(data.pagination.totalPages)
-      } catch (error) {
-        console.error("Failed to fetch scholarships:", error)
+      const data = await response.json()
+
+      if (response.ok) {
+        setScholarships(data.data || [])
+        setTotalPages(data.pagination?.totalPages || 1)
+      } else {
+        console.error("API Error:", data.error)
         setScholarships([])
-        setTotalPages(1)
-      } finally {
-        setIsLoading(false)
       }
+    } catch (error) {
+      console.error("Fetch Failed:", error)
+      setScholarships([])
+    } finally {
+      setIsLoading(false)
     }
+  }, [search, level, field, country, currentPage, apiKey])
 
+  // 3. รัน Fetch เมื่อค่าเปลี่ยน
+  useEffect(() => {
     fetchScholarships()
-  }, [search, level, field, country, currentPage])
+  }, [fetchScholarships])
 
-  const handleFilterChange = () => {
-    // Reset to first page when filters change
+  const handleKeyChange = (newKey: string) => {
+    const cleanKey = newKey.trim()
+    setApiKey(cleanKey)
+    localStorage.setItem("user_api_key", cleanKey)
     setCurrentPage(1)
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">ค้นหาทุนการศึกษา</h1>
-        <p className="mt-2 text-muted-foreground">
-          ค้นหาทุนการศึกษาจากทั่วโลกที่ตรงกับความต้องการของคุณ
-        </p>
+
+      {/* 🔑 API Key Gateway */}
+      <div className="mb-10 p-6 border-2 border-indigo-200 rounded-2xl bg-white shadow-sm ring-1 ring-indigo-50">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-indigo-600 rounded-lg shadow-md"><Key className="h-5 w-5 text-white" /></div>
+          <div>
+            <h2 className="text-lg font-bold text-gray-900">API Gateway Authentication</h2>
+            <p className="text-sm text-gray-500">ใส่ API Key จากเครื่องแบงค์ (3001) เพื่อดึงข้อมูล</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Input
+            placeholder="วาง sk_live_..."
+            value={apiKey}
+            onChange={(e) => handleKeyChange(e.target.value)}
+            className="flex-1 h-12 font-mono border-gray-300 focus:ring-indigo-500"
+          />
+          <Button
+            onClick={fetchScholarships}
+            disabled={isLoading || !apiKey}
+            className="h-12 px-8 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+          >
+            {isLoading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : null}
+            ดึงข้อมูลใหม่
+          </Button>
+        </div>
+
+        {!apiKey && <p className="mt-3 text-xs text-amber-600 font-medium animate-bounce">⚠️ กรุณาใส่ API Key ก่อนเริ่มค้นหา</p>}
       </div>
 
-      {/* Search and Filters */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold tracking-tight">ค้นหาทุนการศึกษา</h1>
+        <p className="mt-2 text-muted-foreground">ระบบกำลังเรียกข้อมูลจากฐานข้อมูลของมิกผ่าน API Gateway</p>
+      </div>
+
+      {/* Search & Filters */}
       <div className="mb-8 space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="ค้นหาชื่อทุน..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              handleFilterChange()
-            }}
-            className="pl-10"
-          />
+          <Input placeholder="ค้นหาชื่อทุน..." value={search} onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }} className="pl-10 h-11" />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
-          <Select
-            value={level}
-            onValueChange={(value) => {
-              setLevel(value)
-              handleFilterChange()
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="ระดับการศึกษา" />
-            </SelectTrigger>
-            <SelectContent>
-              {levels.map((l) => (
-                <SelectItem key={l} value={l}>
-                  {l}
-                </SelectItem>
-              ))}
-            </SelectContent>
+          <Select value={level} onValueChange={(v) => { setLevel(v); setCurrentPage(1); }}>
+            <SelectTrigger className="h-11"><SelectValue placeholder="ระดับการศึกษา" /></SelectTrigger>
+            <SelectContent>{levels.map((l) => (<SelectItem key={l} value={l}>{l}</SelectItem>))}</SelectContent>
           </Select>
 
-          <Select
-            value={field}
-            onValueChange={(value) => {
-              setField(value)
-              handleFilterChange()
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="สาขาวิชา" />
-            </SelectTrigger>
-            <SelectContent>
-              {fields.map((f) => (
-                <SelectItem key={f} value={f}>
-                  {f}
-                </SelectItem>
-              ))}
-            </SelectContent>
+          <Select value={field} onValueChange={(v) => { setField(v); setCurrentPage(1); }}>
+            <SelectTrigger className="h-11"><SelectValue placeholder="สาขาวิชา" /></SelectTrigger>
+            <SelectContent>{fields.map((f) => (<SelectItem key={f} value={f}>{f}</SelectItem>))}</SelectContent>
           </Select>
 
-          <Select
-            value={country}
-            onValueChange={(value) => {
-              setCountry(value)
-              handleFilterChange()
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="ประเทศ" />
-            </SelectTrigger>
-            <SelectContent>
-              {countries.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
+          <Select value={country} onValueChange={(v) => { setCountry(v); setCurrentPage(1); }}>
+            <SelectTrigger className="h-11"><SelectValue placeholder="ประเทศ" /></SelectTrigger>
+            <SelectContent>{countries.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
           </Select>
         </div>
       </div>
@@ -220,45 +208,29 @@ export default function ScholarshipsPage() {
       {/* Results */}
       {isLoading ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[...Array(6)].map((_, i) => (
-            <ScholarshipSkeleton key={i} />
-          ))}
+          {[...Array(6)].map((_, i) => (<ScholarshipSkeleton key={i} />))}
+        </div>
+      ) : !apiKey ? (
+        <div className="rounded-lg border border-dashed border-gray-300 py-20 text-center bg-gray-50">
+          <Key className="mx-auto h-12 w-12 text-gray-300 mb-4" />
+          <p className="text-gray-500">รอการระบุ API Key เพื่อเชื่อมต่อระบบ...</p>
         </div>
       ) : scholarships.length === 0 ? (
-        <div className="rounded-lg border border-border bg-card py-16 text-center">
-          <p className="text-lg font-medium text-foreground">ไม่พบทุนการศึกษา</p>
-          <p className="mt-2 text-muted-foreground">ลองปรับเงื่อนไขการค้นหาใหม่</p>
+        <div className="rounded-lg border border-border bg-card py-20 text-center shadow-inner">
+          <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/30 mb-4" />
+          <p className="text-lg font-medium">ไม่พบข้อมูล</p>
+          <p className="mt-2 text-muted-foreground">ลองกดปุ่ม "ดึงข้อมูลใหม่" หรือเช็ค API Key อีกครั้ง</p>
         </div>
       ) : (
         <>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {scholarships.map((scholarship) => (
-              <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
-            ))}
+            {scholarships.map((s) => <ScholarshipCard key={s.id} scholarship={s} />)}
           </div>
-
-          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                ก่อนหน้า
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                หน้า {currentPage} จาก {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                ถัดไป
-              </Button>
+            <div className="mt-12 flex items-center justify-center gap-4">
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>ก่อนหน้า</Button>
+              <span className="text-sm font-medium">หน้า {currentPage} จาก {totalPages}</span>
+              <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>ถัดไป</Button>
             </div>
           )}
         </>

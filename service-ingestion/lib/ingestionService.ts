@@ -1,12 +1,11 @@
 import pool from './db'
 import { Scholarship, IngestionLog } from './types'
 
-
-
 export class IngestionService {
   async createLog(source: string): Promise<string> {
+    // ✅ แก้จาก started_at เป็น "startedAt" (ต้องใส่ฟันหนูคู่ครอบด้วยถ้าเป็นตัวพิมพ์ใหญ่ผสม)
     const result = await pool.query(`
-      INSERT INTO ingestion_logs (source, status, started_at)
+      INSERT INTO ingestion_logs (source, status, "startedAt")
       VALUES ($1, 'running', NOW())
       RETURNING id
     `, [source])
@@ -15,9 +14,10 @@ export class IngestionService {
   }
 
   async updateLog(id: string, status: 'success' | 'error', countNew: number = 0, errorMsg: string | null = null): Promise<void> {
+    // ✅ แก้เป็น "countNew", error_msg, "finishedAt" ตามจริงใน DB
     await pool.query(`
       UPDATE ingestion_logs
-      SET status = $1, count_new = $2, error_msg = $3, finished_at = NOW()
+      SET status = $1, "countNew" = $2, error_msg = $3, "finishedAt" = NOW()
       WHERE id = $4
     `, [status, countNew, errorMsg, id])
   }
@@ -27,7 +27,6 @@ export class IngestionService {
 
     for (const scholarship of scholarships) {
       try {
-        // Check if scholarship already exists (by name and source)
         const existing = await pool.query(`
           SELECT id FROM scholarships
           WHERE name = $1 AND source = $2
@@ -60,9 +59,10 @@ export class IngestionService {
   }
 
   async getLatestLog(): Promise<IngestionLog | null> {
+    // ✅ แก้เป็น "startedAt"
     const result = await pool.query(`
       SELECT * FROM ingestion_logs
-      ORDER BY started_at DESC
+      ORDER BY "startedAt" DESC
       LIMIT 1
     `)
 
@@ -73,9 +73,10 @@ export class IngestionService {
     const offset = (page - 1) * limit
 
     const [logs, count] = await Promise.all([
+      // ✅ แก้เป็น "startedAt"
       pool.query(`
         SELECT * FROM ingestion_logs
-        ORDER BY started_at DESC
+        ORDER BY "startedAt" DESC
         LIMIT $1 OFFSET $2
       `, [limit, offset]),
       pool.query(`SELECT COUNT(*) FROM ingestion_logs`)

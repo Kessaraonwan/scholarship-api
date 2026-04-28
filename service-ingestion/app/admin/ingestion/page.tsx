@@ -13,6 +13,10 @@ export default function IngestionPage() {
     const [syncing, setSyncing] = useState(false)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    
+    // 🔒 1. เพิ่ม State สำหรับรหัส Admin
+    const [adminPass, setAdminPass] = useState("");
+    const MASTER_KEY = "123456"; // แบงค์เปลี่ยนรหัสตรงนี้ได้เลย
 
     const fetchData = useCallback(async () => {
         try {
@@ -34,6 +38,9 @@ export default function IngestionPage() {
     useEffect(() => { fetchData() }, [fetchData])
 
     const doSync = async () => {
+        // เช็คอีกรอบเพื่อความชัวร์ในฟังก์ชัน
+        if (adminPass !== MASTER_KEY) return;
+        
         setSyncing(true)
         try {
             await fetch('/api/admin/ingestion/sync', { method: 'POST', headers: { authorization: AUTH } })
@@ -63,24 +70,50 @@ export default function IngestionPage() {
                         </h1>
                         <p style={{ fontSize: 14, color: '#6b7280', marginTop: 4 }}>จัดการการนำเข้าข้อมูลทุนการศึกษาจากแหล่งต่างๆ</p>
                     </div>
-                    <button onClick={doSync} disabled={syncing} style={{
-                        display: 'flex', alignItems: 'center', gap: 8,
-                        fontSize: 14, fontWeight: 500, padding: '10px 20px',
-                        borderRadius: 8, border: 'none', background: '#185FA5',
-                        color: '#E6F1FB', cursor: syncing ? 'not-allowed' : 'pointer', opacity: syncing ? 0.7 : 1
-                    }}>
-                        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                            <path d="M23 4v6h-6M1 20v-6h6" />
-                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                        </svg>
-                        {syncing ? 'Syncing...' : 'Sync Now'}
-                    </button>
+
+                    {/* 🔒 2. เพิ่มช่องกรอกรหัสลับ Admin ตรงนี้ */}
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <input 
+                            type="password"
+                            placeholder="Admin Pin..."
+                            value={adminPass}
+                            onChange={(e) => setAdminPass(e.target.value)}
+                            style={{
+                                padding: '8px 12px',
+                                borderRadius: 8,
+                                border: adminPass === MASTER_KEY ? '2px solid #059669' : '1px solid #d1d5db',
+                                fontSize: 13,
+                                width: 120,
+                                outline: 'none'
+                            }}
+                        />
+                        
+                        <button 
+                            onClick={doSync} 
+                            disabled={syncing || adminPass !== MASTER_KEY} 
+                            style={{
+                                display: 'flex', alignItems: 'center', gap: 8,
+                                fontSize: 14, fontWeight: 500, padding: '10px 20px',
+                                borderRadius: 8, border: 'none', 
+                                background: adminPass === MASTER_KEY ? '#059669' : '#9ca3af',
+                                color: '#fff', 
+                                cursor: (syncing || adminPass !== MASTER_KEY) ? 'not-allowed' : 'pointer', 
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path d="M23 4v6h-6M1 20v-6h6" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                            </svg>
+                            {syncing ? 'Syncing...' : (adminPass === MASTER_KEY ? 'Sync Now' : 'Locked')}
+                        </button>
+                    </div>
                 </div>
 
                 <StatCards
-                    lastSync={latest?.started_at ? fmt(latest.started_at) : null}
-                    totalRecords={logs.reduce((sum, l) => sum + (l.count_new || 0), 0)}
-                    newToday={latest?.count_new ?? 0}
+                    lastSync={latest?.startedAt ? fmt(latest.startedAt) : null}
+                    totalRecords={logs.reduce((sum, l) => sum + (l.countNew || 0), 0)}
+                    newToday={latest?.countNew   ?? 0}
                 />
 
                 <AutoRefresh onRefresh={fetchData} interval={30} />
