@@ -1,65 +1,92 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
-import crypto from 'crypto' 
+import { PrismaClient } from '@prisma/client'
+import crypto from 'crypto'
+import { verifyJWT } from '@/lib/auth' // ดึงเครื่องมือถอดรหัสของแบงค์มาใช้
 
-const createKeySchema = z.object({
-  name: z.string().min(1, 'กรุณากรอกชื่อ API Key'),
-})
+const prisma = new PrismaClient()
 
-// ดึงข้อมูล API Key ทั้งหมดของผู้ใช้
-export async function GET(request: NextRequest) {
+const generateApiKey = () => {
+  const buffer = crypto.randomBytes(24)
+  return `sk_live_${buffer.toString('hex')}`
+}
+
+export async function POST(req: NextRequest) {
   try {
-    // ใส่ ID ของ test@gmail.com ไว้ให้เทสก่อน พอเชื่อม Auth เสร็จค่อยมาแก้ตรงนี้
-    const currentUserId = 'cmoh4f3cc000013va3ah2ynr4'; 
+    // 1. ดึงบัตรผ่านจาก Cookie เหมือนที่ Middleware ทำ
+    const token = req.cookies.get('accessToken')?.value
 
-    const apiKeys = await prisma.apiKey.findMany({
-      where: { userId: currentUserId }, // แก้เป็น camelCase ตามกฎ Prisma
-      orderBy: { createdAt: 'desc' }    // แก้เป็น camelCase ตามกฎ Prisma
-    });
+    if (!token) {
+      return NextResponse.json({ error: 'ไม่พบ Cookie บัตรผ่าน' }, { status: 401 })
+    }
 
-    return NextResponse.json({ apiKeys });
-  } catch (error) {
-    console.error('Get API keys error:', error)
-    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการดึง API keys' }, { status: 500 })
+    // 2. ถอดรหัสบัตรผ่านเพื่อเอาข้อมูล User
+    const decodedPayload = await verifyJWT(token)
+    
+    // เช็คว่าถอดรหัสสำเร็จไหม และมี userId อยู่ข้างในหรือเปล่า
+    if (!decodedPayload || !decodedPayload.userId) { 
+      return NextResponse.json({ error: 'บัตรผ่านปลอมหรือหมดอายุ' }, { status: 401 })
+    }
+
+    const currentUserId = decodedPayload.userId // ได้ ID ของแท้มาแล้ว!
+
+    // 3. รับชื่อคีย์จากหน้าเว็บ
+    const body = await req.json().catch(() => ({}))
+    const { name } = body
+
+    // 4. สร้างคีย์ผูกกับผู้ใช้คนนี้ลง Database
+    const rawKey = generateApiKey()
+    const newApiKey = await prisma.apiKey.create({
+      data: {
+        key: rawKey,
+        name: name || 'API Key ของฉัน',
+        userId: currentUserId, 
+        isActive: true,
+      }
+    })
+
+    return NextResponse.json({
+      message: 'สร้าง API Key สำเร็จ!',
+      data: { id: newApiKey.id, key: rawKey, name: newApiKey.name }
+    }, { status: 201 })
+
+  } catch (error: any) {
+    console.error('สร้างคีย์พัง:', error)
+    return NextResponse.json({ error: 'ระบบขัดข้อง' }, { status: 500 })
   }
 }
 
-// สร้าง API Key ใหม่ลง Database
-export async function POST(request: NextRequest) {
+// --- เพิ่มโค้ดส่วนนี้ต่อท้ายไฟล์เดิม ---
+
+export async function GET(req: NextRequest) {
   try {
-    const body = await request.json()
-    const { name } = createKeySchema.parse(body)
-    
-    // ใส่ ID ของ test@gmail.com ไว้ให้เทสก่อน
-    const currentUserId = 'cmoh4f3cc000013va3ah2ynr4'; 
+    // 1. ตรวจบัตรผ่าน (เหมือนตอน POST เป๊ะ)
+    const token = req.cookies.get('accessToken')?.value
 
-    // สุ่มสร้าง API Key (ใช้อักษรฐาน 16 ความยาว 32 ตัวอักษร)
-    const rawKey = `sk_live_${crypto.randomBytes(16).toString('hex')}`
-
-    // บันทึกลงตาราง api_keys
-    const newApiKey = await prisma.apiKey.create({
-      data: {
-        name: name,
-        key: rawKey, 
-        userId: currentUserId, 
-        isActive: true, 
-      }
-    });
-
-    // ส่วนที่หายไป: ต้อง return ค่ากลับไปบอกหน้าเว็บว่าสำเร็จแล้ว
-    return NextResponse.json({
-      message: 'สร้าง API key สำเร็จ',
-      apiKey: newApiKey,
-    })
-
-  // ส่วนที่หายไป: บล็อก catch สำหรับดักจับ Error
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: 'ข้อมูลไม่ถูกต้อง', details: error.issues }, { status: 400 })
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    console.error('Create API key error:', error)
-    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการสร้าง API key' }, { status: 500 })
+    const decodedPayload = await verifyJWT(token)
+    
+    if (!decodedPayload || !decodedPayload.userId) { 
+      return NextResponse.json({ error: 'บัตรผ่านไม่ถูกต้อง' }, { status: 401 })
+    }
+
+    // 2. ไปดึง API Keys จาก Database เฉพาะของ User คนนี้ (userId ตรงกัน)
+    const keys = await prisma.apiKey.findMany({
+      where: {
+        userId: decodedPayload.userId
+      },
+      orderBy: {
+        createdAt: 'desc' // เอาอันใหม่ขึ้นก่อน
+      }
+    })
+
+    // 3. ส่งกลับไปให้หน้าบ้าน (ใช้ชื่อ apiKeys ให้ตรงกับหน้าบ้านที่เขียนไว้)
+    return NextResponse.json({ apiKeys: keys })
+
+  } catch (error) {
+    console.error('ดึงข้อมูลคีย์พัง:', error)
+    return NextResponse.json({ error: 'ไม่สามารถดึงข้อมูลได้' }, { status: 500 })
   }
 }

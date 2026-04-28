@@ -44,38 +44,44 @@ export default function ApiKeysPage() {
     }
   }
 
-  const createKey = async () => {
-    if (!newKeyName.trim()) return
+const createKey = async () => {
+  if (!newKeyName.trim()) return
 
-    setIsCreating(true)
-    setError('')
+  setIsCreating(true)
+  setError('')
 
-    try {
-      const response = await fetch('/api/keys', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newKeyName.trim() }),
-      })
+  try {
+    const response = await fetch('/api/keys', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: newKeyName.trim() }),
+    })
 
-      if (response.status === 401) {
-        router.push('/login')
-        return
-      }
-
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
-
-      setKeys([...keys, data.apiKey])
-      setNewKeyName('')
-    } catch (error) {
-      console.error('Error creating key:', error)
-      setError(error instanceof Error ? error.message : 'ไม่สามารถสร้าง API key ได้')
-    } finally {
-      setIsCreating(false)
+    if (response.status === 401) {
+      router.push('/login')
+      return
     }
+
+    const result = await response.json() // เปลี่ยนชื่อตัวแปรเป็น result จะได้ไม่สับสนกับ data ข้างใน
+    if (!response.ok) throw new Error(result.error || 'สร้างไม่สำเร็จ')
+
+    // ✅ แก้จาก data.apiKey เป็น result.data ให้ตรงกับ Backend
+    if (result && result.data) {
+      setKeys([...keys, result.data])
+      setNewKeyName('')
+    } else {
+      // ถ้าโครงสร้างมาแปลกๆ ให้โหลดใหม่ทั้งหมดเพื่อความชัวร์
+      fetchKeys()
+    }
+  } catch (error) {
+    console.error('Error creating key:', error)
+    setError(error instanceof Error ? error.message : 'ไม่สามารถสร้าง API key ได้')
+  } finally {
+    setIsCreating(false)
   }
+}
 
   const deleteKey = async (id: string) => {
     if (!confirm('คุณต้องการลบ API key นี้หรือไม่?')) return
