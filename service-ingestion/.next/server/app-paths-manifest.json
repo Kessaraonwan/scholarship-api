@@ -1,6 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/api/admin/ingestion/logs/route": "app/api/admin/ingestion/logs/route.js",
-  "/api/admin/ingestion/route": "app/api/admin/ingestion/route.js",
-  "/admin/ingestion/page": "app/admin/ingestion/page.js"
-}
