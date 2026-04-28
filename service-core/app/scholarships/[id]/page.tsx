@@ -12,7 +12,7 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react"
-import { getScholarshipById, getRelatedScholarships } from "@/lib/scholarships-data"
+import { prisma } from "@/lib/prisma"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -20,13 +20,22 @@ interface PageProps {
 
 export default async function ScholarshipDetailPage({ params }: PageProps) {
   const { id } = await params
-  const scholarship = getScholarshipById(id)
+  const scholarship = await prisma.scholarship.findUnique({
+    where: { id },
+  })
 
   if (!scholarship) {
     notFound()
   }
 
-  const relatedScholarships = getRelatedScholarships(scholarship)
+  const relatedScholarships = await prisma.scholarship.findMany({
+    where: {
+      NOT: { id: scholarship.id },
+      OR: [{ level: scholarship.level }, { field: scholarship.field }],
+    },
+    take: 3,
+    orderBy: { createdAt: "desc" },
+  })
 
   const daysUntilDeadline = Math.ceil(
     (new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
@@ -105,7 +114,9 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">หมดเขต</p>
-              <p className="font-medium text-foreground">{scholarship.deadline}</p>
+              <p className="font-medium text-foreground">
+                {scholarship.deadline ? scholarship.deadline.toLocaleDateString("th-TH") : "ไม่ระบุ"}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -116,9 +127,7 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
         <Card className="mb-8">
           <CardContent className="py-6 text-center">
             <p className="text-sm text-muted-foreground">มูลค่าทุน</p>
-            <p className="text-3xl font-bold text-primary">
-              {scholarship.amount.toLocaleString()} {scholarship.currency}
-            </p>
+            <p className="text-3xl font-bold text-primary">{scholarship.amount.toLocaleString()} {scholarship.currency}</p>
           </CardContent>
         </Card>
       )}
@@ -129,14 +138,14 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
           <CardTitle>รายละเอียดทุน</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="leading-relaxed text-muted-foreground">{scholarship.description}</p>
+          <p className="leading-relaxed text-muted-foreground">{scholarship.description || "ไม่มีรายละเอียด"}</p>
         </CardContent>
       </Card>
 
       {/* CTA Button */}
       <div className="mb-12">
         <Button size="lg" className="w-full sm:w-auto" asChild>
-          <a href={scholarship.source} target="_blank" rel="noopener noreferrer">
+          <a href={scholarship.url} target="_blank" rel="noopener noreferrer">
             สมัครทุนนี้
             <ExternalLink className="ml-2 h-4 w-4" />
           </a>

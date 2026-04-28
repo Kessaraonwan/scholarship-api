@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model NotificationRule {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  triggers  Json
+  channels  Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  logs NotificationLog[]
+}
+
+model Webhook {
+  id        String   @id @default(cuid())
+  userId    String
+  url       String
+  events    Json
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NotificationLog {
+  id              String    @id @default(cuid())
+  ruleId          String?
+  userId          String
+  scholarshipId   String?
+  scholarshipName String?
+  channel         String
+  status          String
+  sentAt          DateTime  @default(now())
+  deliveredAt     DateTime?
+  errorMessage    String?
+
+  rule NotificationRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([ruleId])
+  @@index([sentAt])
+}
+

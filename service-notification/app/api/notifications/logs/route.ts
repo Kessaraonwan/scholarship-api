@@ -1,28 +1,4 @@
-// Mock notification logs
-const notificationLogs: any[] = [
-  {
-    id: "log-1",
-    ruleId: "rule-1",
-    userId: "user-123",
-    scholarshipId: "scholarship-abc",
-    scholarshipName: "Thailand Digital Scholarship 2026",
-    channel: "email",
-    status: "sent",
-    sentAt: new Date(Date.now() - 3600000).toISOString(),
-    deliveredAt: new Date(Date.now() - 3595000).toISOString(),
-  },
-  {
-    id: "log-2",
-    ruleId: "rule-1",
-    userId: "user-123",
-    scholarshipId: "scholarship-def",
-    scholarshipName: "Merit-based IT Award",
-    channel: "webhook",
-    status: "delivered",
-    sentAt: new Date(Date.now() - 7200000).toISOString(),
-    deliveredAt: new Date(Date.now() - 7190000).toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
 // GET /api/notifications/logs - Get notification delivery logs
 export async function GET(request: Request) {
@@ -33,18 +9,23 @@ export async function GET(request: Request) {
   const limit = parseInt(searchParams.get("limit") || "10")
   const offset = (page - 1) * limit
 
-  let filtered = [...notificationLogs]
+  const where: Record<string, string> = {}
 
   if (userId) {
-    filtered = filtered.filter(l => l.userId === userId)
+    where.userId = userId
   }
 
   if (ruleId) {
-    filtered = filtered.filter(l => l.ruleId === ruleId)
+    where.ruleId = ruleId
   }
 
-  const total = filtered.length
-  const paginatedLogs = filtered.slice(offset, offset + limit)
+  const total = await prisma.notificationLog.count({ where })
+  const paginatedLogs = await prisma.notificationLog.findMany({
+    where,
+    orderBy: { sentAt: 'desc' },
+    skip: offset,
+    take: limit,
+  })
 
   return Response.json({
     data: paginatedLogs,

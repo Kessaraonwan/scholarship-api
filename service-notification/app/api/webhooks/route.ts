@@ -1,19 +1,11 @@
-// Mock webhooks
-const webhooks: any[] = [
-  {
-    id: "webhook-1",
-    userId: "user-123",
-    url: "https://example.com/webhooks/notifications",
-    events: ["notification.sent", "notification.delivered"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
 // GET /api/webhooks - List user's webhooks
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get("userId")
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
 
   if (!userId) {
     return Response.json(
@@ -22,11 +14,18 @@ export async function GET(request: Request) {
     )
   }
 
-  const userWebhooks = webhooks.filter(w => w.userId === userId)
+  const where = { userId }
+  const total = await prisma.webhook.count({ where })
+  const userWebhooks = await prisma.webhook.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * limit,
+    take: limit,
+  })
 
   return Response.json({
     data: userWebhooks,
-    meta: { total: userWebhooks.length },
+    meta: { total, page, limit },
   })
 }
 
@@ -63,16 +62,14 @@ export async function POST(request: Request) {
       )
     }
 
-    const newWebhook = {
-      id: `webhook-${Date.now()}`,
-      userId,
-      url,
-      events,
-      active: true,
-      createdAt: new Date().toISOString(),
-    }
-
-    webhooks.push(newWebhook)
+    const newWebhook = await prisma.webhook.create({
+      data: {
+        userId,
+        url,
+        events,
+        active: true,
+      },
+    })
 
     return Response.json(
       { data: newWebhook },

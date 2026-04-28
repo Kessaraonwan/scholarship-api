@@ -117,7 +117,7 @@ export default function ScholarshipsPage() {
 
       if (response.ok) {
         setScholarships(data.data || [])
-        setTotalPages(data.pagination?.totalPages || 1)
+        setTotalPages(data.meta?.totalPages || 1)
       } else {
         console.error("API Error:", data.error)
         setScholarships([])

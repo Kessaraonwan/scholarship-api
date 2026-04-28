@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { SiteNavbar } from '@/components/site-navbar'
+import { SiteFooter } from '@/components/site-footer'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,9 +26,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="th">
       <body className={inter.variable}>
-        {children}
+        <div className="flex min-h-screen flex-col bg-slate-50 text-slate-900">
+          <SiteNavbar />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
+        </div>
       </body>
     </html>
   )

@@ -97,6 +97,18 @@ docker-compose up
 
 ---
 
+## API Health Checklist
+
+ทุก service ต้องมี:
+
+- `GET /api/health`
+
+และ `service-landing` ต้องมี:
+
+- `GET /api/status` (aggregate health จากทุก service)
+
+---
+
 ## โครงสร้าง
 
 ```
@@ -171,12 +183,49 @@ Authorization: Bearer <api_key>
 
 | Service | Endpoint ขั้นต่ำ |
 |---------|------------------|
-| service-auth | `POST /auth/register`, `POST /auth/login`, `GET /keys`, `POST /keys`, `DELETE /keys/:id`, `GET /usage` |
-| service-core | `GET /scholarships`, `GET /scholarships/:id`, `GET /scholarships/upcoming` |
-| service-notification | `GET /notifications`, `POST /notifications`, `PATCH /notifications/:id`, `GET /notifications/logs` |
-| service-analytics | `GET /analytics/overview`, `POST /match` |
-| service-ingestion | `GET /admin/ingestion`, `POST /admin/ingestion/sync`, `GET /admin/ingestion/logs` |
-| service-landing | `GET /status` |
+| service-auth | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/keys/verify`, `GET /api/keys`, `POST /api/keys`, `GET /api/usage-logs` |
+| service-core | `GET /api/scholarships`, `GET /api/scholarships/:id`, `GET /api/scholarships/upcoming`, `POST /api/scholarships/batch` (internal) |
+| service-notification | `GET /api/notifications`, `POST /api/notifications`, `PUT /api/notifications/:id`, `GET /api/notifications/logs`, `POST /api/internal/trigger` (internal) |
+| service-analytics | `GET /api/analytics/overview`, `POST /api/match` |
+| service-ingestion | `GET /api/admin/ingestion`, `POST /api/admin/ingestion/sync`, `GET /api/admin/ingestion/logs`, `POST /api/ingest` |
+| service-landing | `GET /api/status` |
+
+---
+
+## Smoke Test (cURL)
+
+> หลังจาก `docker-compose up` ให้ใช้ชุดคำสั่งนี้เช็กว่า cross-service ใช้งานได้
+
+```bash
+# 1) Health ทุก service
+curl http://localhost:3000/api/health
+curl http://localhost:3001/api/health
+curl http://localhost:3002/api/health
+curl http://localhost:3003/api/health
+curl http://localhost:3004/api/health
+curl http://localhost:3005/api/health
+
+# 2) Landing aggregate status
+curl http://localhost:3000/api/status
+
+# 3) Register + Login (auth)
+curl -X POST http://localhost:3001/api/auth/register -H "Content-Type: application/json" -d "{\"email\":\"demo@example.com\",\"password\":\"12345678\",\"firstName\":\"Demo\",\"lastName\":\"User\"}"
+curl -X POST http://localhost:3001/api/auth/login -H "Content-Type: application/json" -d "{\"email\":\"demo@example.com\",\"password\":\"12345678\"}"
+
+# 4) Verify API key (แทนค่า <API_KEY>)
+curl -X POST http://localhost:3001/api/keys/verify -H "Content-Type: application/json" -d "{\"key\":\"<API_KEY>\"}"
+
+# 5) Core endpoints (แทนค่า <API_KEY>)
+curl "http://localhost:3003/api/scholarships?page=1&limit=10" -H "x-api-key: <API_KEY>"
+curl "http://localhost:3003/api/scholarships/upcoming?page=1&limit=10&days=90" -H "x-api-key: <API_KEY>"
+
+# 6) Analytics (ต้องเป็น Pro tier)
+curl "http://localhost:3004/api/analytics/overview" -H "x-api-key: <API_KEY>"
+curl -X POST http://localhost:3004/api/match -H "Content-Type: application/json" -H "x-api-key: <API_KEY>" -d "{\"level\":\"ปริญญาโท\",\"fields\":[\"IT\"],\"countries\":[\"Japan\"]}"
+
+# 7) Internal trigger (ใช้ secret)
+curl -X POST http://localhost:3005/api/internal/trigger -H "Content-Type: application/json" -H "X-Internal-Secret: internal-secret-key" -d "{\"newScholarships\":[{\"id\":\"sch_test_1\",\"name\":\"Test Scholarship\",\"level\":\"ปริญญาโท\",\"field\":\"IT\",\"country\":\"Japan\"}]}"
+```
 
 ---
 

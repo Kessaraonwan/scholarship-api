@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,59 +8,44 @@ import { Button } from "@/components/ui/button"
 interface NotificationLog {
   id: string
   scholarshipName: string
-  type: "email" | "webhook"
-  status: "success" | "failed"
-  timestamp: string
-  details: string
+  channel: "email" | "webhook"
+  status: "delivered" | "failed" | "sent"
+  sentAt: string
+  errorMessage?: string | null
 }
 
-const logs: NotificationLog[] = [
-  {
-    id: "1",
-    scholarshipName: "ทุน DAAD",
-    type: "email",
-    status: "success",
-    timestamp: "2025-01-20 10:30",
-    details: "ส่งไปที่ user@example.com สำเร็จ",
-  },
-  {
-    id: "2",
-    scholarshipName: "ทุน Chevening",
-    type: "webhook",
-    status: "failed",
-    timestamp: "2025-01-20 09:15",
-    details: "Webhook timeout",
-  },
-  {
-    id: "3",
-    scholarshipName: "ทุน กยศ.",
-    type: "email",
-    status: "success",
-    timestamp: "2025-01-19 14:22",
-    details: "ส่งไปที่ user@example.com สำเร็จ",
-  },
-  {
-    id: "4",
-    scholarshipName: "ทุน JASSO",
-    type: "email",
-    status: "success",
-    timestamp: "2025-01-19 11:05",
-    details: "ส่งไปที่ user@example.com สำเร็จ",
-  },
-  {
-    id: "5",
-    scholarshipName: "ทุน Fulbright",
-    type: "webhook",
-    status: "failed",
-    timestamp: "2025-01-18 16:45",
-    details: "Connection refused",
-  },
-]
-
-type FilterStatus = "all" | "success" | "failed"
+type FilterStatus = "all" | "delivered" | "failed"
 
 export default function NotificationLogsPage() {
+  const [logs, setLogs] = useState<NotificationLog[]>([])
   const [filter, setFilter] = useState<FilterStatus>("all")
+  const [userId, setUserId] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    const uid = localStorage.getItem("user_id") || "user-123"
+    setUserId(uid)
+  }, [])
+
+  useEffect(() => {
+    async function load() {
+      if (!userId) return
+      setIsLoading(true)
+      setError("")
+      try {
+        const response = await fetch(`/api/notifications/logs?userId=${encodeURIComponent(userId)}&page=1&limit=100`)
+        const payload = await response.json()
+        if (!response.ok) throw new Error(payload.error || "โหลด logs ไม่สำเร็จ")
+        setLogs(payload.data || [])
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "โหลด logs ไม่สำเร็จ")
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    load()
+  }, [userId])
 
   const filteredLogs = logs.filter((log) => {
     if (filter === "all") return true
@@ -86,9 +71,9 @@ export default function NotificationLogsPage() {
           ทั้งหมด
         </Button>
         <Button
-          variant={filter === "success" ? "default" : "outline"}
+          variant={filter === "delivered" ? "default" : "outline"}
           size="sm"
-          onClick={() => setFilter("success")}
+          onClick={() => setFilter("delivered")}
         >
           สำเร็จ
         </Button>
@@ -102,13 +87,20 @@ export default function NotificationLogsPage() {
       </div>
 
       {/* Logs Table */}
+      {error && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       <Card>
         <CardHeader>
           <CardTitle>ประวัติการแจ้งเตือน</CardTitle>
           <CardDescription>รายการการส่งการแจ้งเตือนล่าสุด</CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredLogs.length === 0 ? (
+          {isLoading ? (
+            <p className="text-center text-muted-foreground">กำลังโหลด...</p>
+          ) : filteredLogs.length === 0 ? (
             <p className="text-center text-muted-foreground">ไม่พบประวัติการแจ้งเตือน</p>
           ) : (
             <div className="overflow-x-auto">
@@ -138,25 +130,25 @@ export default function NotificationLogsPage() {
                       <td className="py-4 font-medium text-foreground">{log.scholarshipName}</td>
                       <td className="py-4">
                         <Badge
-                          variant={log.type === "email" ? "secondary" : "outline"}
+                          variant={log.channel === "email" ? "secondary" : "outline"}
                           className="capitalize"
                         >
-                          {log.type}
+                          {log.channel}
                         </Badge>
                       </td>
                       <td className="py-4">
                         <Badge
                           className={
-                            log.status === "success"
+                            log.status === "delivered"
                               ? "bg-green-100 text-green-800 hover:bg-green-100"
                               : "bg-red-100 text-red-800 hover:bg-red-100"
                           }
                         >
-                          {log.status === "success" ? "สำเร็จ" : "ล้มเหลว"}
+                          {log.status === "delivered" ? "สำเร็จ" : "ล้มเหลว"}
                         </Badge>
                       </td>
-                      <td className="py-4 text-sm text-muted-foreground">{log.timestamp}</td>
-                      <td className="py-4 text-sm text-muted-foreground">{log.details}</td>
+                      <td className="py-4 text-sm text-muted-foreground">{new Date(log.sentAt).toLocaleString("th-TH")}</td>
+                      <td className="py-4 text-sm text-muted-foreground">{log.errorMessage || "-"}</td>
                     </tr>
                   ))}
                 </tbody>

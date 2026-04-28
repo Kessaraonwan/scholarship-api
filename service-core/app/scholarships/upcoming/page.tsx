@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, MapPin, GraduationCap, Briefcase } from "lucide-react"
-import { getUpcomingScholarships } from "@/lib/scholarships-data"
+import { prisma } from "@/lib/prisma"
 
 function getDaysRemaining(deadline: string): number {
   return Math.ceil(
@@ -16,8 +16,20 @@ function getDeadlineBadgeColor(days: number): string {
   return "bg-green-500 text-white hover:bg-green-500"
 }
 
-export default function UpcomingScholarshipsPage() {
-  const upcomingScholarships = getUpcomingScholarships(90)
+export default async function UpcomingScholarshipsPage() {
+  const today = new Date()
+  const within90Days = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000)
+  const upcomingScholarships = await prisma.scholarship.findMany({
+    where: {
+      deadline: {
+        gte: today,
+        lte: within90Days,
+      },
+    },
+    orderBy: {
+      deadline: "asc",
+    },
+  })
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
@@ -38,7 +50,8 @@ export default function UpcomingScholarshipsPage() {
       ) : (
         <div className="space-y-4">
           {upcomingScholarships.map((scholarship) => {
-            const daysRemaining = getDaysRemaining(scholarship.deadline)
+            const deadlineValue = scholarship.deadline ? scholarship.deadline.toISOString() : today.toISOString()
+            const daysRemaining = getDaysRemaining(deadlineValue)
             return (
               <Link key={scholarship.id} href={`/scholarships/${scholarship.id}`}>
                 <Card className="transition-shadow hover:shadow-lg">
@@ -68,7 +81,7 @@ export default function UpcomingScholarshipsPage() {
                       </div>
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Calendar className="h-4 w-4" />
-                        <span>หมดเขต: {scholarship.deadline}</span>
+                        <span>หมดเขต: {scholarship.deadline ? scholarship.deadline.toLocaleDateString("th-TH") : "ไม่ระบุ"}</span>
                       </div>
                     </div>
                     {scholarship.amount && (

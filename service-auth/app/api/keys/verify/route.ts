@@ -43,8 +43,7 @@ export async function POST(req: NextRequest) {
         id: apiKey.userId,
         email: apiKey.user.email,
         role: apiKey.user.role,
-        // TODO: implement real plan/tier (free/pro) once billing is wired
-        tier: 'free',
+        tier: apiKey.user.role === 'admin' ? 'pro' : 'free',
       },
       apiKey: {
         id: apiKey.id,

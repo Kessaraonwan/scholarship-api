@@ -1,6 +1,8 @@
-﻿import type { Metadata } from 'next'
+import type { Metadata } from 'next'
 import { Inter } from 'next/font/google' // เพิ่ม Font Inter
 import './globals.css'
+import { SiteNavbar } from '@/components/site-navbar'
+import { SiteFooter } from '@/components/site-footer'
 
 // ตั้งค่า Font
 const inter = Inter({
@@ -27,11 +29,10 @@ export default function RootLayout({
   return (
     <html lang="th" className={`${inter.variable}`}>
       <body className={`${inter.className} antialiased bg-slate-50 text-slate-900`}>
-        {/* antialiased: ช่วยให้ตัวหนังสือดูคมชัดขึ้นบน Mac/Windows
-            bg-slate-50: เปลี่ยนจากขาวจั๊วะเป็นเทาอ่อนๆ ช่วยให้ UI ดูแพงและสบายตา
-        */}
         <div className="relative flex min-h-screen flex-col">
-          {children}
+          <SiteNavbar />
+          <main className="flex-1">{children}</main>
+          <SiteFooter />
         </div>
       </body>
     </html>

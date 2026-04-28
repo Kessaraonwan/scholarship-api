@@ -18,49 +18,40 @@ const statusStyle = {
 }
 
 export default function LogTable({ logs }: LogTableProps) {
-    const fmt = (iso: string) =>
-        new Date(iso).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+  const fmt = (iso: string) =>
+    new Date(iso).toLocaleString('th-TH', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
 
-    return (
-        <div style={{ background: '#fff', border: '0.5px solid #e5e7eb', borderRadius: 12, padding: '1.25rem' }}>
-            <div style={{ fontSize: 16, fontWeight: 500, color: '#111', marginBottom: 4 }}>Ingestion Logs</div>
-            <div style={{ fontSize: 13, color: '#6b7280', marginBottom: '1rem' }}>ประวัติการนำเข้าข้อมูลล่าสุด</div>
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="mb-1 text-base font-semibold text-slate-900">Ingestion Logs</div>
+      <div className="mb-4 text-sm text-slate-600">ประวัติการนำเข้าข้อมูลล่าสุด</div>
 
-            <div style={{
-                display: 'grid', gridTemplateColumns: '150px 1fr 110px 80px 1fr',
-                gap: 12, fontSize: 12, color: '#6b7280',
-                paddingBottom: 10, borderBottom: '0.5px solid #e5e7eb'
-            }}>
-                <span>Timestamp</span><span>Source</span><span>Status</span><span>Records</span><span>Message</span>
-            </div>
+      <div className="grid grid-cols-[150px_1fr_110px_80px_1fr] gap-3 border-b border-slate-200 pb-2 text-xs text-slate-500">
+        <span>Timestamp</span><span>Source</span><span>Status</span><span>Records</span><span>Message</span>
+      </div>
 
-            {logs.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2.5rem', color: '#9ca3af', fontSize: 14 }}>
-                    ยังไม่มี log
-                </div>
-            ) : logs.map(log => (
-                <div key={log.id} style={{
-                    display: 'grid', gridTemplateColumns: '150px 1fr 110px 80px 1fr',
-                    gap: 12, padding: '12px 0',
-                    borderBottom: '0.5px solid #f3f4f6',
-                    fontSize: 13, alignItems: 'center'
-                }}>
-                    <span style={{ color: '#6b7280', fontSize: 12 }}>{fmt(log.started_at)}</span>
-                    <span style={{ fontWeight: 500, color: '#111' }}>{log.source}</span>
-                    <span>
-                        <span style={{
-                            fontSize: 11, padding: '3px 10px', borderRadius: 20,
-                            display: 'inline-flex', alignItems: 'center', gap: 5, fontWeight: 500,
-                            ...statusStyle[log.status]
-                        }}>
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
-                            {log.status}
-                        </span>
-                    </span>
-                    <span style={{ color: '#111' }}>{log.count_new > 0 ? `+${log.count_new}` : '-'}</span>
-                    <span style={{ color: '#6b7280', fontSize: 12 }}>{log.error_msg || `+${log.count_new} records`}</span>
-                </div>
-            ))}
+      {logs.length === 0 ? (
+        <div className="py-10 text-center text-sm text-slate-400">ยังไม่มี log</div>
+      ) : logs.map((log) => (
+        <div
+          key={log.id}
+          className="grid grid-cols-[150px_1fr_110px_80px_1fr] items-center gap-3 border-b border-slate-100 py-3 text-sm"
+        >
+          <span className="text-xs text-slate-500">{fmt(log.started_at)}</span>
+          <span className="font-medium text-slate-900">{log.source}</span>
+          <span>
+            <span
+              style={statusStyle[log.status]}
+              className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-current" />
+              {log.status}
+            </span>
+          </span>
+          <span className="text-slate-900">{log.count_new > 0 ? `+${log.count_new}` : '-'}</span>
+          <span className="text-xs text-slate-500">{log.error_msg || `+${log.count_new} records`}</span>
         </div>
-    )
+      ))}
+    </div>
+  )
 }

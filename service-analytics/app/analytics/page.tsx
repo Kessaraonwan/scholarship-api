@@ -1,87 +1,121 @@
-'use client';
+'use client'
 
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
-import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import { useEffect, useMemo, useState } from 'react'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
+type OverviewPayload = {
+  data: {
+    totals: { scholarships: number; upcoming30Days: number }
+    breakdown: {
+      byCountry: Record<string, number>
+      byField: Record<string, number>
+      byLevel: Record<string, number>
+    }
+  }
+}
 
 export default function AnalyticsPage() {
-  // Sample data for analytics
-  const applicationData = {
-    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
-    datasets: [
-      {
-        label: 'จำนวนใบสมัคร',
-        data: [65, 59, 80, 81, 56, 55],
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-      },
-    ],
-  };
+  const [apiKey, setApiKey] = useState('')
+  const [payload, setPayload] = useState<OverviewPayload | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  const trendData = {
-    labels: ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.'],
-    datasets: [
-      {
-        label: 'การเข้าชมทุนการศึกษา',
-        data: [120, 150, 180, 200, 170, 190],
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      },
-    ],
-  };
+  useEffect(() => {
+    const saved = localStorage.getItem('user_api_key') || ''
+    setApiKey(saved)
+  }, [])
 
-  const categoryData = {
-    labels: ['ปริญญาตรี', 'บัณฑิตศึกษา', 'วิจัย', 'แลกเปลี่ยน'],
-    datasets: [
-      {
-        data: [300, 150, 100, 50],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 205, 86, 0.6)',
-          'rgba(75, 192, 192, 0.6)',
-        ],
-      },
-    ],
-  };
+  useEffect(() => {
+    async function load() {
+      if (!apiKey) return
+      setIsLoading(true)
+      setError('')
+      try {
+        const response = await fetch('/api/analytics/overview', {
+          headers: { 'x-api-key': apiKey },
+        })
+        const data = await response.json()
+        if (!response.ok) throw new Error(data.error || 'โหลด analytics ไม่สำเร็จ')
+        setPayload(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    load()
+  }, [apiKey])
+
+  const topCountries = useMemo(() => {
+    const entries = Object.entries(payload?.data?.breakdown?.byCountry || {})
+    return entries.sort((a, b) => b[1] - a[1]).slice(0, 5)
+  }, [payload])
+
+  const topFields = useMemo(() => {
+    const entries = Object.entries(payload?.data?.breakdown?.byField || {})
+    return entries.sort((a, b) => b[1] - a[1]).slice(0, 5)
+  }, [payload])
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">สถิติทุนการศึกษา</h1>
+    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <h1 className="mb-2 text-3xl font-bold">Analytics Overview</h1>
+      <p className="mb-6 text-slate-600">ดึงข้อมูลจริงจาก service-core ผ่าน service-analytics</p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">จำนวนใบสมัครทั้งหมด</h3>
-          <p className="text-2xl font-bold text-blue-600">1,247</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">ทุนการศึกษาที่เปิดรับ</h3>
-          <p className="text-2xl font-bold text-green-600">89</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h3 className="text-lg font-semibold mb-2">อัตราการผ่าน</h3>
-          <p className="text-2xl font-bold text-purple-600">23.4%</p>
-        </div>
+      <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4">
+        <label className="mb-2 block text-sm font-medium text-slate-700">API Key (Pro)</label>
+        <input
+          value={apiKey}
+          onChange={(e) => {
+            const value = e.target.value
+            setApiKey(value)
+            localStorage.setItem('user_api_key', value)
+          }}
+          placeholder="sk_live_xxx"
+          className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none ring-indigo-500 focus:ring"
+        />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">จำนวนใบสมัครรายเดือน</h2>
-          <Bar data={applicationData} />
-        </div>
+      {error && <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
+      {isLoading && <p className="text-sm text-slate-600">กำลังโหลดข้อมูล...</p>}
 
-        <div className="bg-white p-4 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-4">แนวโน้มการเข้าชมทุนการศึกษา</h2>
-          <Line data={trendData} />
-        </div>
-      </div>
+      {payload && (
+        <>
+          <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <p className="text-sm text-slate-500">Scholarships ทั้งหมด</p>
+              <p className="text-3xl font-bold text-indigo-600">{payload.data.totals.scholarships.toLocaleString()}</p>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <p className="text-sm text-slate-500">ใกล้หมดเขตใน 30 วัน</p>
+              <p className="text-3xl font-bold text-emerald-600">{payload.data.totals.upcoming30Days.toLocaleString()}</p>
+            </div>
+          </div>
 
-      <div className="mt-6 bg-white p-4 rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-4">จำนวนใบสมัครตามหมวดหมู่</h2>
-        <div className="w-full max-w-md mx-auto">
-          <Doughnut data={categoryData} />
-        </div>
-      </div>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="mb-3 text-lg font-semibold">Top Countries</h2>
+              <ul className="space-y-2 text-sm">
+                {topCountries.map(([name, value]) => (
+                  <li key={name} className="flex items-center justify-between rounded bg-slate-50 px-3 py-2">
+                    <span>{name}</span>
+                    <span className="font-semibold">{value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-white p-5">
+              <h2 className="mb-3 text-lg font-semibold">Top Fields</h2>
+              <ul className="space-y-2 text-sm">
+                {topFields.map(([name, value]) => (
+                  <li key={name} className="flex items-center justify-between rounded bg-slate-50 px-3 py-2">
+                    <span>{name}</span>
+                    <span className="font-semibold">{value}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </>
+      )}
     </div>
-  );
+  )
 }

@@ -1,14 +1,4 @@
-// Mock webhooks (shared with parent route.ts)
-const webhooks: any[] = [
-  {
-    id: "webhook-1",
-    userId: "user-123",
-    url: "https://example.com/webhooks/notifications",
-    events: ["notification.sent", "notification.delivered"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
 // GET /api/webhooks/[id] - Get specific webhook
 export async function GET(
@@ -16,7 +6,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   const { id } = params
-  const webhook = webhooks.find(w => w.id === id)
+  const webhook = await prisma.webhook.findUnique({ where: { id } })
 
   if (!webhook) {
     return Response.json(
@@ -34,17 +24,49 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   const { id } = params
-  const webhookIndex = webhooks.findIndex(w => w.id === id)
-
-  if (webhookIndex === -1) {
+  const existing = await prisma.webhook.findUnique({ where: { id } })
+  if (!existing) {
     return Response.json(
       { error: "Webhook not found" },
       { status: 404 }
     )
   }
 
-  const deletedWebhook = webhooks[webhookIndex]
-  webhooks.splice(webhookIndex, 1)
+  const deletedWebhook = await prisma.webhook.delete({ where: { id } })
 
   return Response.json({ data: deletedWebhook })
+}
+
+// PATCH /api/webhooks/[id] - Update webhook status/events/url
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    const { id } = params
+    const body = await request.json()
+    const existing = await prisma.webhook.findUnique({ where: { id } })
+    if (!existing) {
+      return Response.json(
+        { error: "Webhook not found" },
+        { status: 404 }
+      )
+    }
+
+    const updatedWebhook = await prisma.webhook.update({
+      where: { id },
+      data: {
+        url: body.url ?? undefined,
+        events: Array.isArray(body.events) ? body.events : undefined,
+        active: typeof body.active === 'boolean' ? body.active : undefined,
+      },
+    })
+
+    return Response.json({ data: updatedWebhook })
+  } catch (error) {
+    return Response.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    )
+  }
 }

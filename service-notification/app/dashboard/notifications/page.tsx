@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -12,78 +12,120 @@ import { Plus, Trash2 } from "lucide-react"
 
 interface NotificationRule {
   id: string
-  field: string
-  level: string
-  country: string
-  email: string
-  webhookUrl?: string
-  enabled: boolean
+  userId: string
+  name: string
+  triggers: {
+    scholarshipField?: string
+    scholarshipLevel?: string
+    country?: string
+  }
+  channels: string[]
+  active: boolean
+  createdAt: string
 }
-
-const initialRules: NotificationRule[] = [
-  {
-    id: "1",
-    field: "IT",
-    level: "ปริญญาโท",
-    country: "UK",
-    email: "user@example.com",
-    enabled: true,
-  },
-  {
-    id: "2",
-    field: "ทุกสาขา",
-    level: "ปริญญาตรี",
-    country: "ไทย",
-    email: "user@example.com",
-    webhookUrl: "https://webhook.example.com/notify",
-    enabled: false,
-  },
-]
 
 const fields = ["ทุกสาขา", "IT", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
 const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
 const countries = ["ทุกประเทศ", "ไทย", "UK", "US", "Japan", "Germany"]
 
 export default function NotificationsPage() {
-  const [rules, setRules] = useState<NotificationRule[]>(initialRules)
+  const [rules, setRules] = useState<NotificationRule[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [userId, setUserId] = useState("")
   const [newRule, setNewRule] = useState({
+    name: "",
     field: "",
     level: "",
     country: "",
-    email: "",
-    webhookUrl: "",
+    channels: ["email"] as string[],
   })
-  const isPro = false // Mock: change to true to enable webhook
 
-  const handleAddRule = () => {
-    if (!newRule.field || !newRule.level || !newRule.country || !newRule.email) return
+  useEffect(() => {
+    const savedUserId = localStorage.getItem("user_id") || "user-123"
+    setUserId(savedUserId)
+  }, [])
 
-    const rule: NotificationRule = {
-      id: Date.now().toString(),
-      field: newRule.field,
-      level: newRule.level,
-      country: newRule.country,
-      email: newRule.email,
-      webhookUrl: isPro ? newRule.webhookUrl : undefined,
-      enabled: true,
+  useEffect(() => {
+    async function loadRules() {
+      if (!userId) return
+      setIsLoading(true)
+      setError("")
+      try {
+        const response = await fetch(`/api/notifications?userId=${encodeURIComponent(userId)}&page=1&limit=50`)
+        const payload = await response.json()
+        if (!response.ok) throw new Error(payload.error || "โหลดกฎไม่สำเร็จ")
+        setRules(payload.data || [])
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "โหลดกฎไม่สำเร็จ")
+      } finally {
+        setIsLoading(false)
+      }
     }
+    loadRules()
+  }, [userId])
 
-    setRules([...rules, rule])
-    setNewRule({ field: "", level: "", country: "", email: "", webhookUrl: "" })
-    setShowForm(false)
+  const handleAddRule = async () => {
+    if (!userId || !newRule.name || !newRule.field || !newRule.level || !newRule.country) return
+
+    try {
+      const response = await fetch("/api/notifications", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          name: newRule.name,
+          triggers: {
+            scholarshipField: newRule.field,
+            scholarshipLevel: newRule.level,
+            country: newRule.country,
+          },
+          channels: newRule.channels,
+        }),
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "สร้างกฎไม่สำเร็จ")
+      setRules((prev) => [payload.data, ...prev])
+      setNewRule({
+        name: "",
+        field: "",
+        level: "",
+        country: "",
+        channels: ["email"],
+      })
+      setShowForm(false)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "สร้างกฎไม่สำเร็จ")
+    }
   }
 
-  const handleDeleteRule = (id: string) => {
-    setRules(rules.filter((rule) => rule.id !== id))
+  const handleDeleteRule = async (id: string) => {
+    try {
+      const response = await fetch(`/api/notifications/${id}`, { method: "DELETE" })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "ลบกฎไม่สำเร็จ")
+      setRules((prev) => prev.filter((rule) => rule.id !== id))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "ลบกฎไม่สำเร็จ")
+    }
   }
 
-  const handleToggleRule = (id: string) => {
-    setRules(
-      rules.map((rule) =>
-        rule.id === id ? { ...rule, enabled: !rule.enabled } : rule
-      )
-    )
+  const handleToggleRule = async (id: string) => {
+    const current = rules.find((rule) => rule.id === id)
+    if (!current) return
+    try {
+      const response = await fetch(`/api/notifications/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !current.active }),
+      })
+      const payload = await response.json()
+      if (!response.ok) throw new Error(payload.error || "อัปเดตกฎไม่สำเร็จ")
+      setRules((prev) => prev.map((rule) => (rule.id === id ? payload.data : rule)))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "อัปเดตกฎไม่สำเร็จ")
+    }
   }
 
   return (
@@ -101,6 +143,12 @@ export default function NotificationsPage() {
         </Button>
       </div>
 
+      {error && (
+        <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
+
       {/* Add New Rule Form */}
       {showForm && (
         <Card className="mb-8">
@@ -110,6 +158,15 @@ export default function NotificationsPage() {
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-2">
+                <Label>ชื่อกฎ</Label>
+                <Input
+                  placeholder="เช่น ทุนสาย IT ในญี่ปุ่น"
+                  value={newRule.name}
+                  onChange={(e) => setNewRule({ ...newRule, name: e.target.value })}
+                />
+              </div>
+
               <div className="space-y-2">
                 <Label>สาขาวิชา</Label>
                 <Select
@@ -168,31 +225,39 @@ export default function NotificationsPage() {
               </div>
 
               <div className="space-y-2">
-                <Label>อีเมล</Label>
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={newRule.email}
-                  onChange={(e) => setNewRule({ ...newRule, email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Webhook URL</Label>
-                  {!isPro && (
-                    <Badge variant="secondary" className="text-xs">
-                      Pro only
-                    </Badge>
-                  )}
+                <Label>Channels</Label>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newRule.channels.includes("email")}
+                      onChange={(e) =>
+                        setNewRule((prev) => ({
+                          ...prev,
+                          channels: e.target.checked
+                            ? [...new Set([...prev.channels, "email"])]
+                            : prev.channels.filter((c) => c !== "email"),
+                        }))
+                      }
+                    />
+                    email
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={newRule.channels.includes("webhook")}
+                      onChange={(e) =>
+                        setNewRule((prev) => ({
+                          ...prev,
+                          channels: e.target.checked
+                            ? [...new Set([...prev.channels, "webhook"])]
+                            : prev.channels.filter((c) => c !== "webhook"),
+                        }))
+                      }
+                    />
+                    webhook
+                  </label>
                 </div>
-                <Input
-                  type="url"
-                  placeholder="https://..."
-                  value={newRule.webhookUrl}
-                  onChange={(e) => setNewRule({ ...newRule, webhookUrl: e.target.value })}
-                  disabled={!isPro}
-                />
               </div>
             </div>
 
@@ -213,7 +278,9 @@ export default function NotificationsPage() {
           <CardDescription>รายการกฎที่คุณสร้างไว้</CardDescription>
         </CardHeader>
         <CardContent>
-          {rules.length === 0 ? (
+          {isLoading ? (
+            <p className="text-center text-muted-foreground">กำลังโหลด...</p>
+          ) : rules.length === 0 ? (
             <p className="text-center text-muted-foreground">ยังไม่มีกฎการแจ้งเตือน</p>
           ) : (
             <div className="space-y-4">
@@ -224,20 +291,18 @@ export default function NotificationsPage() {
                 >
                   <div className="flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{rule.field}</Badge>
-                      <Badge variant="outline">{rule.level}</Badge>
-                      <Badge variant="outline">{rule.country}</Badge>
+                      <Badge>{rule.name}</Badge>
+                      <Badge variant="outline">{rule.triggers?.scholarshipField || "ทุกสาขา"}</Badge>
+                      <Badge variant="outline">{rule.triggers?.scholarshipLevel || "ทุกระดับ"}</Badge>
+                      <Badge variant="outline">{rule.triggers?.country || "ทุกประเทศ"}</Badge>
                     </div>
                     <div className="mt-2 text-sm text-muted-foreground">
-                      <span>Email: {rule.email}</span>
-                      {rule.webhookUrl && (
-                        <span className="ml-4">Webhook: {rule.webhookUrl}</span>
-                      )}
+                      <span>Channels: {rule.channels?.join(", ") || "-"}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <Switch
-                      checked={rule.enabled}
+                      checked={rule.active}
                       onCheckedChange={() => handleToggleRule(rule.id)}
                     />
                     <Button

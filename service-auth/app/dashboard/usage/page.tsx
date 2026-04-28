@@ -1,13 +1,14 @@
-﻿'use client'
+'use client'
 
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useRouter } from 'next/navigation'
 
 interface UsageStats {
   totalRequests: number
   requestsToday: number
-  requestsThisMonth: number
-  averageResponseTime: number
+  successRequests: number
+  errorRequests: number
+  requestsThisPeriod: number
   errorRate: number
   topEndpoints: Array<{
     endpoint: string
@@ -18,6 +19,8 @@ interface UsageStats {
 export default function UsagePage() {
   const [stats, setStats] = useState<UsageStats | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const router = useRouter()
 
   useEffect(() => {
     fetchStats()
@@ -25,26 +28,37 @@ export default function UsagePage() {
 
   const fetchStats = async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await axios.get('/api/usage/stats')
-      // setStats(response.data)
-      
-      // Mock data
+      const response = await fetch('/api/usage-logs?limit=100&days=30')
+      if (response.status === 401) {
+        router.push('/login')
+        return
+      }
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error || 'โหลดข้อมูลไม่สำเร็จ')
+      }
+
+      const topEndpoints = Object.entries(data?.stats?.endpoints || {})
+        .map(([endpoint, count]) => ({ endpoint, count: Number(count) }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5)
+
+      const totalRequests = Number(data?.stats?.totalRequests || 0)
+      const errorRequests = Number(data?.stats?.errorRequests || 0)
+      const successRequests = Number(data?.stats?.successRequests || 0)
+
       setStats({
-        totalRequests: 15420,
-        requestsToday: 234,
-        requestsThisMonth: 5670,
-        averageResponseTime: 145,
-        errorRate: 2.3,
-        topEndpoints: [
-          { endpoint: '/api/auth/login', count: 1250 },
-          { endpoint: '/api/auth/register', count: 890 },
-          { endpoint: '/api/keys', count: 567 },
-          { endpoint: '/api/usage', count: 234 }
-        ]
+        totalRequests,
+        requestsToday: totalRequests,
+        requestsThisPeriod: totalRequests,
+        successRequests,
+        errorRequests,
+        errorRate: totalRequests > 0 ? Math.round((errorRequests / totalRequests) * 10000) / 100 : 0,
+        topEndpoints,
       })
     } catch (error) {
       console.error('Error fetching stats:', error)
+      setError(error instanceof Error ? error.message : 'ไม่สามารถโหลดข้อมูลได้')
     } finally {
       setIsLoading(false)
     }
@@ -61,7 +75,7 @@ export default function UsagePage() {
   if (!stats) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-500">ไม่สามารถหลดข้อมลสถิติได้</p>
+        <p className="text-gray-500">ไม่สามารถโหลดข้อมูลสถิติได้</p>
       </div>
     )
   }
@@ -69,6 +83,11 @@ export default function UsagePage() {
   return (
     <div className="px-4 py-6 sm:px-0">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">สถิติการใช้งาน API</h1>
+      {error && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white overflow-hidden shadow rounded-lg">
@@ -118,7 +137,7 @@ export default function UsagePage() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">เดือนนี้</dt>
-                  <dd className="text-lg font-medium text-gray-900">{stats.requestsThisMonth.toLocaleString()}</dd>
+                  <dd className="text-lg font-medium text-gray-900">{stats.requestsThisPeriod.toLocaleString()}</dd>
                 </dl>
               </div>
             </div>
@@ -163,6 +182,9 @@ export default function UsagePage() {
               </li>
             ))}
           </ul>
+          {stats.topEndpoints.length === 0 && (
+            <div className="px-6 py-10 text-center text-sm text-gray-500">ยังไม่มี usage log ในช่วงเวลาที่เลือก</div>
+          )}
         </div>
       </div>
     </div>

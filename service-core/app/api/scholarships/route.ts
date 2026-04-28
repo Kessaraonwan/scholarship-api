@@ -74,11 +74,11 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     data: scholarships,
-    pagination: {
-      currentPage: page,
-      totalPages: totalPages,
-      totalItems: totalItems,
-      itemsPerPage: limit
+    meta: {
+      total: totalItems,
+      page,
+      limit,
+      totalPages
     }
   })
 }

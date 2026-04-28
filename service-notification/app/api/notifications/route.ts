@@ -1,24 +1,11 @@
-// Mock data - ในอนาคตจะเชื่อม database
-const notificationRules: any[] = [
-  {
-    id: "rule-1",
-    userId: "user-123",
-    name: "IT Scholarships",
-    triggers: {
-      scholarshipLevel: "ปริญญาตรี",
-      scholarshipField: "IT",
-      country: "ไทย",
-    },
-    channels: ["email", "webhook"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
 // GET /api/notifications - List all rules for user
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const userId = searchParams.get("userId")
+  const page = parseInt(searchParams.get('page') || '1')
+  const limit = parseInt(searchParams.get('limit') || '20')
   
   if (!userId) {
     return Response.json(
@@ -27,13 +14,18 @@ export async function GET(request: Request) {
     )
   }
 
-  // Filter rules by userId
-  const userRules = notificationRules.filter(r => r.userId === userId)
-  const total = userRules.length
+  const where = { userId }
+  const total = await prisma.notificationRule.count({ where })
+  const userRules = await prisma.notificationRule.findMany({
+    where,
+    orderBy: { createdAt: 'desc' },
+    skip: (page - 1) * limit,
+    take: limit,
+  })
 
   return Response.json({
     data: userRules,
-    meta: { total },
+    meta: { total, page, limit },
   })
 }
 
@@ -43,24 +35,22 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { userId, name, triggers, channels } = body
 
-    if (!userId || !name || !triggers) {
+    if (!userId || !name || !triggers || !Array.isArray(channels || ['email'])) {
       return Response.json(
-        { error: "Missing required fields: userId, name, triggers" },
+        { error: "Missing required fields: userId, name, triggers, channels(array)" },
         { status: 400 }
       )
     }
 
-    const newRule = {
-      id: `rule-${Date.now()}`,
-      userId,
-      name,
-      triggers,
-      channels: channels || ["email"],
-      active: true,
-      createdAt: new Date().toISOString(),
-    }
-
-    notificationRules.push(newRule)
+    const newRule = await prisma.notificationRule.create({
+      data: {
+        userId,
+        name,
+        triggers,
+        channels: channels || ['email'],
+        active: true,
+      },
+    })
 
     return Response.json(
       { data: newRule },

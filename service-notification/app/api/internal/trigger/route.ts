@@ -1,27 +1,8 @@
-// POST /api/internal/trigger - Internal endpoint called by other services
-// This is called when service-core adds a new scholarship
-// It will check all notification rules and send notifications to matching users
-
-const notificationRules: any[] = [
-  {
-    id: "rule-1",
-    userId: "user-123",
-    name: "IT Scholarships",
-    triggers: {
-      scholarshipLevel: "ปริญญาตรี",
-      scholarshipField: "IT",
-      country: "ไทย",
-    },
-    channels: ["email", "webhook"],
-    active: true,
-  },
-]
-
-const notificationLogs: any[] = []
+import { prisma } from '@/lib/prisma'
 
 // Helper: Check if scholarship matches rule
 function matchesRule(scholarship: any, rule: any): boolean {
-  const { triggers } = rule
+  const triggers = (rule.triggers || {}) as Record<string, string>
   
   if (triggers.scholarshipLevel && triggers.scholarshipLevel !== scholarship.level && triggers.scholarshipLevel !== "ทุกระดับ") {
     return false
@@ -38,69 +19,108 @@ function matchesRule(scholarship: any, rule: any): boolean {
   return true
 }
 
-// Helper: Send notification
-async function sendNotification(userId: string, scholarship: any, channels: string[]): Promise<any> {
-  const logs = []
-
-  for (const channel of channels) {
-    const log = {
-      id: `log-${Date.now()}-${Math.random()}`,
-      userId,
-      scholarshipId: scholarship.id,
-      scholarshipName: scholarship.name,
-      channel,
-      status: "sent",
-      sentAt: new Date().toISOString(),
-    }
-
-    // Mock: simulate sending
-    if (channel === "email") {
-      console.log(`📧 Email sent to user ${userId} about ${scholarship.name}`)
-      log.status = "delivered"
-    } else if (channel === "webhook") {
-      console.log(`🔗 Webhook triggered for user ${userId}`)
-      // TODO: Actually call user's webhook URL
-      log.status = "delivered"
-    }
-
-    notificationLogs.push(log)
-    logs.push(log)
+async function sendWebhook(url: string, payload: unknown) {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!response.ok) {
+    throw new Error(`Webhook returned ${response.status}`)
   }
-
-  return logs
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { scholarship } = body
+    const secret = request.headers.get('x-internal-secret')
+    if (!process.env.INTERNAL_SECRET || secret !== process.env.INTERNAL_SECRET) {
+      return Response.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
-    if (!scholarship || !scholarship.id) {
+    const body = await request.json()
+    const scholarships = Array.isArray(body?.newScholarships)
+      ? body.newScholarships
+      : body?.scholarship
+        ? [body.scholarship]
+        : []
+
+    if (scholarships.length === 0) {
       return Response.json(
-        { error: "Missing scholarship data" },
+        { error: "Missing scholarship data (send scholarship or newScholarships[])" },
         { status: 400 }
       )
     }
 
-    // Check all active rules
-    const matchingRules = notificationRules.filter(rule => rule.active && matchesRule(scholarship, rule))
-    
-    const sentNotifications = []
+    const activeRules = await prisma.notificationRule.findMany({
+      where: { active: true },
+    })
 
-    for (const rule of matchingRules) {
-      const logs = await sendNotification(rule.userId, scholarship, rule.channels)
-      sentNotifications.push({
-        ruleId: rule.id,
-        userId: rule.userId,
-        logs,
-      })
+    let delivered = 0
+    const events: Array<{ scholarshipId: string; matchedRules: number }> = []
+
+    for (const scholarship of scholarships) {
+      if (!scholarship?.id) continue
+      const matchingRules = activeRules.filter((rule: (typeof activeRules)[number]) => matchesRule(scholarship, rule))
+      events.push({ scholarshipId: scholarship.id, matchedRules: matchingRules.length })
+
+      for (const rule of matchingRules) {
+        const channels = Array.isArray(rule.channels) ? (rule.channels as string[]) : ['email']
+        for (const channel of channels) {
+          let status = 'delivered'
+          let errorMessage: string | null = null
+
+          if (channel === 'webhook') {
+            const hooks = await prisma.webhook.findMany({
+              where: {
+                userId: rule.userId,
+                active: true,
+              },
+            })
+            for (const hook of hooks) {
+              const eventsAllowed = Array.isArray(hook.events) ? (hook.events as string[]) : []
+              if (!eventsAllowed.includes('notification.sent') && !eventsAllowed.includes('notification.delivered')) {
+                continue
+              }
+              try {
+                await sendWebhook(hook.url, {
+                  event: 'notification.sent',
+                  userId: rule.userId,
+                  scholarship,
+                  ruleId: rule.id,
+                  sentAt: new Date().toISOString(),
+                })
+              } catch (error) {
+                status = 'failed'
+                errorMessage = error instanceof Error ? error.message : 'Webhook delivery failed'
+              }
+            }
+          } else if (channel === 'email') {
+            // Placeholder for SMTP integration; mark as delivered and keep audit log in DB.
+            status = 'delivered'
+          }
+
+          await prisma.notificationLog.create({
+            data: {
+              ruleId: rule.id,
+              userId: rule.userId,
+              scholarshipId: scholarship.id,
+              scholarshipName: scholarship.name || null,
+              channel,
+              status,
+              deliveredAt: status === 'delivered' ? new Date() : null,
+              errorMessage,
+            },
+          })
+          delivered += 1
+        }
+      }
     }
 
     return Response.json({
       data: {
-        scholarshipId: scholarship.id,
-        matchedRules: matchingRules.length,
-        sentNotifications,
+        processedScholarships: scholarships.length,
+        delivered,
+        events,
       },
     })
   } catch (error) {
