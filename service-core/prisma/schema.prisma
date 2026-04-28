@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Scholarship {
+  id          String   @id @default(cuid())
+  name        String
+  level       String   // e.g., "undergraduate", "master", "phd"
+  field       String   // e.g., "engineering", "medicine", "business"
+  country     String
+  deadline    DateTime?
+  amount      Int?     // Amount in base units (e.g., cents for USD)
+  currency    String   @default("USD") // ISO 4217 currency code
+  url         String   @unique // Unique identifier to prevent duplicates
+  source      String   // Source of the scholarship (e.g., "chevening", "kyos")
+  description String?
+  
+  // Metadata for tracking and auditing
+  lastUpdated DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  
+  // Add a composite unique constraint for additional duplicate prevention
+  @@unique([name, source])
+  @@index([source])
+  @@index([deadline])
+  @@index([field])
+}
