@@ -1,12 +1,12 @@
 import { KyosScraper } from './scrapers/kyosScraper'
 import { CheveningScraper } from './scrapers/cheveningScraper'
-import { IngestionService } from './ingestionService'
+import { PrismaIngestionService } from './prismaIngestionService'
 
 export class SyncService {
-    private ingestionService: IngestionService
+    private ingestionService: PrismaIngestionService
 
     constructor() {
-        this.ingestionService = new IngestionService()
+        this.ingestionService = new PrismaIngestionService()
     }
 
     async syncAllSources(): Promise<{ totalNew: number; results: any[]; scholarships: any[] }> {

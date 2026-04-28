@@ -63,6 +63,32 @@ export async function POST(request: NextRequest) {
   let logId: string | null = null
 
   try {
+    // === STEP 0: Verify internal authentication ===
+    // Check x-internal-secret header to ensure only authorized internal services can call this endpoint
+    const internalSecret = request.headers.get('x-internal-secret')
+    const expectedSecret = process.env.INTERNAL_SECRET
+    
+    if (!expectedSecret) {
+      console.error('INTERNAL_SECRET environment variable not configured')
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Server configuration error'
+        },
+        { status: 500 }
+      )
+    }
+    
+    if (!internalSecret || internalSecret !== expectedSecret) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Unauthorized: Missing or invalid x-internal-secret header'
+        },
+        { status: 401 }
+      )
+    }
+
     // === STEP 1: Validate request ===
     // Parse JSON request body with error handling
     let body: any

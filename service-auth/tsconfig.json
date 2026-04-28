@@ -1,4 +1,4 @@
-﻿{
+{
   "compilerOptions": {
     "ignoreDeprecations": "5.0",
     "lib": [
@@ -19,13 +19,16 @@
     "jsx": "preserve",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./*"
+      ]
     },
     "plugins": [
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",

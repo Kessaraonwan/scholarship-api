@@ -11,7 +11,7 @@ import { Search, Calendar, MapPin, GraduationCap, Briefcase, Key, RefreshCw } fr
 import { type Scholarship } from "@/lib/scholarships-data"
 
 const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
-const fields = ["ทุกสาขา", "IT", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
+const fields = ["ทุกสาขา", "เทคโนโลยีสารสนเทศ", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
 const countries = ["ทุกประเทศ", "ไทย", "UK", "US", "Japan", "Germany"]
 
 // ... (ScholarshipCard และ ScholarshipSkeleton เหมือนเดิม)
@@ -203,6 +203,24 @@ export default function ScholarshipsPage() {
             <SelectContent>{countries.map((c) => (<SelectItem key={c} value={c}>{c}</SelectItem>))}</SelectContent>
           </Select>
         </div>
+
+        {/* ปุ่มล้างตัวกรอง */}
+        {(level !== "ทุกระดับ" || field !== "ทุกสาขา" || country !== "ทุกประเทศ" || search) && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSearch("")
+              setLevel("ทุกระดับ")
+              setField("ทุกสาขา")
+              setCountry("ทุกประเทศ")
+              setCurrentPage(1)
+            }}
+            className="w-full"
+          >
+            ล้างตัวกรองทุนที่ค้นหา</p>
+          <p className="mt-2 text-muted-foreground">ลองปรับเงื่อนไขการค้นหาหรือกดปุ่ม "ล้างตัวกรอง" เพื่อดูทุนทั้งหมด
+        )}
       </div>
 
       {/* Results */}

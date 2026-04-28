@@ -29,7 +29,7 @@ model Scholarship {
 }
 
 model ingestion_logs {
-  id           String    @id @default(dbgenerated("nextval('ingestion_logs_id_seq'::regclass)"))
+  id           String    @id @default(cuid())
   source       String
   status       String    @default("running")
   countNew     Int       @default(0)

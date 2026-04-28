@@ -15,10 +15,10 @@ export interface IngestionLog {
     id: string
     source: string
     status: 'success' | 'error' | 'running'
-    count_new: number
-    error_msg: string | null
-    started_at: string
-    finished_at: string | null
+    countNew: number
+    errorMsg: string | null
+    startedAt: string
+    finishedAt: string | null
 }
 
 export interface SyncResult {

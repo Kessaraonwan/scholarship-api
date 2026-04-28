@@ -11,8 +11,6 @@ COPY . .
 
 RUN mkdir -p public
 
-RUN npx prisma generate
-
 RUN npm run build --if-present
 
 # Production stage
@@ -26,6 +24,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/prisma ./prisma
 
 USER node
 
@@ -36,4 +35,4 @@ EXPOSE 3001
 
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["npm", "start"]
+CMD ["npx", "prisma", "migrate", "deploy", "&&", "npm", "start"]

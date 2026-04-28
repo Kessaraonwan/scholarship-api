@@ -1,0 +1,363 @@
+﻿docker :  Image scholarship-api-service-auth Building 
+At line:1 char:23
++ ... p 2>$null ; docker compose --progress=plain build service-auth servic ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ( Image scholars...-auth Building  
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image scholarship-api-service-core Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.10kB 0.0s done
+#1 DONE 0.0s
+
+#2 [service-core internal] load build definition from Dockerfile
+#2 transferring dockerfile:
+#2 transferring dockerfile: 1.00kB 0.3s done
+#2 ...
+
+#3 [service-auth internal] load build definition from Dockerfile
+#3 transferring dockerfile: 1.00kB 0.5s done
+#3 DONE 0.9s
+
+#2 [service-core internal] load build definition from Dockerfile
+#2 DONE 0.9s
+
+#4 [service-core internal] load metadata for docker.io/library/node:20-bullseye-slim
+#4 DONE 6.7s
+
+#5 [service-core internal] load .dockerignore
+#5 transferring context: 248B 0.1s done
+#5 DONE 0.2s
+
+#6 [service-auth internal] load .dockerignore
+#6 transferring context: 248B 0.1s done
+#6 DONE 0.3s
+
+#7 [service-auth internal] load build context
+#7 DONE 0.0s
+
+#8 [service-core internal] load build context
+#8 DONE 0.0s
+
+#9 [service-core builder 1/9] FROM docker.io/library/node:20-bullseye-slim@sha256:65ef49f7d24aefd012a7fc6f9a2b734bcc19e424976a81f60c86b47266ef5b28
+#9 resolve docker.io/library/node:20-bullseye-slim@sha256:65ef49f7d24aefd012a7fc6f9a2b734bcc19e424976a81f60c86b47266ef5b28
+#9 resolve docker.io/library/node:20-bullseye-slim@sha256:65ef49f7d24aefd012a7fc6f9a2b734bcc19e424976a81f60c86b47266ef5b28 0.2s done
+#9 resolve docker.io/library/node:20-bullseye-slim@sha256:65ef49f7d24aefd012a7fc6f9a2b734bcc19e424976a81f60c86b47266ef5b28 0.2s done
+#9 ...
+
+#8 [service-core internal] load build context
+#8 transferring context: 8.38kB 0.6s done
+#8 DONE 1.1s
+
+#7 [service-auth internal] load build context
+#7 transferring context: 7.52kB 0.4s done
+#7 DONE 1.3s
+
+#9 [service-core builder 1/9] FROM docker.io/library/node:20-bullseye-slim@sha256:65ef49f7d24aefd012a7fc6f9a2b734bcc19e424976a81f60c86b47266ef5b28
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 0B / 41.45MB 0.2s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 0B / 1.74MB 0.2s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 0B / 30.26MB 0.2s
+#9 sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a 0B / 4.07kB 0.2s
+#9 sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a 4.07kB / 4.07kB 3.1s done
+#9 sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a 4.07kB / 4.07kB 3.1s done
+#9 sha256:5ea4be67944bba4e57f54283469d9e9565e034cf873cc16c9c4478dcdd3afa8b 0B / 447B 0.2s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 0B / 41.45MB 5.3s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 0B / 1.74MB 5.3s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 0B / 30.26MB 5.3s
+#9 sha256:5ea4be67944bba4e57f54283469d9e9565e034cf873cc16c9c4478dcdd3afa8b 447B / 447B 3.1s done
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.05MB / 1.74MB 9.6s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 1.05MB / 41.45MB 10.5s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 1.05MB / 30.26MB 10.3s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 3.14MB / 30.26MB 13.8s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.36MB / 1.74MB 14.3s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.50MB / 1.74MB 14.5s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.61MB / 1.74MB 14.6s
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.74MB / 1.74MB 14.9s done
+#9 sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 1.74MB / 1.74MB 14.9s done
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 2.10MB / 41.45MB 15.6s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 4.80MB / 30.26MB 16.2s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 4.19MB / 41.45MB 17.3s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 7.34MB / 30.26MB 19.2s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 6.29MB / 41.45MB 21.8s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 8.39MB / 30.26MB 24.3s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 8.39MB / 41.45MB 25.5s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 10.28MB / 30.26MB 26.1s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 12.58MB / 30.26MB 29.8s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 9.44MB / 41.45MB 30.7s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 13.63MB / 30.26MB 34.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 10.49MB / 41.45MB 35.9s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 13.63MB / 30.26MB 40.0s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 12.58MB / 41.45MB 40.5s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 15.73MB / 30.26MB 40.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 14.68MB / 41.45MB 43.6s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 17.83MB / 30.26MB 44.4s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 15.94MB / 41.45MB 48.7s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 19.92MB / 30.26MB 48.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 18.74MB / 41.45MB 51.6s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 21.52MB / 30.26MB 52.3s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 23.07MB / 30.26MB 54.4s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 20.97MB / 41.45MB 55.3s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 25.17MB / 30.26MB 57.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 23.07MB / 41.45MB 58.7s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 27.26MB / 30.26MB 61.2s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 25.17MB / 41.45MB 63.6s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 29.36MB / 30.26MB 65.6s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 27.26MB / 41.45MB 68.0s
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 30.26MB / 30.26MB 68.1s done
+#9 sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 30.26MB / 30.26MB 68.1s done
+#9 extracting sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 29.36MB / 41.45MB 72.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 29.36MB / 41.45MB 78.0s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 30.41MB / 41.45MB 83.1s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 31.46MB / 41.45MB 88.3s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 32.10MB / 41.45MB 93.3s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 33.55MB / 41.45MB 98.5s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 33.55MB / 41.45MB 103.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 33.55MB / 41.45MB 111.5s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 34.60MB / 41.45MB 116.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 34.60MB / 41.45MB 122.1s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 34.60MB / 41.45MB 127.2s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 35.65MB / 41.45MB 132.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 35.65MB / 41.45MB 137.9s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 36.70MB / 41.45MB 143.0s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 38.80MB / 41.45MB 147.3s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 40.89MB / 41.45MB 149.3s
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 41.45MB / 41.45MB 152.1s done
+#9 sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 41.45MB / 41.45MB 152.1s done
+#9 extracting sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 95.0s done
+#9 extracting sha256:7263c37a27b96bd5e0c0de77a44122fc986156c49e3c82b0ba12448611753e10 95.0s done
+#9 extracting sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a
+#9 extracting sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a 1.3s done
+#9 extracting sha256:3b1dfcf9f3448c1983cb26b56c28a615ab10cd7f143a570fadef8982e1cab21a 1.3s done
+#9 extracting sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016
+#9 extracting sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 14.5s done
+#9 extracting sha256:db5e654ed9f235b871c9771e74bc59c2eab72fcf3deccab8a67d1e347d186016 14.5s done
+#9 extracting sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1
+#9 extracting sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 0.2s done
+#9 extracting sha256:dddd0e0c4b1c03632311cd17cb3ae03e7103e7631c08910a5cd3183ca3608cd1 0.2s done
+#9 extracting sha256:5ea4be67944bba4e57f54283469d9e9565e034cf873cc16c9c4478dcdd3afa8b 0.1s done
+#9 DONE 182.8s
+
+#10 [service-core builder 2/9] WORKDIR /app
+#10 DONE 2.3s
+
+#11 [service-auth stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 ...
+
+#12 [service-auth builder 3/9] COPY package*.json ./
+#12 DONE 1.4s
+
+#13 [service-core builder 3/9] COPY package*.json ./
+#13 DONE 1.5s
+
+#11 [service-core stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 ...
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 14.82 Get:1 http://deb.debian.org/debian bullseye InRelease [75.1 kB]
+#15 ...
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 14.66 Get:1 http://deb.debian.org/debian bullseye InRelease [75.1 kB]
+#14 18.29 Get:2 http://deb.debian.org/debian-security bullseye-security InRelease [27.2 kB]
+#14 19.07 Get:3 http://deb.debian.org/debian bullseye-updates InRelease [44.0 kB]
+#14 19.70 Get:4 http://deb.debian.org/debian bullseye/main amd64 Packages [8066 kB]
+#14 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 18.12 Get:2 http://deb.debian.org/debian-security bullseye-security InRelease [27.2 kB]
+#15 18.64 Get:3 http://deb.debian.org/debian bullseye-updates InRelease [44.0 kB]
+#15 19.60 Get:4 http://deb.debian.org/debian bullseye/main amd64 Packages [8066 kB]
+#15 ...
+
+#11 [service-core stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 17.22 Get:1 http://deb.debian.org/debian bullseye InRelease [75.1 kB]
+#11 19.61 Get:2 http://deb.debian.org/debian-security bullseye-security InRelease [27.2 kB]
+#11 20.06 Get:3 http://deb.debian.org/debian bullseye-updates InRelease [44.0 kB]
+#11 20.62 Get:4 http://deb.debian.org/debian bullseye/main amd64 Packages [8066 kB]
+#11 43.06 Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 Packages [448 kB]
+#11 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 42.48 Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 Packages [448 kB]
+#15 44.58 Get:6 http://deb.debian.org/debian bullseye-updates/main amd64 Packages [18.8 kB]
+#15 44.99 Fetched 8679 kB in 32s (272 kB/s)
+#15 44.99 Reading package lists...
+#15 ...
+
+#11 [service-core stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 45.37 Get:6 http://deb.debian.org/debian bullseye-updates/main amd64 Packages [18.8 kB]
+#11 46.03 Fetched 8679 kB in 31s (280 kB/s)
+#11 46.03 Reading package lists...
+#11 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 44.99 Reading package lists...
+#15 51.42 Reading package lists...
+#15 ...
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 44.97 Get:5 http://deb.debian.org/debian-security bullseye-security/main amd64 Packages [448 kB]
+#14 45.75 Get:6 http://deb.debian.org/debian bullseye-updates/main amd64 Packages [18.8 kB]
+#14 52.72 Fetched 8679 kB in 39s (220 kB/s)
+#14 52.72 Reading package lists...
+#14 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 51.42 Reading package lists...
+#15 58.09 Building dependency tree...
+#15 58.38 Reading state information...
+#15 59.08 libssl1.1 is already the newest version (1.1.1w-0+deb11u5).
+#15 59.08 libssl1.1 set to manually installed.
+#15 59.08 Suggested packages:
+#15 59.08   ca-certificates
+#15 60.78 The following NEW packages will be installed:
+#15 60.78   openssl
+#15 61.52 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+#15 61.52 Need to get 859 kB of archives.
+#15 61.52 After this operation, 1507 kB of additional disk space will be used.
+#15 61.52 Get:1 http://deb.debian.org/debian-security bullseye-security/main amd64 openssl amd64 1.1.1w-0+deb11u5 [859 kB]
+#15 ...
+
+#11 [service-core stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 53.23 Reading package lists...
+#11 63.19 Building dependency tree...
+#11 ...
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 52.72 Reading package lists...
+#14 61.28 Reading package lists...
+#14 65.22 Building dependency tree...
+#14 65.73 Reading state information...
+#14 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 64.88 debconf: delaying package configuration, since apt-utils is not installed
+#15 65.05 Fetched 859 kB in 2s (449 kB/s)
+#15 65.22 Selecting previously unselected package openssl.
+#15 65.22 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6673 files and directories currently installed.)
+#15 65.51 Preparing to unpack .../openssl_1.1.1w-0+deb11u5_amd64.deb ...
+#15 65.55 Unpacking openssl (1.1.1w-0+deb11u5) ...
+#15 ...
+
+#11 [service-core stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 63.19 Building dependency tree...
+#11 63.52 Reading state information...
+#11 64.02 libssl1.1 is already the newest version (1.1.1w-0+deb11u5).
+#11 64.02 libssl1.1 set to manually installed.
+#11 64.02 The following NEW packages will be installed:
+#11 64.03   dumb-init
+#11 64.72 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+#11 64.72 Need to get 13.8 kB of archives.
+#11 64.72 After this operation, 33.8 kB of additional disk space will be used.
+#11 64.72 Get:1 http://deb.debian.org/debian bullseye/main amd64 dumb-init amd64 1.2.5-1 [13.8 kB]
+#11 66.70 debconf: delaying package configuration, since apt-utils is not installed
+#11 66.87 Fetched 13.8 kB in 1s (19.3 kB/s)
+#11 67.02 Selecting previously unselected package dumb-init.
+#11 67.02 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6673 files and directories currently installed.)
+#11 67.35 Preparing to unpack .../dumb-init_1.2.5-1_amd64.deb ...
+#11 67.39 Unpacking dumb-init (1.2.5-1) ...
+#11 68.53 Setting up dumb-init (1.2.5-1) ...
+#11 ...
+
+#15 [service-auth builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#15 72.34 Setting up openssl (1.1.1w-0+deb11u5) ...
+#15 DONE 75.0s
+
+#11 [service-auth stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init libssl1.1 && rm -rf /var/lib/apt/lists/*
+#11 DONE 76.8s
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 66.78 libssl1.1 is already the newest version (1.1.1w-0+deb11u5).
+#14 66.78 libssl1.1 set to manually installed.
+#14 66.78 Suggested packages:
+#14 66.78   ca-certificates
+#14 70.61 The following NEW packages will be installed:
+#14 70.61   openssl
+#14 72.50 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+#14 72.50 Need to get 859 kB of archives.
+#14 72.50 After this operation, 1507 kB of additional disk space will be used.
+#14 72.50 Get:1 http://deb.debian.org/debian-security bullseye-security/main amd64 openssl amd64 1.1.1w-0+deb11u5 [859 kB]
+#14 74.57 debconf: delaying package configuration, since apt-utils is not installed
+#14 74.69 Fetched 859 kB in 3s (249 kB/s)
+#14 74.87 Selecting previously unselected package openssl.
+#14 74.87 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6673 files and directories currently installed.)
+#14 74.99 Preparing to unpack .../openssl_1.1.1w-0+deb11u5_amd64.deb ...
+#14 75.06 Unpacking openssl (1.1.1w-0+deb11u5) ...
+#14 75.79 Setting up openssl (1.1.1w-0+deb11u5) ...
+#14 ...
+
+#16 [service-auth builder 5/9] RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+#16 ...
+
+#14 [service-core builder 4/9] RUN apt-get update && apt-get install -y openssl libssl1.1 && rm -rf /var/lib/apt/lists/*
+#14 DONE 77.0s
+
+#17 [service-core builder 5/9] RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi

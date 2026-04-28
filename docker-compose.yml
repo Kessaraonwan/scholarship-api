@@ -12,6 +12,12 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:7-alpine
@@ -44,8 +50,10 @@ services:
       - JWT_SECRET=change-this-in-production
       - INTERNAL_SECRET=internal-secret-key
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   service-ingestion:
     build: ./service-ingestion
@@ -58,7 +66,8 @@ services:
       - CORE_SERVICE_URL=http://service-core:3003
       - NOTIFICATION_SERVICE_URL=http://service-notification:3005
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   service-core:
     build: ./service-core
@@ -72,9 +81,12 @@ services:
       - INTERNAL_SECRET=internal-secret-key
       - NOTIFICATION_SERVICE_URL=http://service-notification:3005
     depends_on:
-      - postgres
-      - redis
-      - service-auth
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      service-auth:
+        condition: service_started
 
   service-analytics:
     build: ./service-analytics
@@ -87,8 +99,10 @@ services:
       - CORE_SERVICE_URL=http://service-core:3003
       - INTERNAL_SECRET=internal-secret-key
     depends_on:
-      - postgres
-      - service-auth
+      postgres:
+        condition: service_healthy
+      service-auth:
+        condition: service_started
 
   service-notification:
     build: ./service-notification
@@ -99,13 +113,15 @@ services:
       - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/scholarship_db
       - AUTH_SERVICE_URL=http://service-auth:3001
       - INTERNAL_SECRET=internal-secret-key
-      - SMTP_HOST=smtp.example.com
+      - SMTP_HOST=smtp.ethereal.email
       - SMTP_PORT=587
-      - SMTP_USER=
-      - SMTP_PASS=
+      - SMTP_USER=nolan.haag@ethereal.email
+      - SMTP_PASS=smPnMhV8RqzYfSPkYa
     depends_on:
-      - postgres
-      - service-auth
+      postgres:
+        condition: service_healthy
+      service-auth:
+        condition: service_started
 
 volumes:
   postgres_data:

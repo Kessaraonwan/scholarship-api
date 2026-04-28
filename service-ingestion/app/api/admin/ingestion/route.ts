@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { IngestionService } from '../../../../lib/ingestionService'
+import { PrismaIngestionService } from '../../../../lib/prismaIngestionService'
 
-const ingestionService = new IngestionService()
+const ingestionService = new PrismaIngestionService()
 
 export async function GET(req: NextRequest) {
   const authHeader = req.headers.get('authorization')

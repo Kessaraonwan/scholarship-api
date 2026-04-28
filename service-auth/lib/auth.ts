@@ -1,6 +1,7 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { prisma } from './prisma'
+import crypto from 'crypto'
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12)
@@ -48,7 +49,8 @@ export async function findUserByEmail(email: string) {
 }
 
 export async function createApiKey(userId: string, name: string) {
-  const key = `sk_${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`
+  // Generate cryptographically secure API key using crypto.randomBytes
+  const key = `sk_${crypto.randomBytes(32).toString('hex')}`
 
   return prisma.apiKey.create({
     data: {

@@ -1,0 +1,209 @@
+﻿docker : --progress is a global compose flag, better use `docker compose 
+--progress xx build ...
+At line:1 char:23
++ ... p 2>$null ; docker compose build service-analytics --progress=plain 2 ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (--progress is a...ss xx build ... 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image scholarship-api-service-analytics Building 
+ Image scholarship-api-service-auth Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 1.11kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile:
+#2 transferring dockerfile: 858B 0.1s done
+#2 DONE 0.4s
+
+#3 [internal] load metadata for docker.io/library/node:20-slim
+#3 DONE 5.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 248B 0.0s done
+#4 DONE 0.2s
+
+#5 [builder 1/8] FROM docker.io/library/node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0
+#5 resolve docker.io/library/node:20-slim@sha256:2cf067cfed83d5ea958367df9f966191a942351a2df77d6f0193e162b5febfc0 0.2s done
+#5 sha256:3c02fd806613748139b8b8a14a69ae3518a1b0e863c57c35aada3b92ed87fb31 0B / 447B 0.6s
+#5 sha256:e54aec64c365815cd7b91e718f00ac6e625562b1de09036b38614621b42c7582 3.31kB / 3.31kB 1.2s done
+#5 sha256:64cfb949317c9824fd081d55c59a7225bfe1f650c6395ba42d7ed0ccf51993d2 1.71MB / 1.71MB 8.8s done
+#5 sha256:804d4d68057cbb26cbcde9a735148ebc6589911bad32cf9dbddb5b0ba878bf1f 11.53MB / 41.42MB 52.7s
+#5 sha256:ff86ea2e5edce334d19a34fbc65d1a511aa1fc823dba1110422f991aa56b44d4 12.58MB / 28.24MB 52.1s
+#5 sha256:804d4d68057cbb26cbcde9a735148ebc6589911bad32cf9dbddb5b0ba878bf1f 41.42MB / 41.42MB 178.4s done
+#5 sha256:ff86ea2e5edce334d19a34fbc65d1a511aa1fc823dba1110422f991aa56b44d4 28.24MB / 28.24MB 128.6s done
+#5 extracting sha256:ff86ea2e5edce334d19a34fbc65d1a511aa1fc823dba1110422f991aa56b44d4 43.2s done
+#5 extracting sha256:e54aec64c365815cd7b91e718f00ac6e625562b1de09036b38614621b42c7582 0.8s done
+#5 extracting sha256:804d4d68057cbb26cbcde9a735148ebc6589911bad32cf9dbddb5b0ba878bf1f 14.2s done
+#5 extracting sha256:64cfb949317c9824fd081d55c59a7225bfe1f650c6395ba42d7ed0ccf51993d2 1.0s done
+#5 extracting sha256:3c02fd806613748139b8b8a14a69ae3518a1b0e863c57c35aada3b92ed87fb31 0.4s done
+#5 DONE 195.4s
+
+#6 [builder 2/8] WORKDIR /app
+#6 DONE 6.6s
+
+#7 [stage-1 3/7] RUN apt-get update && apt-get install -y dumb-init && rm -rf /var/lib/apt/lists/*
+#7 304.8 0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+#7 304.8 Need to get 14.1 kB of archives.
+#7 304.8 After this operation, 37.9 kB of additional disk space will be used.
+#7 304.8 Get:1 http://deb.debian.org/debian bookworm/main amd64 dumb-init amd64 1.2.5-2 [14.1 kB]
+#7 327.5 debconf: delaying package configuration, since apt-utils is not installed
+#7 332.6 Fetched 14.1 kB in 5s (2978 B/s)
+#7 339.1 Selecting previously unselected package dumb-init.
+#7 339.1 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 6096 files and directories currently installed.)
+#7 342.5 Preparing to unpack .../dumb-init_1.2.5-2_amd64.deb ...
+#7 343.1 Unpacking dumb-init (1.2.5-2) ...
+#7 345.3 Setting up dumb-init (1.2.5-2) ...
+#7 DONE 352.0s
+
+#8 [internal] load build context
+#8 transferring context: 81.36kB 0.1s done
+#8 DONE 0.3s
+
+#9 [builder 3/7] COPY package*.json ./
+#9 DONE 1.7s
+
+#10 [builder 4/7] RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+#10 924.2 
+#10 924.2 added 84 packages, and audited 85 packages in 15m
+#10 924.2 
+#10 924.2 19 packages are looking for funding
+#10 924.2   run `npm fund` for details
+#10 937.9 
+#10 937.9 2 vulnerabilities (1 moderate, 1 high)
+#10 937.9 
+#10 937.9 To address all issues (including breaking changes), run:
+#10 937.9   npm audit fix --force
+#10 937.9 
+#10 937.9 Run `npm audit` for details.
+#10 940.1 npm notice
+#10 940.1 npm notice New major version of npm available! 10.8.2 -> 11.13.0
+#10 940.1 npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.13.0
+#10 940.1 npm notice To update run: npm install -g npm@11.13.0
+#10 940.1 npm notice
+#10 DONE 992.4s
+
+#11 [builder 5/7] COPY . .
+#11 DONE 25.0s
+
+#12 [builder 6/7] RUN mkdir -p public
+#12 DONE 19.4s
+
+#13 [builder 7/7] RUN npm run build --if-present
+#13 7.149 
+#13 7.149 > service-analytics@1.0.0 build
+#13 7.149 > next build
+#13 7.149 
+#13 19.73 Attention: Next.js now collects completely anonymous telemetry regarding usage.
+#13 19.74 This information is used to shape Next.js' roadmap and prioritize features.
+#13 19.74 You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+#13 19.74 https://nextjs.org/telemetry
+#13 19.74 
+#13 20.61   Γû▓ Next.js 14.2.35
+#13 20.61 
+#13 20.79    Creating an optimized production build ...
+#13 144.8  Γ£ô Compiled successfully
+#13 145.5    Linting and checking validity of types ...
+#13 150.5 
+#13 150.5    We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+#13 150.5    The following suggested values were added to your tsconfig.json. These values can be changed to fit your project's needs:
+#13 150.5 
+#13 150.5    	- strictNullChecks was set to true
+#13 150.5 
+#13 204.4    Collecting page data ...
+#13 223.4    Generating static pages (0/9) ...
+#13 224.7    Generating static pages (2/9) 
+#13 229.9    Generating static pages (4/9) 
+#13 229.9    Generating static pages (6/9) 
+#13 235.5  Γ£ô Generating static pages (9/9)
+#13 239.6    Finalizing page optimization ...
+#13 239.6    Collecting build traces ...
+#13 288.5 
+#13 288.8 Route (app)                              Size     First Load JS
+#13 288.8 Γöî Γùï /                                    175 B          96.1 kB
+#13 288.8 Γö£ Γùï /_not-found                          873 B          88.1 kB
+#13 288.8 Γö£ Γùï /analytics                           1.44 kB        88.7 kB
+#13 288.8 Γö£ ╞Æ /api/analytics/overview              0 B                0 B
+#13 288.8 Γö£ Γùï /api/health                          0 B                0 B
+#13 288.8 Γö£ ╞Æ /api/match                           0 B                0 B
+#13 288.8 Γöö Γùï /match                               1.69 kB          89 kB
+#13 288.8 + First Load JS shared by all            87.3 kB
+#13 288.8   Γö£ chunks/117-da33f89511cbd4ac.js       31.7 kB
+#13 288.8   Γö£ chunks/fd9d1056-5d0c434f4506d830.js  53.6 kB
+#13 288.8   Γöö other shared chunks (total)          1.89 kB
+#13 288.8 
+#13 288.8 
+#13 288.8 Γùï  (Static)   prerendered as static content
+#13 288.8 ╞Æ  (Dynamic)  server-rendered on demand
+#13 288.8 
+#13 DONE 292.7s
+
+#14 [stage-1 4/7] COPY --from=builder /app/node_modules ./node_modules
+#14 DONE 84.5s
+
+#15 [builder 4/7] RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+#15 CACHED
+
+#16 [builder 5/7] COPY . .
+#16 CACHED
+
+#17 [builder 6/7] RUN mkdir -p public
+#17 CACHED
+
+#18 [builder 7/7] RUN npm run build --if-present
+#18 CACHED
+
+#19 [stage-1 4/7] COPY --from=builder /app/node_modules ./node_modules
+#19 CACHED
+
+#20 [builder 3/7] COPY package*.json ./
+#20 CACHED
+
+#21 [stage-1 5/7] COPY --from=builder /app/.next ./.next
+#21 DONE 2.8s
+
+#22 [stage-1 6/7] COPY --from=builder /app/public ./public
+#22 DONE 0.8s
+
+#23 [stage-1 7/7] COPY --from=builder /app/package*.json ./
+#23 DONE 2.2s
+
+#24 exporting to image
+#24 exporting layers
+#24 exporting layers 79.5s done
+#24 exporting manifest sha256:c1cd9502e9af6c6d0eb98853ef5d698a84b70266cd13656b8ea274a2b6fc4839 0.1s done
+#24 exporting config sha256:87c74507bf6589ba80b8bf446a486e3d742d72f2ed7ac709fb452b4593e05ac4 0.1s done
+#24 exporting attestation manifest sha256:521aadbc3b492e74d2232e6343f911b3111666b4e792660527f6c229f80562f5
+#24 exporting attestation manifest sha256:521aadbc3b492e74d2232e6343f911b3111666b4e792660527f6c229f80562f5 0.1s done
+#24 exporting manifest list sha256:c925e5c741dc11de11c594bb2a20e51927e632adaf3cbc55b0b9f67726c4dec3 0.1s done
+#24 naming to docker.io/library/scholarship-api-service-analytics:latest 0.0s done
+#24 unpacking to docker.io/library/scholarship-api-service-analytics:latest
+#24 unpacking to docker.io/library/scholarship-api-service-analytics:latest 20.3s done
+#24 DONE 100.7s
+
+#25 resolving provenance for metadata file
+#25 DONE 0.3s
+ Image scholarship-api-service-analytics Built 

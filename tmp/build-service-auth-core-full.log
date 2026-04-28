@@ -1,0 +1,11 @@
+﻿docker : --progress is a global compose flag, better use `docker compose 
+--progress xx build ...
+At line:1 char:1
++ docker compose build --no-cache service-auth service-core --progress= ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (--progress is a...ss xx build ... 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+ Image scholarship-api-service-auth Building 
+ Image scholarship-api-service-core Building 

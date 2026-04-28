@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
         id: apiKey.userId,
         email: apiKey.user.email,
         role: apiKey.user.role,
-        tier: apiKey.user.role === 'admin' ? 'pro' : 'free',
+        tier: apiKey.user.tier,
       },
       apiKey: {
         id: apiKey.id,
