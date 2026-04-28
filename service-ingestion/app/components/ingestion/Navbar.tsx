@@ -29,11 +29,25 @@ export default function Navbar() {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: 14, color: '#6b7280', cursor: 'pointer' }}>เข้าสู่ระบบ</span>
-                <button style={{
-                    fontSize: 13, fontWeight: 500, padding: '7px 16px',
-                    borderRadius: 8, background: '#185FA5', color: '#E6F1FB', border: 'none', cursor: 'pointer'
-                }}>เริ่มใช้งานฟรี</button>
+                {/* 🔗 วาร์ปไปพอร์ตแบงค์ 3001 */}
+                <a 
+                    href="http://localhost:3001/login" 
+                    style={{ fontSize: 14, color: '#6b7280', cursor: 'pointer', textDecoration: 'none' }}
+                >
+                    เข้าสู่ระบบ
+                </a>
+                
+                <a 
+                    href="http://localhost:3001/register" 
+                    style={{ textDecoration: 'none' }}
+                >
+                    <button style={{
+                        fontSize: 13, fontWeight: 500, padding: '7px 16px',
+                        borderRadius: 8, background: '#185FA5', color: '#E6F1FB', border: 'none', cursor: 'pointer'
+                    }}>
+                        เริ่มใช้งานฟรี
+                    </button>
+                </a>
             </div>
         </nav>
     )

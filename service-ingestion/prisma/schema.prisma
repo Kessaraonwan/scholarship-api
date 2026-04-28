@@ -46,4 +46,5 @@ model IngestionLog {
   
   @@index([source])
   @@index([startedAt])
+  @@map("ingestion_logs")
 }
