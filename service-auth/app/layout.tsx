@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google' // เพิ่ม Font Inter
 import './globals.css'
 
 // ตั้งค่า Font
-const inter = Inter({ 
+const inter = Inter({
   subsets: ['latin'], // รองรับภาษาไทยด้วย
   variable: '--font-inter',
 })
