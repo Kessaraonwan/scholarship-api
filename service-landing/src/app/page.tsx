@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import Link from 'next/link';
 import { CheckCircle, Zap, Users, TrendingUp } from 'lucide-react';
+import { AUTH_BASE_URL } from '@/lib/config';
 
 export default function Home() {
   return (
@@ -22,9 +23,9 @@ export default function Home() {
                 Integrated with real scholarship data, real-time notifications, and advanced matching algorithms.
               </p>
               <div className="flex gap-4 justify-center flex-wrap">
-                <Link href="/register" className="btn-primary">
+                <a href={`${AUTH_BASE_URL}/register`} className="btn-primary">
                   Get Started Free
-                </Link>
+                </a>
                 <Link href="/docs" className="btn-secondary">
                   Read Docs
                 </Link>
@@ -235,9 +236,9 @@ export default function Home() {
               Join thousands of students and developers using Scholarship API to find and build scholarship solutions.
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
-              <Link href="/register" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
+              <a href={`${AUTH_BASE_URL}/register`} className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition">
                 Sign Up Free
-              </Link>
+              </a>
               <Link href="/docs/quickstart" className="border-2 border-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
                 View Tutorial
               </Link>
