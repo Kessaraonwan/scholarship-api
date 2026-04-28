@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
     console.error('Login error:', error)
     return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ' },
+      { error: 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ code:500' },
       { status: 500 }
     )
   }

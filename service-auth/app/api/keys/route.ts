@@ -1,104 +1,65 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { requireAuth } from '@/lib/middleware'
-import { createApiKey, getUserApiKeys } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import crypto from 'crypto' 
 
 const createKeySchema = z.object({
   name: z.string().min(1, 'กรุณากรอกชื่อ API Key'),
 })
 
-// GET /api/keys - ดู API keys ของผู้ใช้ (Mock for demo)
+// ดึงข้อมูล API Key ทั้งหมดของผู้ใช้
 export async function GET(request: NextRequest) {
   try {
-    // For demo purposes, return mock API keys
-    const mockApiKeys = [
-      {
-        id: 'demo-key-1',
-        name: 'Production App',
-        key: 'sk_live_demo123456789',
-        isActive: true,
-        createdAt: new Date().toISOString(),
-        lastUsedAt: new Date().toISOString(),
-      },
-      {
-        id: 'demo-key-2',
-        name: 'Test Environment',
-        key: 'sk_test_demo987654321',
-        isActive: true,
-        createdAt: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
-        lastUsedAt: new Date(Date.now() - 3600000).toISOString(), // 1 hour ago
-      }
-    ];
+    // ใส่ ID ของ test@gmail.com ไว้ให้เทสก่อน พอเชื่อม Auth เสร็จค่อยมาแก้ตรงนี้
+    const currentUserId = 'cmoh4f3cc000013va3ah2ynr4'; 
 
-    return NextResponse.json({ apiKeys: mockApiKeys });
+    const apiKeys = await prisma.apiKey.findMany({
+      where: { userId: currentUserId }, // แก้เป็น camelCase ตามกฎ Prisma
+      orderBy: { createdAt: 'desc' }    // แก้เป็น camelCase ตามกฎ Prisma
+    });
+
+    return NextResponse.json({ apiKeys });
   } catch (error) {
     console.error('Get API keys error:', error)
-    return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการดึง API keys' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการดึง API keys' }, { status: 500 })
   }
 }
 
-// POST /api/keys - สร้าง API key ใหม่ (Mock for demo)
+// สร้าง API Key ใหม่ลง Database
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { name } = createKeySchema.parse(body)
+    
+    // ใส่ ID ของ test@gmail.com ไว้ให้เทสก่อน
+    const currentUserId = 'cmoh4f3cc000013va3ah2ynr4'; 
 
-    // Generate mock API key
-    const mockApiKey = {
-      id: `demo-key-${Date.now()}`,
-      name: name,
-      key: `sk_demo_${Math.random().toString(36).substring(2, 15)}`,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-      lastUsedAt: null,
-    };
+    // สุ่มสร้าง API Key (ใช้อักษรฐาน 16 ความยาว 32 ตัวอักษร)
+    const rawKey = `sk_live_${crypto.randomBytes(16).toString('hex')}`
 
+    // บันทึกลงตาราง api_keys
+    const newApiKey = await prisma.apiKey.create({
+      data: {
+        name: name,
+        key: rawKey, 
+        userId: currentUserId, 
+        isActive: true, 
+      }
+    });
+
+    // ส่วนที่หายไป: ต้อง return ค่ากลับไปบอกหน้าเว็บว่าสำเร็จแล้ว
     return NextResponse.json({
       message: 'สร้าง API key สำเร็จ',
-      apiKey: mockApiKey,
+      apiKey: newApiKey,
     })
+
+  // ส่วนที่หายไป: บล็อก catch สำหรับดักจับ Error
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'ข้อมูลไม่ถูกต้อง', details: error.issues },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'ข้อมูลไม่ถูกต้อง', details: error.issues }, { status: 400 })
     }
 
     console.error('Create API key error:', error)
-    return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการสร้าง API key' },
-      { status: 500 }
-    )
-  }
-}
-
-// DELETE /api/keys/[id] - ลบ API key (Mock for demo)
-export async function DELETE(request: NextRequest) {
-  try {
-    const url = new URL(request.url)
-    const keyId = url.searchParams.get('id')
-
-    if (!keyId) {
-      return NextResponse.json(
-        { error: 'กรุณาระบุ API key ID' },
-        { status: 400 }
-      )
-    }
-
-    // For demo purposes, just return success
-    return NextResponse.json({
-      message: 'ลบ API key สำเร็จ',
-    })
-  } catch (error) {
-    console.error('Delete API key error:', error)
-    return NextResponse.json(
-      { error: 'เกิดข้อผิดพลาดในการลบ API key' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'เกิดข้อผิดพลาดในการสร้าง API key' }, { status: 500 })
   }
 }
