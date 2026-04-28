@@ -28,10 +28,10 @@
  *   }
  */
 
+import { ingestionService } from '../../../lib/prismaIngestionService'
+import { normalizeScholarship } from '../../../lib/dataNormalizer'
+import { Scholarship } from '../../../lib/types'
 import { NextRequest, NextResponse } from 'next/server'
-import { ingestionService } from '@/lib/prismaIngestionService'
-import { normalizeScholarship } from '@/lib/dataNormalizer'
-import { Scholarship } from '@/lib/types'
 
 /**
  * Rate limiting utility: Sleep for specified milliseconds
