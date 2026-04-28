@@ -15,13 +15,14 @@ export async function withAuth(request: NextRequest) {
   }
 
   try {
-    // เรียก service-auth ตรวจสอบ API key
-    const response = await fetch(`${process.env.AUTH_SERVICE_URL || 'http://localhost:3001'}/api/auth/verify`, {
+    const authServiceUrl = process.env.AUTH_SERVICE_URL || 'http://localhost:3001'
+    // เรียก service-auth ตรวจสอบ API key (ล็อกไว้ที่ endpoint เดียว)
+    const response = await fetch(`${authServiceUrl}/api/keys/verify`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
       },
+      body: JSON.stringify({ key: authHeader.replace(/^Bearer\s+/i, '').trim() }),
     })
 
     if (!response.ok) {
@@ -29,8 +30,8 @@ export async function withAuth(request: NextRequest) {
       return NextResponse.json(error, { status: response.status })
     }
 
-    const user = await response.json()
-    return { user, isValid: true }
+    const payload = await response.json()
+    return { user: payload.user || null, isValid: true }
   } catch (error) {
     // Fallback: ถ้า service-auth ไม่พร้อม อนุญาตให้ผ่านได้ชั่วคราว (dev mode)
     console.warn('Auth service unavailable, allowing request:', error)

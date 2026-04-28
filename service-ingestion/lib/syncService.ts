@@ -9,7 +9,7 @@ export class SyncService {
         this.ingestionService = new IngestionService()
     }
 
-    async syncAllSources(): Promise<{ totalNew: number; results: any[] }> {
+    async syncAllSources(): Promise<{ totalNew: number; results: any[]; scholarships: any[] }> {
         const sources = [
             new KyosScraper(),
             new CheveningScraper()
@@ -17,6 +17,7 @@ export class SyncService {
 
         let totalNew = 0
         const results = []
+        const allScholarships: any[] = []
 
         for (const scraper of sources) {
             try {
@@ -28,6 +29,7 @@ export class SyncService {
                 try {
                     // Scrape data
                     const scholarships = await scraper.scrape()
+                    allScholarships.push(...scholarships)
 
                     // Save to database
                     const countNew = await this.ingestionService.saveScholarships(scholarships)
@@ -70,7 +72,7 @@ export class SyncService {
             }
         }
 
-        return { totalNew, results }
+        return { totalNew, results, scholarships: allScholarships }
     }
 
     async syncSource(source: string): Promise<{ countNew: number; error?: string }> {
