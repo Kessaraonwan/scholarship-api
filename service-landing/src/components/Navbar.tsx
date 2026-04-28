@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { useState } from 'react';
+import { AUTH_BASE_URL } from '@/lib/config';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +24,8 @@ export default function Navbar() {
           <Link href="/docs" className="text-slate-700 hover:text-blue-600 transition">Docs</Link>
           <Link href="/docs/quickstart" className="text-slate-700 hover:text-blue-600 transition">Quickstart</Link>
           <Link href="/status" className="text-slate-700 hover:text-blue-600 transition">Status</Link>
-          <Link href="/login" className="btn-secondary">Sign In</Link>
-          <Link href="/register" className="btn-primary">Sign Up</Link>
+          <a href={`${AUTH_BASE_URL}/login`} className="btn-secondary">Sign In</a>
+          <a href={`${AUTH_BASE_URL}/register`} className="btn-primary">Sign Up</a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -43,8 +44,8 @@ export default function Navbar() {
               <Link href="/docs" className="text-slate-700 hover:text-blue-600">Docs</Link>
               <Link href="/docs/quickstart" className="text-slate-700 hover:text-blue-600">Quickstart</Link>
               <Link href="/status" className="text-slate-700 hover:text-blue-600">Status</Link>
-              <Link href="/login" className="btn-secondary w-full text-center">Sign In</Link>
-              <Link href="/register" className="btn-primary w-full text-center">Sign Up</Link>
+              <a href={`${AUTH_BASE_URL}/login`} className="btn-secondary w-full text-center">Sign In</a>
+              <a href={`${AUTH_BASE_URL}/register`} className="btn-primary w-full text-center">Sign Up</a>
             </div>
           </div>
         )}

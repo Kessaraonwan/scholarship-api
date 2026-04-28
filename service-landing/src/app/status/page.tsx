@@ -4,72 +4,59 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useEffect, useState } from 'react';
 import { CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { SERVICE_CONFIG } from '@/lib/config';
 
 interface ServiceStatus {
+  key: string;
   name: string;
   port: number;
-  url: string;
-  status: 'healthy' | 'unhealthy' | 'loading';
+  baseUrl: string;
+  docsUrl: string;
+  probeUrl: string;
+  owner: string;
+  description: string;
+  status: 'online' | 'unavailable' | 'loading';
   responseTime?: number;
   message?: string;
 }
 
-const services: ServiceStatus[] = [
-  {
-    name: 'Authentication',
-    port: 3001,
-    url: 'http://localhost:3001/health',
-    status: 'loading',
-  },
-  {
-    name: 'Data Ingestion',
-    port: 3002,
-    url: 'http://localhost:3002/health',
-    status: 'loading',
-  },
-  {
-    name: 'Core Scholarships',
-    port: 3003,
-    url: 'http://localhost:3003/health',
-    status: 'loading',
-  },
-  {
-    name: 'Analytics',
-    port: 3004,
-    url: 'http://localhost:3004/health',
-    status: 'loading',
-  },
-  {
-    name: 'Notifications',
-    port: 3005,
-    url: 'http://localhost:3005/health',
-    status: 'loading',
-  },
-];
+const services: ServiceStatus[] = SERVICE_CONFIG.map((service) => ({
+  key: service.key,
+  name: service.name,
+  port: service.port,
+  baseUrl: service.baseUrl,
+  docsUrl: `${service.baseUrl}${service.docsPath}`,
+  probeUrl: `${service.baseUrl}${service.probePath}`,
+  owner: service.owner,
+  description: service.description,
+  status: 'loading',
+}));
 
-function StatusBadge({ status }: { status: 'healthy' | 'unhealthy' | 'loading' }) {
-  if (status === 'healthy') {
+function StatusBadge({ status }: { status: 'online' | 'unavailable' | 'loading' }) {
+  if (status === 'online') {
     return (
       <div className="flex items-center gap-2 px-3 py-1 bg-green-100 text-green-700 rounded-full">
         <CheckCircle className="w-4 h-4" />
-        <span className="text-sm font-medium">Healthy</span>
-      </div>
-    );
-  } else if (status === 'unhealthy') {
-    return (
-      <div className="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full">
-        <AlertCircle className="w-4 h-4" />
-        <span className="text-sm font-medium">Unhealthy</span>
-      </div>
-    );
-  } else {
-    return (
-      <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full animate-pulse">
-        <Clock className="w-4 h-4" />
-        <span className="text-sm font-medium">Checking...</span>
+        <span className="text-sm font-medium">Online</span>
       </div>
     );
   }
+
+  if (status === 'unavailable') {
+    return (
+      <div className="flex items-center gap-2 px-3 py-1 bg-red-100 text-red-700 rounded-full">
+        <AlertCircle className="w-4 h-4" />
+        <span className="text-sm font-medium">Unavailable</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full animate-pulse">
+      <Clock className="w-4 h-4" />
+      <span className="text-sm font-medium">Checking...</span>
+    </div>
+  );
 }
 
 export default function StatusPage() {
@@ -77,101 +64,78 @@ export default function StatusPage() {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
-    const checkHealth = async () => {
-      const results = await Promise.all(
-        services.map(async (service) => {
-          const startTime = Date.now();
-          try {
-            const response = await fetch(service.url, {
-              method: 'GET',
-              timeout: 5000,
-            });
-            const responseTime = Date.now() - startTime;
+    const checkStatus = async () => {
+      try {
+        const response = await fetch('/api/status', {
+          cache: 'no-store',
+        });
 
-            if (response.ok) {
-              const data = await response.json();
-              return {
-                ...service,
-                status: 'healthy' as const,
-                responseTime,
-                message: data.message || 'Service is running',
-              };
-            } else {
-              return {
-                ...service,
-                status: 'unhealthy' as const,
-                responseTime,
-                message: `HTTP ${response.status}`,
-              };
-            }
-          } catch (error) {
-            const responseTime = Date.now() - startTime;
-            return {
-              ...service,
-              status: 'unhealthy' as const,
-              responseTime,
-              message: error instanceof Error ? error.message : 'Connection failed',
-            };
-          }
-        })
-      );
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
 
-      setServiceStatuses(results);
-      setLastUpdated(new Date());
+        const data = await response.json();
+        setServiceStatuses(data.services);
+        setLastUpdated(new Date(data.checkedAt));
+      } catch {
+        setServiceStatuses((current) =>
+          current.map((service) => ({
+            ...service,
+            status: 'unavailable',
+            message: 'Status check failed',
+          }))
+        );
+        setLastUpdated(new Date());
+      }
     };
 
-    // Check immediately
-    checkHealth();
-
-    // Check every 10 seconds
-    const interval = setInterval(checkHealth, 10000);
+    checkStatus();
+    const interval = setInterval(checkStatus, 10000);
 
     return () => clearInterval(interval);
   }, []);
 
-  const healthyCount = serviceStatuses.filter(s => s.status === 'healthy').length;
+  const onlineCount = serviceStatuses.filter((service) => service.status === 'online').length;
   const totalCount = serviceStatuses.length;
-  const overallStatus = healthyCount === totalCount ? 'healthy' : healthyCount > 0 ? 'degraded' : 'down';
+  const overallStatus = onlineCount === totalCount ? 'healthy' : onlineCount > 0 ? 'degraded' : 'down';
 
   return (
     <>
       <Navbar />
       <main className="pt-20">
-        {/* Header */}
         <section className="bg-gradient-to-b from-slate-900 to-slate-800 text-white py-12">
           <div className="container">
             <h1 className="text-4xl font-bold mb-4">System Status</h1>
             <p className="text-xl text-slate-300">
-              Real-time status of all services
+              Live availability check for the local services used in this project
             </p>
           </div>
         </section>
 
-        {/* Overall Status */}
         <section className="bg-white border-b border-slate-200 py-8">
           <div className="container">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-6 flex-wrap">
               <div>
                 <h2 className="text-2xl font-bold mb-2">Overall Status</h2>
                 <p className="text-slate-600">
-                  {healthyCount} of {totalCount} services online
+                  {onlineCount} of {totalCount} services reachable
                 </p>
               </div>
               <div className="text-right">
                 {overallStatus === 'healthy' ? (
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 bg-green-500 rounded-full animate-pulse"></div>
-                    <span className="text-2xl font-bold text-green-600">All Systems Operational</span>
+                    <span className="text-2xl font-bold text-green-600">All Services Reachable</span>
                   </div>
                 ) : overallStatus === 'degraded' ? (
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 bg-yellow-500 rounded-full animate-pulse"></div>
-                    <span className="text-2xl font-bold text-yellow-600">Partial Outage</span>
+                    <span className="text-2xl font-bold text-yellow-600">Partial Availability</span>
                   </div>
                 ) : (
                   <div className="flex items-center gap-3">
                     <div className="w-4 h-4 bg-red-500 rounded-full animate-pulse"></div>
-                    <span className="text-2xl font-bold text-red-600">Major Outage</span>
+                    <span className="text-2xl font-bold text-red-600">Services Unreachable</span>
                   </div>
                 )}
               </div>
@@ -185,28 +149,29 @@ export default function StatusPage() {
           </div>
         </section>
 
-        {/* Services Grid */}
         <section className="py-12">
           <div className="container">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {serviceStatuses.map((service) => (
                 <div
-                  key={service.port}
+                  key={service.key}
                   className="bg-white rounded-lg border border-slate-200 p-6 hover:shadow-lg transition"
                 >
-                  <div className="flex justify-between items-start mb-4">
+                  <div className="flex justify-between items-start gap-4 mb-4">
                     <div>
                       <h3 className="text-lg font-semibold text-slate-900">
                         {service.name}
                       </h3>
-                      <p className="text-sm text-slate-500 font-mono">
-                        :{service.port}
+                      <p className="text-sm text-slate-500 font-mono break-all">
+                        {service.baseUrl}
                       </p>
                     </div>
                     <StatusBadge status={service.status} />
                   </div>
 
                   <div className="space-y-3">
+                    <p className="text-sm text-slate-600">{service.description}</p>
+
                     {service.responseTime !== undefined && (
                       <div>
                         <p className="text-sm text-slate-600">Response Time</p>
@@ -225,14 +190,23 @@ export default function StatusPage() {
                       </div>
                     )}
 
+                    <div>
+                      <p className="text-sm text-slate-600">Probe URL</p>
+                      <p className="text-sm text-slate-700 break-all">
+                        {service.probeUrl}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-slate-500">Owner: {service.owner}</p>
+
                     <div className="pt-3 border-t border-slate-200">
                       <a
-                        href={`${service.url.split('/health')[0]}/docs`}
+                        href={service.docsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-blue-600 hover:underline"
                       >
-                        View Documentation →
+                        Open Service →
                       </a>
                     </div>
                   </div>
@@ -242,83 +216,45 @@ export default function StatusPage() {
           </div>
         </section>
 
-        {/* Service Descriptions */}
         <section className="bg-slate-50 py-12">
           <div className="container">
-            <h2 className="text-2xl font-bold mb-8">Service Details</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">🔐 Authentication (Port 3001)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Handles user registration, login, JWT tokens, and API key management.
-                </p>
-                <p className="text-xs text-slate-500">Owner: แบงค์</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">📥 Data Ingestion (Port 3002)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Web scraper and data ingestion service for scholarship sources.
-                </p>
-                <p className="text-xs text-slate-500">Owner: มิก</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">🎓 Core API (Port 3003)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Main API for scholarship search, filtering, and detailed information.
-                </p>
-                <p className="text-xs text-slate-500">Owner: อีฟ</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">📊 Analytics (Port 3004)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Provides analytics, matching algorithms, and dashboard data.
-                </p>
-                <p className="text-xs text-slate-500">Owner: ภู</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">🔔 Notifications (Port 3005)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Sends emails, SMS, and manages webhook subscriptions.
-                </p>
-                <p className="text-xs text-slate-500">Owner: ปิ่น</p>
-              </div>
-
-              <div className="bg-white rounded-lg p-6 border border-slate-200">
-                <h3 className="font-semibold mb-2">🌐 Landing (Port 3000)</h3>
-                <p className="text-sm text-slate-600 mb-3">
-                  Frontend landing page, docs, and API status dashboard.
-                </p>
-                <p className="text-xs text-slate-500">Owner: ซี</p>
-              </div>
+            <h2 className="text-2xl font-bold mb-8">Service Notes</h2>
+            <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-3 text-slate-700">
+              <p>
+                This page now performs a server-side availability check from `service-landing`.
+              </p>
+              <p>
+                A service is marked <span className="font-semibold text-green-700">Online</span> when a known route responds.
+              </p>
+              <p>
+                This is a local development readiness check, not historical uptime monitoring.
+              </p>
             </div>
           </div>
         </section>
 
-        {/* Uptime Stats */}
         <section className="py-12">
           <div className="container">
-            <h2 className="text-2xl font-bold mb-8">Service Uptime</h2>
+            <h2 className="text-2xl font-bold mb-8">Current Snapshot</h2>
             <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
               <table className="w-full">
                 <thead className="bg-slate-50 border-b border-slate-200">
                   <tr>
                     <th className="px-6 py-3 text-left text-sm font-semibold">Service</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Last 7 Days</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">Last 30 Days</th>
-                    <th className="px-6 py-3 text-left text-sm font-semibold">All Time</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold">Current State</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold">Monitoring</th>
+                    <th className="px-6 py-3 text-left text-sm font-semibold">Notes</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {serviceStatuses.map((service, idx) => (
-                    <tr key={idx} className="border-b border-slate-200 last:border-b-0">
+                  {serviceStatuses.map((service) => (
+                    <tr key={service.key} className="border-b border-slate-200 last:border-b-0">
                       <td className="px-6 py-3 text-sm font-medium">{service.name}</td>
-                      <td className="px-6 py-3 text-sm text-green-600">99.99%</td>
-                      <td className="px-6 py-3 text-sm text-green-600">99.98%</td>
-                      <td className="px-6 py-3 text-sm text-green-600">99.97%</td>
+                      <td className={`px-6 py-3 text-sm ${service.status === 'online' ? 'text-green-600' : 'text-red-600'}`}>
+                        {service.status === 'online' ? 'Reachable now' : 'Unavailable now'}
+                      </td>
+                      <td className="px-6 py-3 text-sm text-slate-600">Live probe every 10s</td>
+                      <td className="px-6 py-3 text-sm text-slate-600">Historical uptime not tracked yet</td>
                     </tr>
                   ))}
                 </tbody>
