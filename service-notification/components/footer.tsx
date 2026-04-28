@@ -24,19 +24,19 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground">ผลิตภัณฑ์</h3>
             <ul className="mt-4 space-y-3">
               <li>
-                <Link href="/docs" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3000/docs" className="text-sm text-muted-foreground hover:text-primary">
                   Documentation
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/scholarships" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3003/scholarships" className="text-sm text-muted-foreground hover:text-primary">
                   ค้นหาทุน
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/analytics" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3004/analytics" className="text-sm text-muted-foreground hover:text-primary">
                   Analytics
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
@@ -45,19 +45,19 @@ export function Footer() {
             <h3 className="text-sm font-semibold text-foreground">บัญชี</h3>
             <ul className="mt-4 space-y-3">
               <li>
-                <Link href="/login" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3001/login" className="text-sm text-muted-foreground hover:text-primary">
                   เข้าสู่ระบบ
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/register" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3001/register" className="text-sm text-muted-foreground hover:text-primary">
                   สมัครสมาชิก
-                </Link>
+                </a>
               </li>
               <li>
-                <Link href="/dashboard/keys" className="text-sm text-muted-foreground hover:text-primary">
+                <a href="http://localhost:3001/dashboard/keys" className="text-sm text-muted-foreground hover:text-primary">
                   Dashboard
-                </Link>
+                </a>
               </li>
             </ul>
           </div>
