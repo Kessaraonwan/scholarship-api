@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Calendar, MapPin, GraduationCap, Briefcase } from "lucide-react"
-import { scholarships, type Scholarship } from "@/lib/scholarships-data"
+import { type Scholarship } from "@/lib/scholarships-data"
 
 const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
 const fields = ["ทุกสาขา", "IT", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
@@ -92,30 +92,45 @@ export default function ScholarshipsPage() {
   const [level, setLevel] = useState("ทุกระดับ")
   const [field, setField] = useState("ทุกสาขา")
   const [country, setCountry] = useState("ทุกประเทศ")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 6
 
-  const filteredScholarships = useMemo(() => {
-    return scholarships.filter((s) => {
-      const matchesSearch = s.name.toLowerCase().includes(search.toLowerCase())
-      const matchesLevel = level === "ทุกระดับ" || s.level === level
-      const matchesField = field === "ทุกสาขา" || s.field === field
-      const matchesCountry = country === "ทุกประเทศ" || s.country === country
-      return matchesSearch && matchesLevel && matchesField && matchesCountry
-    })
-  }, [search, level, field, country])
+  const [scholarships, setScholarships] = useState<Scholarship[]>([])
+  const [totalPages, setTotalPages] = useState(1)
 
-  const totalPages = Math.ceil(filteredScholarships.length / itemsPerPage)
-  const paginatedScholarships = filteredScholarships.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  )
+  useEffect(() => {
+    const fetchScholarships = async () => {
+      setIsLoading(true)
+      const params = new URLSearchParams({
+        keyword: search,
+        level: level,
+        field: field,
+        country: country,
+        page: String(currentPage),
+        limit: String(itemsPerPage),
+      })
+
+      try {
+        const response = await fetch(`/api/scholarships?${params.toString()}`)
+        const data = await response.json()
+        setScholarships(data.data)
+        setTotalPages(data.pagination.totalPages)
+      } catch (error) {
+        console.error("Failed to fetch scholarships:", error)
+        setScholarships([])
+        setTotalPages(1)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchScholarships()
+  }, [search, level, field, country, currentPage])
 
   const handleFilterChange = () => {
+    // Reset to first page when filters change
     setCurrentPage(1)
-    setIsLoading(true)
-    setTimeout(() => setIsLoading(false), 300)
   }
 
   return (
@@ -209,7 +224,7 @@ export default function ScholarshipsPage() {
             <ScholarshipSkeleton key={i} />
           ))}
         </div>
-      ) : paginatedScholarships.length === 0 ? (
+      ) : scholarships.length === 0 ? (
         <div className="rounded-lg border border-border bg-card py-16 text-center">
           <p className="text-lg font-medium text-foreground">ไม่พบทุนการศึกษา</p>
           <p className="mt-2 text-muted-foreground">ลองปรับเงื่อนไขการค้นหาใหม่</p>
@@ -217,7 +232,7 @@ export default function ScholarshipsPage() {
       ) : (
         <>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {paginatedScholarships.map((scholarship) => (
+            {scholarships.map((scholarship) => (
               <ScholarshipCard key={scholarship.id} scholarship={scholarship} />
             ))}
           </div>
