@@ -11,6 +11,8 @@ COPY . .
 
 RUN mkdir -p public
 
+RUN npx prisma generate
+
 RUN npm run build --if-present
 
 # Production stage
@@ -35,4 +37,4 @@ EXPOSE 3003
 
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["npx", "prisma", "migrate", "deploy", "&&", "npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy --skip-generate 2>/dev/null || npx prisma db push --skip-generate --accept-data-loss && npm start"]

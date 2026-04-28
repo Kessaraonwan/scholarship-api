@@ -33,9 +33,13 @@ export async function withAuth(request: NextRequest) {
     const payload = await response.json()
     return { user: payload.user || null, isValid: true }
   } catch (error) {
-    // Fallback: ถ้า service-auth ไม่พร้อม อนุญาตให้ผ่านได้ชั่วคราว (dev mode)
-    console.warn('Auth service unavailable, allowing request:', error)
-    return { user: null, isValid: true }
+    // ถ้า service-auth ไม่พร้อม ให้ return 503 Service Unavailable
+    // ไม่ควร bypass authentication เพราะนั่นคือ security risk
+    console.error('Auth service unavailable:', error)
+    return NextResponse.json(
+      { error: 'Authentication service unavailable', code: 503 },
+      { status: 503 }
+    )
   }
 }
 

@@ -27,17 +27,3 @@ model Scholarship {
   @@index([deadline])
   @@index([field])
 }
-
-model ingestion_logs {
-  id           String    @id @default(cuid())
-  source       String
-  status       String    @default("running")
-  countNew     Int       @default(0)
-  countUpdated Int       @default(0)
-  errorMsg     String?
-  startedAt    DateTime  @default(now())
-  finishedAt   DateTime?
-
-  @@index([source])
-  @@index([startedAt])
-}
