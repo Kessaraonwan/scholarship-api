@@ -47,12 +47,7 @@ export default function Navbar() {
             </a>
 
             {/* ลิงก์ไปหน้า Login ของแบงค์ (3001) */}
-            <a href="http://localhost:3001/login">
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-6">
-                <LogIn className="w-4 h-4 mr-2" />
-                เข้าสู่ระบบ
-              </Button>
-            </a>
+            
           </div>
 
         </div>

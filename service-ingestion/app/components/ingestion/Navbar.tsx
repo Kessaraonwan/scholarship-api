@@ -1,54 +1,47 @@
+'use client';
+
+import { Database, Search, Key } from 'lucide-react';
+
 export default function Navbar() {
-    return (
-        <nav style={{
-            background: '#fff',
-            borderBottom: '0.5px solid #e5e7eb',
-            padding: '0 2rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: 56,
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{
-                    width: 28, height: 28, background: '#185FA5',
-                    borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center'
-                }}>
-                    <svg width="16" height="16" fill="none" stroke="#E6F1FB" strokeWidth="2" viewBox="0 0 24 24">
-                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                    </svg>
-                </div>
-                <span style={{ fontSize: 15, fontWeight: 500, color: '#111' }}>Scholarship API</span>
-            </div>
+  return (
+    <nav style={{
+      position: 'sticky', top: 0, zIndex: 50, background: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', height: '64px',
+      display: 'flex', alignItems: 'center'
+    }}>
+      <div style={{
+        width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '0 24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{
+            width: '36px', height: '36px', background: '#4f46e5', borderRadius: '12px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 15px -3px rgba(79, 70, 229, 0.2)'
+          }}>
+            <Database size={20} color="#fff" />
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#0f172a', lineHeight: 1 }}>Ingestion</span>
+            <span style={{ fontSize: '10px', fontWeight: 'bold', color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Admin Portal</span>
+          </div>
+        </div>
 
-            <div style={{ display: 'flex', gap: 24 }}>
-                {['Docs', 'ค้นหาทุน', 'Status', 'Support'].map(link => (
-                    <span key={link} style={{ fontSize: 14, color: '#6b7280', cursor: 'pointer' }}>{link}</span>
-                ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {/* 🔗 วาร์ปไปพอร์ตแบงค์ 3001 */}
-                <a 
-                    href="http://localhost:3001/login" 
-                    style={{ fontSize: 14, color: '#6b7280', cursor: 'pointer', textDecoration: 'none' }}
-                >
-                    เข้าสู่ระบบ
-                </a>
-                
-                <a 
-                    href="http://localhost:3001/register" 
-                    style={{ textDecoration: 'none' }}
-                >
-                    <button style={{
-                        fontSize: 13, fontWeight: 500, padding: '7px 16px',
-                        borderRadius: 8, background: '#185FA5', color: '#E6F1FB', border: 'none', cursor: 'pointer'
-                    }}>
-                        เริ่มใช้งานฟรี
-                    </button>
-                </a>
-            </div>
-        </nav>
-    )
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <a href="http://localhost:3003/scholarships" style={{
+            display: 'flex', alignItems: 'center', gap: '8px',padding: '10px 20px',background: '#5e2a9b', color: '#ffffff', borderRadius: '12px',fontSize: '14px', fontWeight: 600, textDecoration: 'none'
+          }}>
+            <Search size={16} /> ค้นหาทุน
+          </a>
+          <div style={{ width: '1px', height: '16px', background: '#e2e8f0' }} />
+          <a href="http://localhost:3001/dashboard" style={{
+            display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
+            background: '#0f172a', color: '#fff', borderRadius: '12px',
+            fontSize: '14px', fontWeight: 'bold', textDecoration: 'none', transition: '0.2s'
+          }}>
+            <Key size={16} /> จัดการ API Key
+          </a>
+        </div>
+      </div>
+    </nav>
+  );
 }
