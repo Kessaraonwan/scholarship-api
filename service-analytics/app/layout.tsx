@@ -13,18 +13,12 @@ export const metadata: Metadata = {
     default: 'แดชบอร์ดสถิติทุนการศึกษา',
   },
   description: 'สถิติและแดชบอร์ดสำหรับ Scholarship API',
-  icons: {
-    icon: '/favicon.ico',
-  }
+  icons: { icon: '/favicon.ico' }
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="th">
       <body className={inter.variable}>
         {children}
       </body>
