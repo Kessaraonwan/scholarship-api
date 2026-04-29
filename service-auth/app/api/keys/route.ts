@@ -90,3 +90,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'ไม่สามารถดึงข้อมูลได้' }, { status: 500 })
   }
 }
+export async function DELETE(request: Request) {
+  try {
+    // ดึง ID จาก URL (?id=...)
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: "ต้องระบุ ID ที่จะลบ" }, { status: 400 });
+    }
+
+    await prisma.apiKey.delete({
+      where: { id: id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Delete Error:", error);
+    return NextResponse.json({ error: "ลบข้อมูลไม่สำเร็จ" }, { status: 500 });
+  }
+}
