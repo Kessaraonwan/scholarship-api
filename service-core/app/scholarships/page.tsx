@@ -108,8 +108,8 @@ export default function ScholarshipsPage() {
       const response = await fetch(`/api/scholarships?${params.toString()}`, {
         method: 'GET',
         headers: {
-          // ✅ ส่งแค่ API Key อย่างเดียว ป้องกันภาษาไทยหลุดเข้า Header
-          "x-api-key": apiKey.trim()
+          // ✅ ส่ง Authorization Bearer ให้ตรงกับที่ /api/scholarships route รับ
+          "Authorization": `Bearer ${apiKey.trim()}`
         }
       })
 
@@ -218,8 +218,8 @@ export default function ScholarshipsPage() {
             }}
             className="w-full"
           >
-            ล้างตัวกรองทุนที่ค้นหา</p>
-          <p className="mt-2 text-muted-foreground">ลองปรับเงื่อนไขการค้นหาหรือกดปุ่ม "ล้างตัวกรอง" เพื่อดูทุนทั้งหมด
+            ล้างตัวกรองทุนที่ค้นหา
+          </Button>
         )}
       </div>
 

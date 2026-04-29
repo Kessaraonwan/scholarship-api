@@ -37,11 +37,11 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
     orderBy: { createdAt: "desc" },
   })
 
-  const daysUntilDeadline = Math.ceil(
-    (new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysUntilDeadline = scholarship.deadline
+    ? Math.ceil((new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null
 
-  const isUrgent = daysUntilDeadline <= 30 && daysUntilDeadline > 0
+  const isUrgent = daysUntilDeadline !== null && daysUntilDeadline <= 30 && daysUntilDeadline > 0
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">

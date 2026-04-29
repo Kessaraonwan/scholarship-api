@@ -33,7 +33,7 @@ RUN chmod +x ./start.sh
 
 USER node
 
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=20s --timeout=3s --start-period=60s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3003/api/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || true
 
 EXPOSE 3003
