@@ -33,7 +33,7 @@ export default function Navbar() {
             <Search size={16} /> ค้นหาทุน
           </a>
           <div style={{ width: '1px', height: '16px', background: '#e2e8f0' }} />
-          <a href="http://localhost:3001/dashboard" style={{
+          <a href="http://localhost:3001/dashboard/keys" style={{
             display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px',
             background: '#0f172a', color: '#fff', borderRadius: '12px',
             fontSize: '14px', fontWeight: 'bold', textDecoration: 'none', transition: '0.2s'
