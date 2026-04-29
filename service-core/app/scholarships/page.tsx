@@ -82,10 +82,10 @@ export default function ScholarshipsPage() {
   const [totalPages, setTotalPages] = useState(1)
 
   // 1. โหลดคีย์จากเครื่อง
-  useEffect(() => {
-    const savedKey = localStorage.getItem("user_api_key")
-    if (savedKey) setApiKey(savedKey)
-  }, [])
+  //useEffect(() => {
+  //  const savedKey = localStorage.getItem("user_api_key")
+  //  if (savedKey) setApiKey(savedKey)
+  //}, [])
 
   // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
   const fetchScholarships = useCallback(async () => {
@@ -157,7 +157,7 @@ export default function ScholarshipsPage() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
-            placeholder="วาง sk_live_..."
+            placeholder="ใส่ API Key ของคุณที่นี่..."
             value={apiKey}
             onChange={(e) => handleKeyChange(e.target.value)}
             className="flex-1 h-12 font-mono border-gray-300 focus:ring-indigo-500"
