@@ -3,18 +3,19 @@ import { prisma } from '@/lib/prisma'
 import { verifyApiKey } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
-  // 1. ดึง API Key จาก Header
-  const apiKey = request.headers.get('x-api-key')
-
-  // 2. ถ้าไม่มี API Key ตอบ 401 Unauthorized
-  if (!apiKey) {
+  // 1. ดึง API Key จาก Authorization header
+  const authHeader = request.headers.get('authorization')
+  
+  if (!authHeader?.toLowerCase().startsWith('bearer ')) {
     return NextResponse.json(
-      { error: 'Missing x-api-key header' },
+      { error: 'Missing or invalid Authorization header - use: Authorization: Bearer <api-key>' },
       { status: 401 }
     )
   }
 
-  // 3. ยิง Fetch ไปถาม Service Auth เพื่อตรวจสอบคีย์
+  const apiKey = authHeader.slice('bearer '.length).trim()
+
+  // 2. ยิง Fetch ไปถาม Service Auth เพื่อตรวจสอบคีย์
   const verificationResult = await verifyApiKey(apiKey)
 
   // 4. ถ้า valid: false หรือไม่มีคีย์แนบมา -> ตอบกลับ 401 Unauthorized

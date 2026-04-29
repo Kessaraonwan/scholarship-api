@@ -13,11 +13,17 @@ type Scholarship = {
 
 export async function GET(request: NextRequest) {
   try {
-    const apiKey = request.headers.get('x-api-key')
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing x-api-key header', code: 401 }, { status: 401 })
+    // Get API key from Authorization header (standardized pattern)
+    const authHeader = request.headers.get('authorization')
+    
+    if (!authHeader?.toLowerCase().startsWith('bearer ')) {
+      return NextResponse.json(
+        { error: 'Missing or invalid Authorization header - use: Authorization: Bearer <api-key>', code: 401 },
+        { status: 401 }
+      )
     }
 
+    const apiKey = authHeader.slice('bearer '.length).trim()
     const verifyResult = await verifyApiKey(apiKey)
     const proCheck = requireProTier(verifyResult)
     if (!proCheck.ok) {
@@ -34,7 +40,7 @@ export async function GET(request: NextRequest) {
         const response = await fetch(
           `${CORE_SERVICE_URL}/api/scholarships?page=${page}&limit=${limit}`,
           {
-            headers: { 'x-api-key': apiKey },
+            headers: { 'Authorization': `Bearer ${apiKey}` },
             cache: 'no-store',
           }
         )

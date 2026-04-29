@@ -27,6 +27,9 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/prisma ./prisma
+COPY start.sh ./start.sh
+
+RUN chmod +x ./start.sh
 
 USER node
 
@@ -37,4 +40,4 @@ EXPOSE 3005
 
 ENTRYPOINT ["dumb-init", "--"]
 
-CMD ["sh", "-c", "npx prisma migrate deploy --skip-generate 2>/dev/null || npx prisma db push --skip-generate --accept-data-loss && npm start"]
+CMD ["sh", "start.sh"]
