@@ -1,260 +1,88 @@
-"use client"
+import Link from 'next/link';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Switch } from "@/components/ui/switch"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Plus, Trash2 } from "lucide-react"
-
-interface NotificationRule {
-  id: string
-  field: string
-  level: string
-  country: string
-  email: string
-  webhookUrl?: string
-  enabled: boolean
-}
-
-const initialRules: NotificationRule[] = [
-  {
-    id: "1",
-    field: "IT",
-    level: "ปริญญาโท",
-    country: "UK",
-    email: "user@example.com",
-    enabled: true,
-  },
-  {
-    id: "2",
-    field: "ทุกสาขา",
-    level: "ปริญญาตรี",
-    country: "ไทย",
-    email: "user@example.com",
-    webhookUrl: "https://webhook.example.com/notify",
-    enabled: false,
-  },
-]
-
-const fields = ["ทุกสาขา", "IT", "วิทยาศาสตร์", "เศรษฐศาสตร์"]
-const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
-const countries = ["ทุกประเทศ", "ไทย", "UK", "US", "Japan", "Germany"]
-
-export default function NotificationsPage() {
-  const [rules, setRules] = useState<NotificationRule[]>(initialRules)
-  const [showForm, setShowForm] = useState(false)
-  const [newRule, setNewRule] = useState({
-    field: "",
-    level: "",
-    country: "",
-    email: "",
-    webhookUrl: "",
-  })
-  const isPro = false // Mock: change to true to enable webhook
-
-  const handleAddRule = () => {
-    if (!newRule.field || !newRule.level || !newRule.country || !newRule.email) return
-
-    const rule: NotificationRule = {
-      id: Date.now().toString(),
-      field: newRule.field,
-      level: newRule.level,
-      country: newRule.country,
-      email: newRule.email,
-      webhookUrl: isPro ? newRule.webhookUrl : undefined,
-      enabled: true,
-    }
-
-    setRules([...rules, rule])
-    setNewRule({ field: "", level: "", country: "", email: "", webhookUrl: "" })
-    setShowForm(false)
-  }
-
-  const handleDeleteRule = (id: string) => {
-    setRules(rules.filter((rule) => rule.id !== id))
-  }
-
-  const handleToggleRule = (id: string) => {
-    setRules(
-      rules.map((rule) =>
-        rule.id === id ? { ...rule, enabled: !rule.enabled } : rule
-      )
-    )
-  }
-
+export default function NotificationDashboard() {
   return (
-    <div>
-      <div className="mb-8 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">ตั้งค่าการแจ้งเตือน</h1>
-          <p className="mt-2 text-muted-foreground">
-            สร้างกฎการแจ้งเตือนเมื่อมีทุนใหม่ที่ตรงกับเงื่อนไขของคุณ
-          </p>
+    <div className="min-h-screen bg-slate-50 p-6 font-sans">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold text-slate-800 mb-8">🔔 ศูนย์การแจ้งเตือน</h1>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* ส่วนที่ 1: ตั้งค่าการแจ้งเตือน */}
+          <div className="lg:col-span-1 space-y-6">
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+              <h2 className="text-lg font-semibold mb-4 text-indigo-600">ตั้งค่าเงื่อนไข (Alert Rules)</h2>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">สาขาที่สนใจ</label>
+                  <select className="w-full p-2 border border-slate-300 rounded-md text-sm">
+                    <option>Information Technology</option>
+                    <option>Engineering</option>
+                    <option>Medicine</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-slate-600">รับแจ้งเตือนผ่าน Email</span>
+                  <input type="checkbox" className="w-4 h-4 text-indigo-600" defaultChecked />
+                </div>
+                <button className="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
+                  บันทึกการตั้งค่า
+                </button>
+              </div>
+            </div>
+
+            {/* ส่วน Webhook สำหรับ Pro Tier */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/30">
+              <h2 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-2">Developer Webhook</h2>
+              <input 
+                type="text" 
+                placeholder="https://your-api.com/webhook" 
+                className="w-full p-2 border border-indigo-200 rounded-md text-xs mb-2"
+              />
+              <p className="text-[10px] text-indigo-600">ระบบจะยิง JSON Payload ไปยัง URL นี้เมื่อพบทุนที่ตรงเงื่อนไข</p>
+            </div>
+          </div>
+
+          {/* ส่วนที่ 2: ประวัติการแจ้งเตือน (Logs) */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+              <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <h2 className="font-semibold text-slate-700">ประวัติการแจ้งเตือนล่าสุด</h2>
+                <span className="text-xs text-indigo-600 font-medium">Live Updates</span>
+              </div>
+              <div className="divide-y divide-slate-100">
+                {/* ตัวอย่าง Log 1 */}
+                <div className="p-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-sm font-bold text-slate-800">พบทุนใหม่: Full Stack Bootcamp 2026</h3>
+                    <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] rounded-full font-bold uppercase">Sent</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-3">ตรงกับเงื่อนไข: สาขา IT | ส่งเมื่อ: 2 นาทีที่แล้ว</p>
+                  <a href="http://localhost:3003/scholarships/1" className="text-xs text-indigo-600 hover:underline font-medium">
+                    ดูรายละเอียดทุนนี้ที่ Core API →
+                  </a>
+                </div>
+
+                {/* ตัวอย่าง Log 2 */}
+                <div className="p-4 hover:bg-slate-50 transition-colors">
+                  <div className="flex justify-between items-start mb-1">
+                    <h3 className="text-sm font-bold text-slate-800">ทุนปิดรับสมัคร: Global MBA Scholarship</h3>
+                    <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] rounded-full font-bold uppercase">Queued</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mb-2">แจ้งเตือนล่วงหน้า 3 วัน | รอดำเนินการส่ง...</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
-          <Plus className="mr-2 h-4 w-4" />
-          เพิ่มกฎใหม่
-        </Button>
+
+        {/* Navigation Bridge */}
+        <div className="mt-12 flex justify-center space-x-6 border-t border-slate-200 pt-8">
+           <a href="http://localhost:3001/dashboard/keys" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">🔑 จัดการ API Key (Service 1)</a>
+           <a href="http://localhost:3004/analytics" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">📊 ดูสถิติทุน (Service 4)</a>
+        </div>
       </div>
-
-      {/* Add New Rule Form */}
-      {showForm && (
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>เพิ่มกฎการแจ้งเตือนใหม่</CardTitle>
-            <CardDescription>ระบุเงื่อนไขที่ต้องการรับการแจ้งเตือน</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="space-y-2">
-                <Label>สาขาวิชา</Label>
-                <Select
-                  value={newRule.field}
-                  onValueChange={(value) => setNewRule({ ...newRule, field: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกสาขา" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {fields.map((field) => (
-                      <SelectItem key={field} value={field}>
-                        {field}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>ระดับการศึกษา</Label>
-                <Select
-                  value={newRule.level}
-                  onValueChange={(value) => setNewRule({ ...newRule, level: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกระดับ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {levels.map((level) => (
-                      <SelectItem key={level} value={level}>
-                        {level}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>ประเทศ</Label>
-                <Select
-                  value={newRule.country}
-                  onValueChange={(value) => setNewRule({ ...newRule, country: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="เลือกประเทศ" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country} value={country}>
-                        {country}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>อีเมล</Label>
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={newRule.email}
-                  onChange={(e) => setNewRule({ ...newRule, email: e.target.value })}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Label>Webhook URL</Label>
-                  {!isPro && (
-                    <Badge variant="secondary" className="text-xs">
-                      Pro only
-                    </Badge>
-                  )}
-                </div>
-                <Input
-                  type="url"
-                  placeholder="https://..."
-                  value={newRule.webhookUrl}
-                  onChange={(e) => setNewRule({ ...newRule, webhookUrl: e.target.value })}
-                  disabled={!isPro}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex gap-2">
-              <Button onClick={handleAddRule}>บันทึกกฎ</Button>
-              <Button variant="outline" onClick={() => setShowForm(false)}>
-                ยกเลิก
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Rules List */}
-      <Card>
-        <CardHeader>
-          <CardTitle>กฎการแจ้งเตือนของคุณ</CardTitle>
-          <CardDescription>รายการกฎที่คุณสร้างไว้</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {rules.length === 0 ? (
-            <p className="text-center text-muted-foreground">ยังไม่มีกฎการแจ้งเตือน</p>
-          ) : (
-            <div className="space-y-4">
-              {rules.map((rule) => (
-                <div
-                  key={rule.id}
-                  className="flex items-center justify-between rounded-lg border border-border p-4"
-                >
-                  <div className="flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="outline">{rule.field}</Badge>
-                      <Badge variant="outline">{rule.level}</Badge>
-                      <Badge variant="outline">{rule.country}</Badge>
-                    </div>
-                    <div className="mt-2 text-sm text-muted-foreground">
-                      <span>Email: {rule.email}</span>
-                      {rule.webhookUrl && (
-                        <span className="ml-4">Webhook: {rule.webhookUrl}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Switch
-                      checked={rule.enabled}
-                      onCheckedChange={() => handleToggleRule(rule.id)}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteRule(rule.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
     </div>
-  )
+  );
 }
