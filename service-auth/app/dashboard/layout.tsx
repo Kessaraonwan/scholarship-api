@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { Key, BarChart3, LogOut, Shield } from 'lucide-react'
+import { Key, BarChart3, LogOut, Shield, Search, ExternalLink } from 'lucide-react'
 
 export default function DashboardLayout({
   children,
@@ -21,14 +21,14 @@ export default function DashboardLayout({
     router.push('/')
   }
 
-  // สร้าง Array ของเมนูเพื่อให้จัดการง่ายขึ้น
+  // เพิ่มเมนูไปหน้าของอีฟ (พอร์ต 3003)
   const navigation = [
     { name: 'API Keys', href: '/dashboard/keys', icon: Key },
     { name: 'Usage Stats', href: '/dashboard/usage', icon: BarChart3 },
   ]
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900">
       {/* Top Navigation Bar */}
       <nav className="bg-white border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,14 +37,14 @@ export default function DashboardLayout({
             {/* Left Section: Logo & Links */}
             <div className="flex items-center gap-8">
               {/* Logo */}
-              <div className="flex-shrink-0 flex items-center gap-3">
+              <Link href="/" className="flex-shrink-0 flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="h-8 w-8 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center shadow-sm">
                   <Shield className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-700 tracking-tight">
                   Scholarship API
                 </span>
-              </div>
+              </Link>
 
               {/* Desktop Menu */}
               <div className="hidden sm:flex sm:space-x-1 sm:ml-4">
@@ -67,6 +67,18 @@ export default function DashboardLayout({
                     </Link>
                   )
                 })}
+
+                {/* ปุ่มพิเศษ: ลิ้งก์ไปหน้าของอีฟ (Core Service 3003) */}
+                <a
+                  href="http://localhost:3003/scholarships"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium text-indigo-600 hover:bg-indigo-50 transition-all duration-200"
+                >
+                  <Search className="w-4 h-4" />
+                  Search Scholarships
+                  <ExternalLink className="w-3 h-3 opacity-50" />
+                </a>
               </div>
             </div>
 

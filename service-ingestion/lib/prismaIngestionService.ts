@@ -1,14 +1,15 @@
 /**
  * Prisma-based Ingestion Service
- * 
+ *
  * Handles scholarship data insertion, updates, and duplicate prevention
  * using Prisma's upsert functionality
  */
 
-import { PrismaClient, Prisma } from '@prisma/client'
-import { Scholarship, IngestionLog } from './types'
+import { Scholarship, IngestionLog } from "./types";
+import { PrismaClient, Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 export class PrismaIngestionService {
   /**
@@ -20,11 +21,11 @@ export class PrismaIngestionService {
     const log = await prisma.ingestionLog.create({
       data: {
         source,
-        status: 'running',
-        startedAt: new Date()
-      }
-    })
-    return log.id
+        status: "running",
+        startedAt: new Date(),
+      },
+    });
+    return log.id;
   }
 
   /**
@@ -37,10 +38,10 @@ export class PrismaIngestionService {
    */
   async updateLog(
     id: string,
-    status: 'success' | 'error',
+    status: "success" | "error",
     countNew: number = 0,
     countUpdated: number = 0,
-    errorMsg: string | null = null
+    errorMsg: string | null = null,
   ): Promise<void> {
     await prisma.ingestionLog.update({
       where: { id },
@@ -49,31 +50,31 @@ export class PrismaIngestionService {
         countNew,
         countUpdated,
         errorMsg,
-        finishedAt: new Date()
-      }
-    })
+        finishedAt: new Date(),
+      },
+    });
   }
 
   /**
    * Save scholarships using upsert to prevent duplicates and update existing records
-   * 
+   *
    * This method implements smart duplicate detection:
    * 1. Primary check: URL uniqueness (unique constraint)
    * 2. Secondary check: Name + Source combination (composite unique)
    * 3. If a scholarship exists, it updates all fields to reflect latest data
    * 4. If not, it creates a new record
-   * 
+   *
    * @param scholarships - Array of normalized scholarship objects
    * @returns Object containing counts of created and updated scholarships
    */
   async saveScholarships(scholarships: Scholarship[]): Promise<{
-    created: number
-    updated: number
-    failed: number
+    created: number;
+    updated: number;
+    failed: number;
   }> {
-    let created = 0
-    let updated = 0
-    let failed = 0
+    let created = 0;
+    let updated = 0;
+    let failed = 0;
 
     for (const scholarship of scholarships) {
       try {
@@ -88,7 +89,7 @@ export class PrismaIngestionService {
         const result = await prisma.scholarship.upsert({
           where: { url: scholarship.url },
           create: {
-            ...scholarship
+            ...scholarship,
           },
           update: {
             // Update all fields except createdAt
@@ -101,37 +102,38 @@ export class PrismaIngestionService {
             currency: scholarship.currency,
             description: scholarship.description,
             // lastUpdated is automatically set by @updatedAt
-          }
-        })
+          },
+        });
 
         // Track whether this was a create or update
         // We check if the record was just created by comparing dates
-        const createdRecently = new Date().getTime() - result.createdAt.getTime() < 1000
+        const createdRecently =
+          new Date().getTime() - result.createdAt.getTime() < 1000;
         if (createdRecently) {
-          created++
+          created++;
         } else {
-          updated++
+          updated++;
         }
       } catch (error) {
-        failed++
-        
+        failed++;
+
         // Log specific error types
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error instanceof PrismaClientKnownRequestError) {
           console.error(
             `Prisma error saving scholarship "${scholarship.name}" from ${scholarship.source}:`,
             error.code,
-            error.message
-          )
+            error.message,
+          );
         } else {
           console.error(
             `Unexpected error saving scholarship "${scholarship.name}":`,
-            error
-          )
+            error,
+          );
         }
       }
     }
 
-    return { created, updated, failed }
+    return { created, updated, failed };
   }
 
   /**
@@ -140,33 +142,54 @@ export class PrismaIngestionService {
    */
   async getLatestLog(): Promise<IngestionLog | null> {
     const log = await prisma.ingestionLog.findFirst({
-      orderBy: { startedAt: 'desc' },
-      take: 1
-    })
+      orderBy: { startedAt: "desc" },
+      take: 1,
+    });
     return log
+      ? {
+          ...log,
+          status: log.status as "error" | "success" | "running",
+          count_new: log.countNew,
+          error_msg: log.errorMsg,
+          started_at: log.startedAt?.toISOString(),
+          finished_at: log.finishedAt?.toISOString(),
+        }
+      : null;
   }
-
   /**
    * Get paginated ingestion logs
    * @param page - Page number (1-indexed)
    * @param limit - Number of logs per page
    */
-  async getLogs(page: number = 1, limit: number = 20): Promise<{
-    logs: IngestionLog[]
-    total: number
+  async getLogs(
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{
+    logs: IngestionLog[];
+    total: number;
   }> {
-    const skip = (page - 1) * limit
+    const skip = (page - 1) * limit;
 
     const [logs, total] = await Promise.all([
       prisma.ingestionLog.findMany({
         skip,
         take: limit,
-        orderBy: { startedAt: 'desc' }
+        orderBy: { startedAt: "desc" },
       }),
-      prisma.ingestionLog.count()
-    ])
+      prisma.ingestionLog.count(),
+    ]);
 
-    return { logs, total }
+    return {
+      logs: logs.map(log => ({
+        ...log,
+        status: log.status as 'error' | 'success' | 'running',
+        count_new: log.countNew,
+        error_msg: log.errorMsg,
+        started_at: log.startedAt?.toISOString(),
+        finished_at: log.finishedAt?.toISOString(),
+      })),
+      total
+    };
   }
 
   /**
@@ -175,13 +198,19 @@ export class PrismaIngestionService {
    */
   async getScholarshipsBySource(
     source: string,
-    limit: number = 100
+    limit: number = 100,
   ): Promise<Scholarship[]> {
-    return prisma.scholarship.findMany({
+    const results = await prisma.scholarship.findMany({
       where: { source },
       take: limit,
-      orderBy: { createdAt: 'desc' }
-    })
+      orderBy: { createdAt: "desc" },
+    });
+    return results.map(s => ({
+      ...s,
+      deadline: s.deadline?.toISOString(),
+      lastUpdated: s.lastUpdated?.toISOString(),
+      createdAt: s.createdAt?.toISOString(),
+    }));
   }
 
   /**
@@ -189,20 +218,26 @@ export class PrismaIngestionService {
    * Useful for cleaning up outdated records
    */
   async getExpiringScholarships(
-    daysFromNow: number = 7
+    daysFromNow: number = 7,
   ): Promise<Scholarship[]> {
-    const futureDate = new Date()
-    futureDate.setDate(futureDate.getDate() + daysFromNow)
+    const futureDate = new Date();
+    futureDate.setDate(futureDate.getDate() + daysFromNow);
 
-    return prisma.scholarship.findMany({
+    const results = await prisma.scholarship.findMany({
       where: {
         deadline: {
           lte: futureDate,
-          gt: new Date() // Only future deadlines
-        }
+          gt: new Date(),
+        },
       },
-      orderBy: { deadline: 'asc' }
-    })
+      orderBy: { deadline: "asc" },
+    });
+    return results.map(s => ({
+      ...s,
+      deadline: s.deadline?.toISOString(),
+      lastUpdated: s.lastUpdated?.toISOString(),
+      createdAt: s.createdAt?.toISOString(),
+    }));
   }
 
   /**
@@ -210,16 +245,16 @@ export class PrismaIngestionService {
    * Run this periodically to maintain database health
    */
   async cleanupOldLogs(olderThanDays: number = 30): Promise<number> {
-    const cutoffDate = new Date()
-    cutoffDate.setDate(cutoffDate.getDate() - olderThanDays)
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
     const result = await prisma.ingestionLog.deleteMany({
       where: {
-        startedAt: { lt: cutoffDate }
-      }
-    })
+        startedAt: { lt: cutoffDate },
+      },
+    });
 
-    return result.count
+    return result.count;
   }
 
   /**
@@ -227,9 +262,9 @@ export class PrismaIngestionService {
    * Call this when shutting down the application
    */
   async disconnect(): Promise<void> {
-    await prisma.$disconnect()
+    await prisma.$disconnect();
   }
 }
 
 // Export a singleton instance
-export const ingestionService = new PrismaIngestionService()
+export const ingestionService = new PrismaIngestionService();

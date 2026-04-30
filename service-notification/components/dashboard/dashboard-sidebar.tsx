@@ -3,12 +3,14 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Bell, History, Webhook } from "lucide-react"
+import { Bell, History, Webhook, CreditCard, Settings } from "lucide-react"
 
 const navigation = [
   { title: "Notifications", href: "/dashboard/notifications", icon: Bell },
   { title: "Notification Logs", href: "/dashboard/notifications/logs", icon: History },
   { title: "Webhooks", href: "/dashboard/webhooks", icon: Webhook },
+  { title: "Billing", href: "/dashboard/billing", icon: CreditCard },
+  { title: "Settings", href: "/dashboard/settings", icon: Settings },
 ]
 
 export function DashboardSidebar() {

@@ -1,26 +1,16 @@
-// Mock webhooks (shared with parent route.ts)
-const webhooks: any[] = [
-  {
-    id: "webhook-1",
-    userId: "user-123",
-    url: "https://example.com/webhooks/notifications",
-    events: ["notification.sent", "notification.delivered"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
-// GET /api/webhooks/[id] - Get specific webhook
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const webhook = webhooks.find(w => w.id === id)
+  const webhook = await prisma.webhook.findUnique({
+    where: { id: params.id },
+  })
 
   if (!webhook) {
     return Response.json(
-      { error: "Webhook not found" },
+      { error: 'Webhook not found' },
       { status: 404 }
     )
   }
@@ -28,23 +18,20 @@ export async function GET(
   return Response.json({ data: webhook })
 }
 
-// DELETE /api/webhooks/[id] - Delete webhook
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const webhookIndex = webhooks.findIndex(w => w.id === id)
+  try {
+    const webhook = await prisma.webhook.delete({
+      where: { id: params.id },
+    })
 
-  if (webhookIndex === -1) {
+    return Response.json({ data: webhook })
+  } catch (error) {
     return Response.json(
-      { error: "Webhook not found" },
+      { error: 'Webhook not found' },
       { status: 404 }
     )
   }
-
-  const deletedWebhook = webhooks[webhookIndex]
-  webhooks.splice(webhookIndex, 1)
-
-  return Response.json({ data: deletedWebhook })
 }

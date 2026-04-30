@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useRouter } from 'next/navigation'
+import { Mail, Lock, Eye, EyeOff, Shield } from 'lucide-react'
 
 interface LoginForm {
   email: string
@@ -13,6 +14,7 @@ interface LoginForm {
 export default function Login() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>()
   const router = useRouter()
 
@@ -21,8 +23,6 @@ export default function Login() {
     setError('')
 
     try {
-      console.log('Attempting login with:', { email: data.email, password: '***' })
-
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
@@ -31,22 +31,15 @@ export default function Login() {
         body: JSON.stringify(data),
       })
 
-      console.log('Login response status:', response.status)
-
       const result = await response.json()
-      console.log('Login response:', result)
 
       if (!response.ok) {
         throw new Error(result.error || 'เข้าสู่ระบบไม่สำเร็จ')
       }
 
-      console.log('Login successful, redirecting to dashboard...')
-
-      // เข้าสู่ระบบสำเร็จ - redirect ไป dashboard
-      // Cookies จะถูกส่งโดย server
+      // เข้าสู่ระบบสำเร็จ - redirect ไปหน้า keys
       window.location.href = '/dashboard/keys'
     } catch (err) {
-      console.error('Login error:', err)
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
     } finally {
       setIsLoading(false)
@@ -54,78 +47,107 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 py-16 px-4 sm:px-6 lg:px-8 text-white">
-      <div className="mx-auto w-full max-w-md overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl shadow-black/30 backdrop-blur-xl">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-3xl bg-white text-slate-950 shadow-lg shadow-black/30">
-            <span className="text-2xl font-bold">S</span>
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50/50">
+      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-slate-100 p-8 space-y-8">
+        
+        {/* Header - Vibe เดียวกับ Register */}
+        <div className="text-center">
+          <div className="mx-auto h-12 w-12 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-sm mb-4">
+            <Shield className="w-6 h-6 text-white" />
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">เข้าสู่ระบบ</h1>
-          <p className="mt-3 text-sm text-slate-300">เข้าสู่ระบบเพื่อจัดการ API Key และดูสถิติการใช้งาน</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            เข้าสู่ระบบ
+          </h2>
+          <p className="mt-2 text-sm text-slate-500">
+            จัดการ API Key และดูสถิติการใช้งานของคุณ
+          </p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-200">
-              อีเมล
-            </label>
-            <input
-              id="email"
-              type="email"
-              {...register('email', {
-                required: 'กรุณากรอกอีเมล',
-                pattern: {
-                  value: /^\S+@\S+$/i,
-                  message: 'รูปแบบอีเมลไม่ถูกต้อง',
-                },
-              })}
-              className="mt-2 w-full rounded-full border border-slate-700 bg-slate-900/90 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
-              placeholder="you@example.com"
-            />
-            {errors.email && <p className="mt-2 text-sm text-rose-400">{errors.email.message}</p>}
+        {/* Form */}
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          
+          {/* Email Input */}
+          <div className="space-y-1">
+            <label className="block text-sm font-medium text-slate-700">อีเมล</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+              <input
+                type="email"
+                {...register('email', {
+                  required: 'กรุณากรอกอีเมล',
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: 'รูปแบบอีเมลไม่ถูกต้อง',
+                  },
+                })}
+                className="pl-10 w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-slate-900"
+                placeholder="name@example.com"
+              />
+            </div>
+            {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
           </div>
 
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-200">
-              รหัสผ่าน
-            </label>
-            <input
-              id="password"
-              type="password"
-              {...register('password', {
-                required: 'กรุณากรอกรหัสผ่าน',
-                minLength: {
-                  value: 6,
-                  message: 'รหัสผ่านต้องมีขั้นต่ำ 6 ตัวอักษร',
-                },
-              })}
-              className="mt-2 w-full rounded-full border border-slate-700 bg-slate-900/90 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
-              placeholder="••••••••"
-            />
-            {errors.password && <p className="mt-2 text-sm text-rose-400">{errors.password.message}</p>}
+          {/* Password Input */}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <label className="block text-sm font-medium text-slate-700">รหัสผ่าน</label>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                {...register('password', {
+                  required: 'กรุณากรอกรหัสผ่าน',
+                  minLength: {
+                    value: 6,
+                    message: 'รหัสผ่านต้องมีขั้นต่ำ 6 ตัวอักษร',
+                  },
+                })}
+                className="pl-10 w-full px-3 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors text-slate-900"
+                placeholder="••••••••"
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && <p className="text-sm text-red-600">{errors.password.message}</p>}
           </div>
 
           {error && (
-            <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-4">
-              <p className="text-sm text-rose-400">{error}</p>
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4">
+              <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-black/20 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-70"
+            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors disabled:opacity-50"
           >
-            {isLoading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                กำลังเข้าสู่ระบบ...
+              </span>
+            ) : (
+              'เข้าสู่ระบบ'
+            )}
           </button>
         </form>
 
-        <div className="mt-6 border-t border-white/10 pt-6 text-center text-sm text-slate-400">
+        {/* Footer Link */}
+        <div className="text-center text-sm text-slate-600">
           ยังไม่มีบัญชี?{' '}
-          <Link href="/register" className="font-semibold text-white hover:text-slate-200">
+          <Link href="/register" className="font-semibold text-indigo-600 hover:text-indigo-500 transition-colors">
             สมัครสมาชิกเลย
           </Link>
         </div>
+
       </div>
     </div>
   )

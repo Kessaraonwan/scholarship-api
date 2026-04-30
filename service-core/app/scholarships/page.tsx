@@ -82,21 +82,21 @@ export default function ScholarshipsPage() {
   const [totalPages, setTotalPages] = useState(1)
 
   // 1. โหลดคีย์จากเครื่อง
-  useEffect(() => {
-    const savedKey = localStorage.getItem("user_api_key")
-    if (savedKey) setApiKey(savedKey)
-  }, [])
+  //useEffect(() => {
+  //  const savedKey = localStorage.getItem("user_api_key")
+  //  if (savedKey) setApiKey(savedKey)
+  //}, [])
 
   // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
+ // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
   const fetchScholarships = useCallback(async () => {
-    if (!apiKey) return; // 🛑 ถ้าไม่มีคีย์ ไม่ต้องยิงให้เปลืองแรงและ Error
+    if (!apiKey) return; // ถ้าไม่มีคีย์ ไม่ต้องยิงให้เปลืองแรงและ Error
 
     setIsLoading(true)
     const params = new URLSearchParams();
 
     if (search) params.append("keyword", search);
 
-    // 🛡️ ถ้าเลือก "ทุกระดับ" ไม่ต้องส่งค่าไป ให้หลังบ้านดึงมาทั้งหมด
     if (level !== "ทุกระดับ") params.append("level", level);
     if (field !== "ทุกสาขา") params.append("field", field);
     if (country !== "ทุกประเทศ") params.append("country", country);
@@ -108,8 +108,8 @@ export default function ScholarshipsPage() {
       const response = await fetch(`/api/scholarships?${params.toString()}`, {
         method: 'GET',
         headers: {
-          // ✅ ส่งแค่ API Key อย่างเดียว ป้องกันภาษาไทยหลุดเข้า Header
-          "x-api-key": apiKey.trim()
+          // เปลี่ยนจาก "x-api-key" มาเป็น "Authorization" แบบ Bearer Token
+          "Authorization": `Bearer ${apiKey.trim()}` 
         }
       })
 
@@ -157,7 +157,7 @@ export default function ScholarshipsPage() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
-            placeholder="วาง sk_live_..."
+            placeholder="ใส่ API Key ของคุณที่นี่..."
             value={apiKey}
             onChange={(e) => handleKeyChange(e.target.value)}
             className="flex-1 h-12 font-mono border-gray-300 focus:ring-indigo-500"

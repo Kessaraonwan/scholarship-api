@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,6 +6,21 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model Scholarship {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  link        String   @unique
+  provider    String?
+  deadline    DateTime?
+  amount      String?
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("scholarships")
+}
 
 model User {
   id        String   @id @default(cuid())
@@ -16,28 +28,29 @@ model User {
   password  String
   firstName String
   lastName  String
-  role      String   @default("user") // "user" or "admin"
+  role      String   @default("user")
+  tier      String   @default("free")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  apiKeys      ApiKey[]
-  usageLogs    UsageLog[]
+  apiKeys       ApiKey[]
+  usageLogs     UsageLog[]
   refreshTokens RefreshToken[]
 
   @@map("users")
 }
 
 model ApiKey {
-  id        String   @id @default(cuid())
-  userId    String
-  key       String   @unique
-  name      String
-  isActive  Boolean  @default(true)
+  id         String    @id @default(cuid())
+  userId     String
+  key        String    @unique
+  name       String
+  isActive   Boolean   @default(true)
   lastUsedAt DateTime?
-  createdAt DateTime @default(now())
+  createdAt  DateTime  @default(now())
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   usageLogs UsageLog[]
 
   @@map("api_keys")
@@ -54,8 +67,8 @@ model UsageLog {
   ipAddress    String
   createdAt    DateTime @default(now())
 
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  apiKey  ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
 
   @@map("usage_logs")
 }

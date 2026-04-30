@@ -19,7 +19,7 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links */}
+          {/* Product Links */}
           <div>
             <h3 className="text-sm font-semibold text-foreground">ผลิตภัณฑ์</h3>
             <ul className="mt-4 space-y-3">
@@ -30,7 +30,7 @@ export function Footer() {
               </li>
               <li>
                 <a href="http://localhost:3003/scholarships" className="text-sm text-muted-foreground hover:text-primary">
-                  ค้นหาทุน
+                  ค้นหาทุน (Core API)
                 </a>
               </li>
               <li>
@@ -38,25 +38,31 @@ export function Footer() {
                   Analytics
                 </a>
               </li>
+              <li>
+                <a href="http://localhost:3005/dashboard/notifications" className="text-sm text-muted-foreground hover:text-primary">
+                  ตั้งค่าการแจ้งเตือน
+                </a>
+              </li>
             </ul>
           </div>
 
+          {/* Account & Status */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground">บัญชี</h3>
+            <h3 className="text-sm font-semibold text-foreground">บัญชีและสถานะ</h3>
             <ul className="mt-4 space-y-3">
+              <li>
+                <a href="http://localhost:3001/dashboard/keys" className="text-sm text-muted-foreground hover:text-primary">
+                  จัดการ API Keys
+                </a>
+              </li>
+              <li>
+                <a href="http://localhost:3000/status" className="text-sm text-muted-foreground hover:text-primary">
+                  สถานะระบบ (Health Check)
+                </a>
+              </li>
               <li>
                 <a href="http://localhost:3001/login" className="text-sm text-muted-foreground hover:text-primary">
                   เข้าสู่ระบบ
-                </a>
-              </li>
-              <li>
-                <a href="http://localhost:3001/register" className="text-sm text-muted-foreground hover:text-primary">
-                  สมัครสมาชิก
-                </a>
-              </li>
-              <li>
-                <a href="http://localhost:3001/dashboard/keys" className="text-sm text-muted-foreground hover:text-primary">
-                  Dashboard
                 </a>
               </li>
             </ul>

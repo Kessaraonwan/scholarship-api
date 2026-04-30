@@ -18,11 +18,17 @@ export function generateRefreshToken(payload: object): string {
   return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: '30d' })
 }
 
-export function verifyJWT(token: string): any {
+export function verifyJWT(token: string | undefined): any {
+  // 1. เพิ่มบรรทัดนี้: ถ้าไม่มี token ส่งมา (เป็น undefined หรือว่าง) ให้คืนค่า null ทันที
+  if (!token) {
+    return null;
+  }
+
   try {
     return jwt.verify(token, process.env.JWT_SECRET!)
   } catch (error) {
-    console.error('JWT verification error:', error)
+    // 2. ปรับให้ log สั้นลง จะได้ไม่รก Terminal
+    console.error('JWT verification failed:', (error as Error).message)
     return null
   }
 }
