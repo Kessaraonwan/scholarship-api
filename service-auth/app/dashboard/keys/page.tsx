@@ -65,8 +65,9 @@ export default function ApiKeysPage() {
       if (!response.ok) throw new Error(result.error || 'สร้างไม่สำเร็จ')
 
       if (result && result.data) {
-        setKeys([...keys, result.data])
         setNewKeyName('')
+        // Refresh keys list to ensure createdAt is properly formatted
+        fetchKeys()
       } else {
         fetchKeys()
       }
@@ -175,7 +176,7 @@ export default function ApiKeysPage() {
                     </span>
                   </div>
                   <div className="text-sm text-gray-500 flex gap-4 mb-3">
-                    <span>สร้างเมื่อ: {new Date(key.createdAt).toLocaleDateString('th-TH')}</span>
+                    <span>สร้างเมื่อ: {key.createdAt ? new Date(key.createdAt).toLocaleDateString('th-TH') : 'ไม่ระบุ'}</span>
                     {key.lastUsedAt && <span>ใช้งานล่าสุด: {new Date(key.lastUsedAt).toLocaleDateString('th-TH')}</span>}
                   </div>
                   <code className="block w-full p-3 bg-gray-900 text-indigo-300 rounded-lg text-xs font-mono break-all border border-gray-800">

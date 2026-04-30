@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       message: 'สร้าง API Key สำเร็จ!',
-      data: { id: newApiKey.id, key: rawKey, name: newApiKey.name }
+      data: { id: newApiKey.id, key: rawKey, name: newApiKey.name, createdAt: newApiKey.createdAt, isActive: newApiKey.isActive }
     }, { status: 201 })
 
   } catch (error: any) {
