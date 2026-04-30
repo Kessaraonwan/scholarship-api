@@ -53,8 +53,7 @@ export default function RegisterPage() {
         throw new Error(result.error || 'สมัครสมาชิกไม่สำเร็จ')
       }
 
-      // สมัครสมาชิกสำเร็จ - redirect ไป login
-      router.push('/login?message=registration-success')
+      router.push('/welcome')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')
     } finally {

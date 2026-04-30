@@ -115,9 +115,7 @@ export default function MatchPage() {
                   {scholarship.level}
                 </span>
               </div>
-
               <p className="text-gray-600 text-sm mb-4">{scholarship.description}</p>
-
               <div className="space-y-2 mb-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">จำนวนเงิน:</span>
@@ -136,7 +134,6 @@ export default function MatchPage() {
                   </span>
                 </div>
               </div>
-
               <button
                 onClick={() => setSelectedScholarship(scholarship)}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
@@ -165,10 +162,9 @@ export default function MatchPage() {
                   onClick={() => setSelectedScholarship(null)}
                   className="text-gray-400 hover:text-gray-600 text-2xl"
                 >
-                  x
+                  ✕
                 </button>
               </div>
-
               <div className="space-y-4">
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                   selectedScholarship.level === 'ปริญญาตรี' ? 'bg-blue-100 text-blue-800' :
@@ -177,9 +173,7 @@ export default function MatchPage() {
                 }`}>
                   {selectedScholarship.level}
                 </span>
-
                 <p className="text-gray-700">{selectedScholarship.description}</p>
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-2">ข้อมูลทุน</h3>
@@ -210,20 +204,18 @@ export default function MatchPage() {
                       </div>
                     </div>
                   </div>
-
                   <div>
                     <h3 className="font-semibold text-gray-900 mb-2">เว็บไซต์</h3>
-                    
+                    <a
                       href={selectedScholarship.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 underline text-sm"
-                    <a>
+                      className="text-blue-600 hover:text-blue-800 underline text-sm break-all"
+                    >
                       {selectedScholarship.url}
                     </a>
                   </div>
                 </div>
-
                 <div className="flex gap-3 pt-4">
                   <button
                     onClick={() => setSelectedScholarship(null)}
@@ -231,12 +223,12 @@ export default function MatchPage() {
                   >
                     ปิด
                   </button>
-                  
+                  <a
                     href={selectedScholarship.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors text-center"
-                  <a>
+                  >
                     สมัครทุนนี้
                   </a>
                 </div>
@@ -245,10 +237,10 @@ export default function MatchPage() {
           </div>
         </div>
       )}
+
       <Link href="/" className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-block">
-            ← กลับหน้าหลัก
+        ← กลับหน้าหลัก
       </Link>
     </div>
-    
   );
 }

@@ -1,26 +1,51 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server'
+import { verifyApiKey } from '@/lib/auth'
+
+const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3003'
 
 export async function POST(request: Request) {
-  const apiKey = request.headers.get('authorization')?.replace('Bearer ', '');
-  if (!apiKey) return NextResponse.json({ error: 'Unauthorized', code: 401 }, { status: 401 });
+  // เปลี่ยนจาก Authorization: Bearer → x-api-key
+  const apiKey = request.headers.get('x-api-key')
+  if (!apiKey) {
+    return NextResponse.json({ error: 'Missing x-api-key header' }, { status: 401 })
+  }
 
-  // TODO: เช็ค tier กับ service-auth ว่าเป็น Pro ไหม
+  // Verify จริงกับ service-auth
+  const auth = await verifyApiKey(apiKey)
+  if (!auth.valid) {
+    return NextResponse.json({ error: auth.error || 'Invalid API key' }, { status: 401 })
+  }
 
-  const { level, field, country } = await request.json();
+  try {
+    const { level, field, country } = await request.json()
+    const params = new URLSearchParams()
+    if (level) params.set('level', level)
+    if (field) params.set('field', field)
+    if (country) params.set('country', country)
 
-  // TODO: เชื่อม service-core จริง
-  // ตอนนี้ใช้ mock data ก่อน
-  const mockData = [
-    { id: '1', name: 'Chevening Scholarship', level: 'ปริญญาโท', field: 'ทุกสาขา', country: 'UK', amount: 18000, currency: 'GBP', deadline: '2025-11-15', url: 'https://www.chevening.org', source: 'Chevening', description: 'ทุนจากรัฐบาลอังกฤษ', createdAt: '', updatedAt: '' },
-    { id: '2', name: 'DAAD Scholarship', level: 'ปริญญาโท', field: 'วิทยาศาสตร์', country: 'เยอรมนี', amount: 1200, currency: 'EUR', deadline: '2025-11-30', url: 'https://www.daad.de', source: 'DAAD', description: 'ทุนจากรัฐบาลเยอรมนี', createdAt: '', updatedAt: '' },
-    { id: '3', name: 'Gates Cambridge', level: 'ปริญญาเอก', field: 'ทุกสาขา', country: 'UK', amount: 30000, currency: 'GBP', deadline: '2025-12-01', url: 'https://www.gatescambridge.org', source: 'Gates', description: 'ทุนจาก Gates Foundation', createdAt: '', updatedAt: '' },
-  ];
+    const coreRes = await fetch(
+      `${CORE_SERVICE_URL}/api/scholarships?${params.toString()}`,
+      {
+        headers: {
+          'x-api-key': apiKey, // ส่งต่อด้วย x-api-key เหมือนกัน
+        },
+      }
+    )
 
-  const filtered = mockData.filter(s =>
-    (!level || s.level === level || s.level === 'ทุกระดับ') &&
-    (!field || s.field === field || s.field === 'ทุกสาขา') &&
-    (!country || s.country === country)
-  );
+    if (!coreRes.ok) {
+      return NextResponse.json(
+        { error: 'Failed to fetch scholarships' },
+        { status: coreRes.status }
+      )
+    }
 
-  return NextResponse.json({ data: filtered, meta: { total: filtered.length, page: 1, limit: 20 } });
+    const coreData = await coreRes.json()
+    return NextResponse.json({
+      data: coreData.data,
+      meta: coreData.meta,
+    })
+  } catch (error) {
+    console.error('Match error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
 }

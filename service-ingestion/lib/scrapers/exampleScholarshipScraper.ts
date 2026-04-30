@@ -179,7 +179,7 @@ export class ExampleScholarshipScraper extends EnhancedBaseScraper {
   /**
    * Override normalizeText to provide additional processing
    */
-  private normalizeText(
+  protected normalizeText(
     text: string,
     fallback: string = '',
     fallback2: string = ''

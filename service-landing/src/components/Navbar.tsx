@@ -21,8 +21,8 @@ export default function Navbar() {
         {/* Desktop Menu */}
         <div className="hidden md:flex gap-8 items-center">
           <Link href="/" className="text-slate-700 hover:text-blue-600 transition">Home</Link>
+          <Link href="/pricing" className="text-slate-700 hover:text-blue-600 transition">Pricing</Link>
           <Link href="/docs" className="text-slate-700 hover:text-blue-600 transition">Docs</Link>
-          <Link href="/docs/quickstart" className="text-slate-700 hover:text-blue-600 transition">Quickstart</Link>
           <Link href="/status" className="text-slate-700 hover:text-blue-600 transition">Status</Link>
           <a href={`${AUTH_BASE_URL}/login`} className="btn-secondary">Sign In</a>
           <a href={`${AUTH_BASE_URL}/register`} className="btn-primary">Sign Up</a>
@@ -41,8 +41,8 @@ export default function Navbar() {
           <div className="absolute top-full left-0 right-0 bg-white border-t md:hidden">
             <div className="container flex flex-col gap-4 py-4">
               <Link href="/" className="text-slate-700 hover:text-blue-600">Home</Link>
+              <Link href="/pricing" className="text-slate-700 hover:text-blue-600">Pricing</Link>
               <Link href="/docs" className="text-slate-700 hover:text-blue-600">Docs</Link>
-              <Link href="/docs/quickstart" className="text-slate-700 hover:text-blue-600">Quickstart</Link>
               <Link href="/status" className="text-slate-700 hover:text-blue-600">Status</Link>
               <a href={`${AUTH_BASE_URL}/login`} className="btn-secondary w-full text-center">Sign In</a>
               <a href={`${AUTH_BASE_URL}/register`} className="btn-primary w-full text-center">Sign Up</a>

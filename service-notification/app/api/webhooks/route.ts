@@ -1,36 +1,29 @@
-// Mock webhooks
-const webhooks: any[] = [
-  {
-    id: "webhook-1",
-    userId: "user-123",
-    url: "https://example.com/webhooks/notifications",
-    events: ["notification.sent", "notification.delivered"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
+import { prisma } from '@/lib/prisma'
 
-// GET /api/webhooks - List user's webhooks
+const validEvents = ['notification.sent', 'notification.delivered', 'notification.failed']
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const userId = searchParams.get("userId")
+  const userId = searchParams.get('userId')
 
   if (!userId) {
     return Response.json(
-      { error: "userId query parameter is required" },
+      { error: 'userId query parameter is required' },
       { status: 400 }
     )
   }
 
-  const userWebhooks = webhooks.filter(w => w.userId === userId)
+  const webhooks = await prisma.webhook.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  })
 
   return Response.json({
-    data: userWebhooks,
-    meta: { total: userWebhooks.length },
+    data: webhooks,
+    meta: { total: webhooks.length },
   })
 }
 
-// POST /api/webhooks - Register new webhook
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -38,49 +31,36 @@ export async function POST(request: Request) {
 
     if (!userId || !url || !events || !Array.isArray(events)) {
       return Response.json(
-        { error: "Missing required fields: userId, url, events (array)" },
+        { error: 'Missing required fields: userId, url, events (array)' },
         { status: 400 }
       )
     }
 
-    // Validate URL
     try {
       new URL(url)
     } catch {
       return Response.json(
-        { error: "Invalid webhook URL" },
+        { error: 'Invalid webhook URL' },
         { status: 400 }
       )
     }
 
-    // Validate events
-    const validEvents = ["notification.sent", "notification.delivered", "notification.failed"]
     const invalidEvents = events.filter((e: string) => !validEvents.includes(e))
     if (invalidEvents.length > 0) {
       return Response.json(
-        { error: `Invalid events: ${invalidEvents.join(", ")}` },
+        { error: `Invalid events: ${invalidEvents.join(', ')}` },
         { status: 400 }
       )
     }
 
-    const newWebhook = {
-      id: `webhook-${Date.now()}`,
-      userId,
-      url,
-      events,
-      active: true,
-      createdAt: new Date().toISOString(),
-    }
+    const webhook = await prisma.webhook.create({
+      data: { userId, url, events },
+    })
 
-    webhooks.push(newWebhook)
-
-    return Response.json(
-      { data: newWebhook },
-      { status: 201 }
-    )
+    return Response.json({ data: webhook }, { status: 201 })
   } catch (error) {
     return Response.json(
-      { error: "Invalid request body" },
+      { error: 'Invalid request body' },
       { status: 400 }
     )
   }

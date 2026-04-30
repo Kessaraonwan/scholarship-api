@@ -1,33 +1,16 @@
-import { Response } from "next/server"
+import { prisma } from '@/lib/prisma'
 
-// Mock data (shared with parent route.ts - in real app use database)
-const notificationRules: any[] = [
-  {
-    id: "rule-1",
-    userId: "user-123",
-    name: "IT Scholarships",
-    triggers: {
-      scholarshipLevel: "ปริญญาตรี",
-      scholarshipField: "IT",
-      country: "ไทย",
-    },
-    channels: ["email", "webhook"],
-    active: true,
-    createdAt: new Date().toISOString(),
-  },
-]
-
-// GET /api/notifications/[id] - Get specific rule
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const rule = notificationRules.find(r => r.id === id)
+  const rule = await prisma.notificationRule.findUnique({
+    where: { id: params.id },
+  })
 
   if (!rule) {
     return Response.json(
-      { error: "Notification rule not found" },
+      { error: 'Notification rule not found' },
       { status: 404 }
     )
   }
@@ -35,62 +18,46 @@ export async function GET(
   return Response.json({ data: rule })
 }
 
-// PUT /api/notifications/[id] - Update rule
 export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const { id } = params
     const body = await request.json()
-    
-    const ruleIndex = notificationRules.findIndex(r => r.id === id)
-    
-    if (ruleIndex === -1) {
-      return Response.json(
-        { error: "Notification rule not found" },
-        { status: 404 }
-      )
-    }
 
-    // Update only allowed fields
-    const updatedRule = {
-      ...notificationRules[ruleIndex],
-      name: body.name || notificationRules[ruleIndex].name,
-      triggers: body.triggers || notificationRules[ruleIndex].triggers,
-      channels: body.channels || notificationRules[ruleIndex].channels,
-      active: body.active !== undefined ? body.active : notificationRules[ruleIndex].active,
-      updatedAt: new Date().toISOString(),
-    }
+    const rule = await prisma.notificationRule.update({
+      where: { id: params.id },
+      data: {
+        ...(body.name && { name: body.name }),
+        ...(body.triggers && { triggers: body.triggers }),
+        ...(body.channels && { channels: body.channels }),
+        ...(body.active !== undefined && { active: body.active }),
+      },
+    })
 
-    notificationRules[ruleIndex] = updatedRule
-
-    return Response.json({ data: updatedRule })
+    return Response.json({ data: rule })
   } catch (error) {
     return Response.json(
-      { error: "Invalid request body" },
-      { status: 400 }
+      { error: 'Notification rule not found or invalid request' },
+      { status: 404 }
     )
   }
 }
 
-// DELETE /api/notifications/[id] - Delete rule
 export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const ruleIndex = notificationRules.findIndex(r => r.id === id)
+  try {
+    const rule = await prisma.notificationRule.delete({
+      where: { id: params.id },
+    })
 
-  if (ruleIndex === -1) {
+    return Response.json({ data: rule })
+  } catch (error) {
     return Response.json(
-      { error: "Notification rule not found" },
+      { error: 'Notification rule not found' },
       { status: 404 }
     )
   }
-
-  const deletedRule = notificationRules[ruleIndex]
-  notificationRules.splice(ruleIndex, 1)
-
-  return Response.json({ data: deletedRule })
 }

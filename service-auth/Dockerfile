@@ -1,38 +1,24 @@
-# Build stage
-FROM node:18-alpine AS builder
-
+FROM node:20-alpine AS builder
 WORKDIR /app
-
 COPY package*.json ./
-
-RUN npm ci
-
+RUN npm ci --prefer-offline || npm ci --prefer-offline || npm ci
 COPY . .
+RUN npx prisma generate
+RUN npm run build
 
-RUN npm run build --if-present
-
-# Production stage
-FROM node:18-alpine
-
+FROM node:20-alpine
 WORKDIR /app
-
-RUN apk add --no-cache dumb-init
-
+RUN apk add --no-cache openssl
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/.next ./.next 2>/dev/null || true
-COPY --from=builder /app/dist ./dist 2>/dev/null || true
-COPY --from=builder /app/public ./public 2>/dev/null || true
+COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package*.json ./
-
-RUN addgroup -g 1001 -S nodejs && adduser -S node -u 1001
-
+COPY --from=builder /app/prisma ./prisma
 USER node
-
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})" || true
-
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 EXPOSE 3001
-
-ENTRYPOINT ["dumb-init", "--"]
-
 CMD ["npm", "start"]
+
+
+
+

@@ -2,7 +2,7 @@ import { Client } from 'pg';
 
 async function seedData() {
   const client = new Client({
-    connectionString: "postgresql://postgres:postgres@localhost:5432/ingestion_db", 
+    connectionString: "postgresql://postgres:postgres@localhost:5432/scholarship_db", 
   });
 
   try {

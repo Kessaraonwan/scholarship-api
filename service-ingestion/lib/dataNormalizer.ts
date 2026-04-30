@@ -331,7 +331,7 @@ export function normalizeScholarship(rawScholarship: any): Scholarship | null {
       level,
       field,
       country,
-      deadline: deadline ? new Date(deadline) : undefined,
+      deadline: deadline ? new Date(deadline).toISOString() : undefined,
       amount: amount ?? undefined,
       currency,
       url,

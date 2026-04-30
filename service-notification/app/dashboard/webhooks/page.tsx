@@ -303,7 +303,7 @@ export default function WebhooksPage() {
             </p>
           </div>
           <Button variant="outline" asChild>
-            <a href="/dashboard/billing">ดูแพ็คเกจ</a>
+            <a href="/dashboard/notifications">ดูแพ็คเกจ</a>
           </Button>
         </CardContent>
       </Card>

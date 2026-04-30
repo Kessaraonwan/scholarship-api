@@ -6,21 +6,38 @@ const prisma = new PrismaClient()
 export async function POST(req: NextRequest) {
   try {
     const { key } = await req.json()
-    
-    // ค้นหา API Key ใน DB ของแบงค์เอง (auth_db)
+
     const apiKey = await prisma.apiKey.findFirst({
       where: {
         key: key,
         isActive: true,
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            role: true,
+            tier: true,
+            isActive: true,
+          },
+        },
+      },
     })
 
-    if (!apiKey) {
+    if (!apiKey || !apiKey.user.isActive) {
       return NextResponse.json({ valid: false }, { status: 401 })
     }
 
-    // ถ้าเจอ ให้ตอบอีฟกลับไปว่า "กุญแจนี้ของจริง!"
-    return NextResponse.json({ valid: true, ownerId: apiKey.userId })
+    return NextResponse.json({
+      valid: true,
+      user: {
+        id: apiKey.user.id,
+        email: apiKey.user.email,
+        role: apiKey.user.role,
+        tier: apiKey.user.tier,
+      },
+    })
   } catch (error) {
     console.error('Verify Key Error:', error)
     return NextResponse.json({ valid: false }, { status: 500 })

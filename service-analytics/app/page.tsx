@@ -7,9 +7,9 @@ export default function AnalyticsDashboard() {
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800">แดชบอร์ดสถิติทุนการศึกษา</h1>
-          <Link href="http://localhost:3000" className="text-indigo-600 hover:text-indigo-800 font-medium">
+          <a href="http://localhost:3000/" className="text-indigo-600 hover:text-indigo-800 font-medium">
              ← กลับหน้าหลัก
-          </Link>
+          </a>
         </div>
 
         {/* Main Analytics Cards */}
@@ -45,7 +45,7 @@ export default function AnalyticsDashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Link to Core API (Port 3003) */}
             <a 
-              href="http://localhost:3003/scholarships" 
+              href="http://localhost:3003/api/scholarships" 
               className="flex flex-col items-center p-4 bg-slate-50 rounded-lg border border-transparent hover:border-indigo-200 hover:bg-indigo-50 transition-all text-center"
             >
               <span className="text-2xl mb-2">🎓</span>

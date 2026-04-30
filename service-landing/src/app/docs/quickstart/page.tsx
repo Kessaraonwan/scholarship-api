@@ -109,7 +109,7 @@ export default function QuickstartPage() {
                       <h3 className="font-semibold text-sm text-slate-700 mb-2">Using cURL</h3>
                       <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
 {`curl -X GET \\
-  'http://localhost:3003/scholarships?country=TH' \\
+  'http://localhost:3003/api/scholarships?country=TH' \\
   -H 'Authorization: Bearer YOUR_API_KEY' \\
   -H 'Content-Type: application/json'`}
                       </pre>
@@ -120,7 +120,7 @@ export default function QuickstartPage() {
                       <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
 {`const apiKey = 'YOUR_API_KEY';
 
-fetch('http://localhost:3003/scholarships?country=TH', {
+fetch('http://localhost:3003/api/scholarships?country=TH', {
   method: 'GET',
   headers: {
     'Authorization': \`Bearer \${apiKey}\`,
@@ -144,7 +144,7 @@ headers = {
 }
 
 response = requests.get(
-    'http://localhost:3003/scholarships?country=TH',
+    'http://localhost:3003/api/scholarships?country=TH',
     headers=headers
 )
 print(response.json())`}
