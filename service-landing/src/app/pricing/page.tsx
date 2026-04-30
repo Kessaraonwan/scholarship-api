@@ -2,69 +2,27 @@
 
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Check, X, Zap, Shield, Star } from 'lucide-react';
+import { Check, X, Zap, Shield } from 'lucide-react';
 import { AUTH_BASE_URL } from '@/lib/config';
 
-const plans = [
-  {
-    name: 'Free',
-    price: '0',
-    description: 'เหมาะสำหรับนักพัฒนาที่เริ่มต้นหรือทดลองใช้งาน',
-    color: 'slate',
-    icon: Shield,
-    cta: 'เริ่มใช้งานฟรี',
-    ctaHref: `${AUTH_BASE_URL}/register`,
-    features: [
-      { text: 'API Key 1 ชุด', included: true },
-      { text: '100 requests / วัน', included: true },
-      { text: 'ค้นหาทุน (filter พื้นฐาน)', included: true },
-      { text: 'ดูรายละเอียดทุน', included: true },
-      { text: 'Usage Dashboard', included: true },
-      { text: 'Analytics & Match', included: false },
-      { text: 'Webhook Notifications', included: false },
-      { text: 'Priority Support', included: false },
-    ],
-  },
-  {
-    name: 'Pro',
-    price: '299',
-    description: 'สำหรับนักพัฒนาและทีมที่ต้องการข้อมูลเชิงลึก',
-    color: 'indigo',
-    icon: Zap,
-    cta: 'อัปเกรดเป็น Pro',
-    ctaHref: `${AUTH_BASE_URL}/register?plan=pro`,
-    badge: 'แนะนำ',
-    features: [
-      { text: 'API Key สูงสุด 10 ชุด', included: true },
-      { text: '10,000 requests / วัน', included: true },
-      { text: 'ค้นหาทุน (filter ขั้นสูง)', included: true },
-      { text: 'ดูรายละเอียดทุน', included: true },
-      { text: 'Usage Dashboard', included: true },
-      { text: 'Analytics & Smart Match', included: true },
-      { text: 'Webhook Notifications', included: true },
-      { text: 'Priority Support', included: true },
-    ],
-  },
-  {
-    name: 'Enterprise',
-    price: 'ติดต่อทีม',
-    description: 'สำหรับองค์กรขนาดใหญ่ที่ต้องการ SLA และ custom integration',
-    color: 'purple',
-    icon: Star,
-    cta: 'ติดต่อเรา',
-    ctaHref: '#contact',
-    features: [
-      { text: 'API Key ไม่จำกัด', included: true },
-      { text: 'Requests ไม่จำกัด', included: true },
-      { text: 'ทุกฟีเจอร์ของ Pro', included: true },
-      { text: 'Custom Webhooks', included: true },
-      { text: 'Dedicated Support', included: true },
-      { text: 'SLA 99.9% Uptime', included: true },
-      { text: 'On-premise deployment', included: true },
-      { text: 'Custom Integration', included: true },
-    ],
-  },
+const features = [
+  { name: 'ราคา', free: 'ฟรี', pro: 'พรีเมียม' },
+  { name: 'Requests/วัน', free: '1,000', pro: '10,000' },
+  { name: 'ค้นหาทุน', free: true, pro: true },
+  { name: 'ดูรายละเอียดทุน', free: true, pro: true },
+  { name: 'ทุนใกล้หมดเขต', free: true, pro: true },
+  { name: 'ตั้งแจ้งเตือน', free: true, pro: true },
+  { name: 'Analytics', free: false, pro: true },
+  { name: 'Match ทุนกับโปรไฟล์', free: false, pro: true },
+  { name: 'Webhook URL', free: false, pro: true },
+  { name: 'API Key', free: '1 key', pro: 'หลาย key' },
 ];
+
+function Cell({ value }: { value: boolean | string }) {
+  if (value === true) return <Check className="w-5 h-5 text-green-500 mx-auto" />;
+  if (value === false) return <X className="w-5 h-5 text-red-400 mx-auto" />;
+  return <span className="text-slate-700">{value}</span>;
+}
 
 export default function PricingPage() {
   return (
@@ -77,7 +35,7 @@ export default function PricingPage() {
           <div className="container text-center">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold mb-6">
               <Zap className="w-4 h-4" />
-              Service Packages
+              2 Packages ที่แนะนำ
             </div>
             <h1 className="text-5xl font-extrabold text-slate-900 mb-4">
               เลือกแพ็คเกจที่{' '}
@@ -86,102 +44,102 @@ export default function PricingPage() {
               </span>
             </h1>
             <p className="text-xl text-slate-500 max-w-2xl mx-auto">
-              เริ่มต้นฟรี ไม่ต้องใช้บัตรเครดิต อัปเกรดเมื่อพร้อม
+              เริ่มต้นฟรี อัปเกรดเมื่อต้องการฟีเจอร์เพิ่ม
             </p>
           </div>
         </section>
 
-        {/* Pricing Cards */}
+        {/* Pricing Cards — 2 plans only */}
         <section className="py-16">
           <div className="container">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-              {plans.map((plan) => {
-                const Icon = plan.icon;
-                const isHighlighted = plan.name === 'Pro';
-                return (
-                  <div
-                    key={plan.name}
-                    className={`relative rounded-[2rem] p-8 flex flex-col ${
-                      isHighlighted
-                        ? 'bg-indigo-600 text-white shadow-2xl shadow-indigo-200 scale-105'
-                        : 'bg-white border border-slate-100 shadow-xl shadow-slate-200/50'
-                    }`}
-                  >
-                    {plan.badge && (
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded-full">
-                        {plan.badge}
-                      </div>
-                    )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
 
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 ${
-                      isHighlighted ? 'bg-white/20' : 'bg-indigo-50'
-                    }`}>
-                      <Icon className={`w-6 h-6 ${isHighlighted ? 'text-white' : 'text-indigo-600'}`} />
-                    </div>
+              {/* Free */}
+              <div className="relative rounded-[2rem] p-8 flex flex-col bg-white border border-slate-100 shadow-xl shadow-slate-200/50">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-indigo-50">
+                  <Shield className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h2 className="text-2xl font-bold mb-1 text-slate-900">Free</h2>
+                <p className="text-sm mb-6 text-slate-500">สำหรับนักพัฒนาที่เริ่มต้น</p>
+                <div className="mb-8">
+                  <span className="text-4xl font-extrabold text-slate-900">฿0</span>
+                  <span className="text-sm text-slate-400">/เดือน</span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1 text-sm">
+                  {[
+                    [true, '1,000 requests / วัน'],
+                    [true, 'API Key 1 ชุด'],
+                    [true, 'ค้นหาทุน'],
+                    [true, 'ดูรายละเอียดทุน'],
+                    [true, 'ทุนใกล้หมดเขต'],
+                    [true, 'ตั้งแจ้งเตือน'],
+                    [false, 'Analytics'],
+                    [false, 'Match ทุนกับโปรไฟล์'],
+                    [false, 'Webhook URL'],
+                  ].map(([included, text]) => (
+                    <li key={text as string} className="flex items-center gap-3">
+                      {included
+                        ? <Check className="w-4 h-4 shrink-0 text-green-500" />
+                        : <X className="w-4 h-4 shrink-0 text-slate-300" />}
+                      <span className={included ? 'text-slate-700' : 'text-slate-400'}>{text as string}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`${AUTH_BASE_URL}/register`}
+                  className="block text-center py-3 rounded-xl font-bold transition-all bg-indigo-600 text-white hover:bg-indigo-700"
+                >
+                  เริ่มใช้งานฟรี
+                </a>
+              </div>
 
-                    <h2 className={`text-2xl font-bold mb-1 ${isHighlighted ? 'text-white' : 'text-slate-900'}`}>
-                      {plan.name}
-                    </h2>
-                    <p className={`text-sm mb-6 ${isHighlighted ? 'text-indigo-200' : 'text-slate-500'}`}>
-                      {plan.description}
-                    </p>
+              {/* Pro */}
+              <div className="relative rounded-[2rem] p-8 flex flex-col bg-indigo-600 text-white shadow-2xl shadow-indigo-200">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded-full">
+                  แนะนำ
+                </div>
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-white/20">
+                  <Zap className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold mb-1 text-white">Pro</h2>
+                <p className="text-sm mb-6 text-indigo-200">สำหรับนักพัฒนาที่ต้องการข้อมูลเชิงลึก</p>
+                <div className="mb-8">
+                  <span className="text-3xl font-extrabold text-white">พรีเมียม</span>
+                  <span className="text-sm text-indigo-200">/เดือน</span>
+                </div>
+                <ul className="space-y-3 mb-8 flex-1 text-sm">
+                  {[
+                    '10,000 requests / วัน',
+                    'API Key หลายชุด',
+                    'ค้นหาทุน',
+                    'ดูรายละเอียดทุน',
+                    'ทุนใกล้หมดเขต',
+                    'ตั้งแจ้งเตือน',
+                    'Analytics',
+                    'Match ทุนกับโปรไฟล์',
+                    'Webhook URL',
+                  ].map((text) => (
+                    <li key={text} className="flex items-center gap-3">
+                      <Check className="w-4 h-4 shrink-0 text-indigo-200" />
+                      <span className="text-indigo-100">{text}</span>
+                    </li>
+                  ))}
+                </ul>
+                <a
+                  href={`${AUTH_BASE_URL}/register?plan=pro`}
+                  className="block text-center py-3 rounded-xl font-bold transition-all bg-white text-indigo-600 hover:bg-indigo-50"
+                >
+                  อัปเกรดเป็น Pro
+                </a>
+              </div>
 
-                    <div className="mb-8">
-                      {plan.price === 'ติดต่อทีม' ? (
-                        <span className={`text-2xl font-bold ${isHighlighted ? 'text-white' : 'text-slate-900'}`}>
-                          ติดต่อทีม
-                        </span>
-                      ) : (
-                        <div className="flex items-end gap-1">
-                          <span className={`text-4xl font-extrabold ${isHighlighted ? 'text-white' : 'text-slate-900'}`}>
-                            ฿{plan.price}
-                          </span>
-                          <span className={`text-sm mb-1 ${isHighlighted ? 'text-indigo-200' : 'text-slate-400'}`}>
-                            /เดือน
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    <ul className="space-y-3 mb-8 flex-1">
-                      {plan.features.map((f) => (
-                        <li key={f.text} className="flex items-center gap-3">
-                          {f.included ? (
-                            <Check className={`w-4 h-4 shrink-0 ${isHighlighted ? 'text-indigo-200' : 'text-green-500'}`} />
-                          ) : (
-                            <X className={`w-4 h-4 shrink-0 ${isHighlighted ? 'text-indigo-400' : 'text-slate-300'}`} />
-                          )}
-                          <span className={`text-sm ${
-                            !f.included
-                              ? isHighlighted ? 'text-indigo-400' : 'text-slate-400'
-                              : isHighlighted ? 'text-indigo-100' : 'text-slate-700'
-                          }`}>
-                            {f.text}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <a
-                      href={plan.ctaHref}
-                      className={`block text-center py-3 rounded-xl font-bold transition-all ${
-                        isHighlighted
-                          ? 'bg-white text-indigo-600 hover:bg-indigo-50'
-                          : 'bg-indigo-600 text-white hover:bg-indigo-700'
-                      }`}
-                    >
-                      {plan.cta}
-                    </a>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </section>
 
-        {/* Feature Comparison Table */}
+        {/* Comparison Table */}
         <section className="py-16 bg-slate-50">
-          <div className="container max-w-4xl mx-auto">
+          <div className="container max-w-3xl mx-auto">
             <h2 className="text-3xl font-bold text-slate-900 text-center mb-12">เปรียบเทียบฟีเจอร์</h2>
             <div className="bg-white rounded-2xl border border-slate-100 shadow-lg overflow-hidden">
               <table className="w-full text-sm">
@@ -190,30 +148,48 @@ export default function PricingPage() {
                     <th className="text-left px-6 py-4 text-slate-600 font-semibold">ฟีเจอร์</th>
                     <th className="text-center px-6 py-4 text-slate-600 font-semibold">Free</th>
                     <th className="text-center px-6 py-4 text-indigo-600 font-bold">Pro</th>
-                    <th className="text-center px-6 py-4 text-purple-600 font-semibold">Enterprise</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50">
-                  {[
-                    ['API Requests / วัน', '100', '10,000', 'ไม่จำกัด'],
-                    ['API Keys', '1', '10', 'ไม่จำกัด'],
-                    ['Scholarship Search', '✓', '✓', '✓'],
-                    ['Advanced Filters', '—', '✓', '✓'],
-                    ['Analytics Dashboard', '—', '✓', '✓'],
-                    ['Smart Match', '—', '✓', '✓'],
-                    ['Webhook Notifications', '—', '✓', '✓'],
-                    ['SLA Guarantee', '—', '—', '99.9%'],
-                    ['Support', 'Community', 'Priority', 'Dedicated'],
-                  ].map(([feature, free, pro, enterprise]) => (
-                    <tr key={feature} className="hover:bg-slate-50/50">
-                      <td className="px-6 py-3 text-slate-700">{feature}</td>
-                      <td className="px-6 py-3 text-center text-slate-500">{free}</td>
-                      <td className="px-6 py-3 text-center text-indigo-600 font-medium">{pro}</td>
-                      <td className="px-6 py-3 text-center text-purple-600">{enterprise}</td>
+                  {features.map((f) => (
+                    <tr key={f.name} className="hover:bg-slate-50/50">
+                      <td className="px-6 py-3 text-slate-700 font-medium">{f.name}</td>
+                      <td className="px-6 py-3 text-center"><Cell value={f.free} /></td>
+                      <td className="px-6 py-3 text-center"><Cell value={f.pro} /></td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </section>
+
+        {/* Demo Section */}
+        <section className="py-16 bg-white">
+          <div className="container max-w-3xl mx-auto">
+            <div className="bg-slate-900 rounded-2xl p-8 text-white">
+              <h2 className="text-xl font-bold mb-6">ตอน Demo แสดงแบบนี้</h2>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 text-sm">
+                  <span className="text-slate-400 shrink-0">Free →</span>
+                  <span className="text-slate-300">เรียก</span>
+                  <code className="bg-slate-700 text-green-400 px-2 py-0.5 rounded font-mono text-xs">
+                    GET /api/scholarships
+                  </code>
+                  <span className="text-slate-300">ได้ปกติ</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm flex-wrap">
+                  <span className="text-slate-400 shrink-0">Pro →</span>
+                  <span className="text-slate-300">เรียก</span>
+                  <code className="bg-slate-700 text-blue-400 px-2 py-0.5 rounded font-mono text-xs">
+                    GET /api/analytics/overview
+                  </code>
+                  <span className="text-slate-300">ได้เพิ่ม ถ้า Free เรียกตอบ</span>
+                  <code className="bg-slate-700 text-red-400 px-2 py-0.5 rounded font-mono text-xs">
+                    403 Forbidden
+                  </code>
+                </div>
+              </div>
             </div>
           </div>
         </section>
