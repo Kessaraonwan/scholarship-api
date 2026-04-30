@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
-import Link from 'next/link';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Title, Tooltip, Legend, ArcElement);
 
@@ -21,11 +20,15 @@ export default function AnalyticsPage() {
 
   useEffect(() => {
     fetch('/api/analytics/overview', {
-      headers: { 'Authorization': `Bearer demo-key` },
     })
       .then(r => r.json())
-      .then(json => setOverview(json.data))
-      .catch(() => setError('โหลดข้อมูลไม่สำเร็จ'))
+      .then(json => {
+        if (!json?.data) {
+          throw new Error(json?.error || 'โหลดข้อมูลไม่สำเร็จ')
+        }
+        setOverview(json.data)
+      })
+      .catch((err) => setError(err instanceof Error ? err.message : 'โหลดข้อมูลไม่สำเร็จ'))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -53,19 +56,19 @@ export default function AnalyticsPage() {
   };
 
   if (isLoading) return (
-    <div className="container mx-auto p-6 text-center py-20">
+    <div className="text-center py-20">
       <p className="text-gray-500 text-lg">กำลังโหลดข้อมูล...</p>
     </div>
   );
 
   if (error) return (
-    <div className="container mx-auto p-6 text-center py-20">
+    <div className="text-center py-20">
       <p className="text-red-500 text-lg">{error}</p>
     </div>
   );
 
   return (
-    <div className="container mx-auto p-6">
+    <div>
       <h1 className="text-3xl font-bold mb-6">สถิติทุนการศึกษา</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -96,9 +99,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-      <Link href="/" className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-block">
-        ← กลับหน้าหลัก
-      </Link>
     </div>
   );
 }

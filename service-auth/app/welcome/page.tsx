@@ -57,7 +57,7 @@ export default function WelcomePage() {
             <div>
               <p className="font-semibold text-slate-900">อัปเกรดเป็น Pro <span className="text-xs text-slate-400 font-normal">(ถ้าต้องการ)</span></p>
               <p className="text-sm text-slate-500 mt-0.5">
-                ปลดล็อก Analytics, Smart Match และ Webhook Notifications
+                ไปที่ Dashboard → Billing เพื่อดูความต่างของแพ็คเกจ แล้วกดอัปเกรดเป็น Pro แบบ mock
               </p>
             </div>
             <Zap className="w-5 h-5 text-slate-300 shrink-0 mt-1" />
@@ -72,6 +72,12 @@ export default function WelcomePage() {
           >
             ไปสร้าง API Key
             <ArrowRight className="w-4 h-4" />
+          </Link>
+          <Link
+            href="/dashboard/billing"
+            className="px-8 py-3 bg-white border border-indigo-200 text-indigo-700 rounded-xl font-bold hover:bg-indigo-50 transition-all"
+          >
+            ดู Billing / Upgrade
           </Link>
           <a
             href="http://localhost:3000/docs"

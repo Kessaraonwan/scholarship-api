@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -53,6 +55,7 @@ import {
   Play,
   AlertTriangle,
 } from "lucide-react"
+import { persistTier, readTierFromBrowser, fetchTierFromServer, type Tier } from "@/lib/tier"
 
 interface WebhookEndpoint {
   id: string
@@ -165,11 +168,91 @@ export default function WebhooksPage() {
   const [secretDialogOpen, setSecretDialogOpen] = useState(false)
   const [selectedWebhook, setSelectedWebhook] = useState<WebhookEndpoint | null>(null)
   const [showSecret, setShowSecret] = useState(false)
+  const searchParams = useSearchParams()
+  const [tier, setTier] = useState<Tier | null>(null)
 
   const [newWebhook, setNewWebhook] = useState({
     url: "",
     events: [] as string[],
   })
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      const serverTier = await fetchTierFromServer().catch(() => null)
+      if (mounted && serverTier) {
+        setTier(serverTier)
+        persistTier(serverTier)
+        return
+      }
+
+      const resolvedTier = readTierFromBrowser(searchParams)
+      if (mounted) {
+        setTier(resolvedTier)
+        persistTier(resolvedTier)
+      }
+    })()
+
+    return () => (mounted = false)
+  }, [searchParams])
+
+  if (tier === null) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <p className="text-sm text-muted-foreground">กำลังตรวจสอบสิทธิ์...</p>
+      </div>
+    )
+  }
+
+  if (tier === 'free') {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Webhooks</h1>
+            <p className="mt-2 text-muted-foreground">
+              ฟีเจอร์นี้สำหรับ Pro เท่านั้น
+            </p>
+          </div>
+        </div>
+
+        <Card className="border-primary/20 bg-primary/5">
+          <CardContent className="flex flex-col gap-4 pt-6 md:flex-row md:items-center">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <Webhook className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-foreground">
+                Webhooks ถูกล็อกสำหรับ Free plan
+              </p>
+              <p className="text-sm text-muted-foreground">
+                อัปเกรดเป็น Pro จาก Billing Center เพื่อปลดล็อก webhook endpoints, delivery logs และ test actions
+              </p>
+            </div>
+            <Button asChild>
+              <a href="/dashboard/billing">
+                ไปที่ Billing
+              </a>
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Preview</CardTitle>
+            <CardDescription>
+              นี่คือสิ่งที่จะปลดล็อกเมื่อเป็น Pro
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>• สร้าง webhook endpoint</p>
+            <p>• ดู delivery logs แบบละเอียด</p>
+            <p>• ทดสอบ event และดู secret</p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
   const handleCreateWebhook = () => {
     const webhook: WebhookEndpoint = {

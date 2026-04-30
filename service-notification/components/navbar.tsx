@@ -4,12 +4,21 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { BookOpen, Menu, X, LayoutDashboard, Search, Bell } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 
 export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    try {
+      setIsLoggedIn(Boolean(localStorage.getItem('userId') || localStorage.getItem('userTier')))
+    } catch {
+      setIsLoggedIn(false)
+    }
+  }, [])
 
   const isActive = (url: string) => {
     if (url.startsWith('http')) {
@@ -73,16 +82,19 @@ export function Navbar() {
           </div>
           <div className="h-6 w-px bg-slate-200 mx-2" />
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50" asChild>
-              <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
-            </Button>
-            <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100" asChild>
-              {/* แดชบอร์ดอยู่ที่ :3005 ไม่ใช่ :3001 */}
-              <a href="/dashboard">
-                <LayoutDashboard className="mr-2 h-4 w-4" />
-                แดชบอร์ด
-              </a>
-            </Button>
+            {isLoggedIn ? (
+              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100" asChild>
+                {/* แดชบอร์ดอยู่ที่ :3005 ไม่ใช่ :3001 */}
+                <a href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  แดชบอร์ด
+                </a>
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50" asChild>
+                <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
+              </Button>
+            )}
           </div>
         </div>
 
@@ -103,12 +115,15 @@ export function Navbar() {
               <NavItem key={link.name} link={link} mobile />
             ))}
             <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4">
-              <Button variant="outline" className="w-full border-slate-200 text-slate-600" asChild>
-                <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
-              </Button>
-              <Button className="w-full bg-indigo-600" asChild>
-                <a href="/dashboard">แดชบอร์ด</a>
-              </Button>
+              {isLoggedIn ? (
+                <Button className="w-full bg-indigo-600" asChild>
+                  <a href="/dashboard">แดชบอร์ด</a>
+                </Button>
+              ) : (
+                <Button variant="outline" className="w-full border-slate-200 text-slate-600" asChild>
+                  <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
+                </Button>
+              )}
             </div>
           </div>
         </div>

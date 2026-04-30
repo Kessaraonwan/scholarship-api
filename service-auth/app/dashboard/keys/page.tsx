@@ -130,12 +130,6 @@ export default function ApiKeysPage() {
           </h1>
           <p className="text-gray-500 mt-1">สร้างและจัดการกุญแจสำหรับการเข้าถึง API ของคุณ</p>
         </div>
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
-        >
-          <LogOut size={18} /> ออกจากระบบ
-        </button>
       </div>
 
       {/* Create Key Section */}

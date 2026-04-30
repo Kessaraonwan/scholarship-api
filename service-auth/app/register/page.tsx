@@ -53,6 +53,11 @@ export default function RegisterPage() {
         throw new Error(result.error || 'สมัครสมาชิกไม่สำเร็จ')
       }
 
+      if (result.user?.id) {
+        localStorage.setItem('userId', result.user.id)
+      }
+      localStorage.setItem('userTier', result.user?.tier || 'free')
+
       router.push('/welcome')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาด')

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
 interface Scholarship {
   id: string;
@@ -21,6 +20,8 @@ export default function MatchPage() {
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [filteredScholarships, setFilteredScholarships] = useState<Scholarship[]>([]);
   const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedField, setSelectedField] = useState('');
   const [selectedScholarship, setSelectedScholarship] = useState<Scholarship | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,11 +35,13 @@ export default function MatchPage() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer demo-key',
           },
           body: JSON.stringify({}),
         });
         const json = await res.json();
+        if (!res.ok) {
+          throw new Error(json?.error || 'โหลดข้อมูลไม่สำเร็จ')
+        }
         setScholarships(json.data ?? []);
         setFilteredScholarships(json.data ?? []);
       } catch {
@@ -51,18 +54,24 @@ export default function MatchPage() {
   }, []);
 
   useEffect(() => {
-    if (!selectedLevel) {
-      setFilteredScholarships(scholarships);
-    } else {
-      setFilteredScholarships(scholarships.filter(s => s.level === selectedLevel));
-    }
-  }, [selectedLevel, scholarships]);
+    setFilteredScholarships(
+      scholarships.filter((scholarship) => {
+        const matchesLevel = !selectedLevel || scholarship.level === selectedLevel;
+        const matchesCountry = !selectedCountry || scholarship.country === selectedCountry;
+        const matchesField = !selectedField || scholarship.field === selectedField;
+
+        return matchesLevel && matchesCountry && matchesField;
+      })
+    );
+  }, [selectedLevel, selectedCountry, selectedField, scholarships]);
 
   const levels = [...new Set(scholarships.map(s => s.level))];
+  const countries = [...new Set(scholarships.map(s => s.country))];
+  const fields = [...new Set(scholarships.map(s => s.field).filter(Boolean))];
 
   if (isLoading) {
     return (
-      <div className="container mx-auto p-6 text-center py-20">
+      <div className="text-center py-20">
         <p className="text-gray-500 text-lg">กำลังโหลดข้อมูล...</p>
       </div>
     );
@@ -70,18 +79,21 @@ export default function MatchPage() {
 
   if (error) {
     return (
-      <div className="container mx-auto p-6 text-center py-20">
+      <div className="text-center py-20">
         <p className="text-red-500 text-lg">{error}</p>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">ค้นหาทุนการศึกษา</h1>
+    <div>
+      <h1 className="text-3xl font-bold mb-2">ค้นหาทุนที่ตรงเงื่อนไข</h1>
+      <p className="text-sm text-gray-600 mb-6">
+        หน้านี้เป็นตัวกรองทุนตามระดับการศึกษา ประเทศ และสาขาที่เลือก ไม่ใช่การจับคู่จากโปรไฟล์อัตโนมัติ
+      </p>
 
       <div className="bg-white p-6 rounded-lg shadow mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium mb-2">ระดับการศึกษา</label>
             <select
@@ -95,9 +107,35 @@ export default function MatchPage() {
               ))}
             </select>
           </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">ประเทศ</label>
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">ทั้งหมด</option>
+              {countries.map((country) => (
+                <option key={country} value={country}>{country}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2">สาขา / Field</label>
+            <select
+              value={selectedField}
+              onChange={(e) => setSelectedField(e.target.value)}
+              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">ทั้งหมด</option>
+              {fields.map((field) => (
+                <option key={field} value={field}>{field}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="mt-4 text-sm text-gray-600">
-          พบ {filteredScholarships.length} ทุนการศึกษา
+          พบ {filteredScholarships.length} ทุนที่ตรงเงื่อนไข
         </div>
       </div>
 
@@ -138,7 +176,7 @@ export default function MatchPage() {
                 onClick={() => setSelectedScholarship(scholarship)}
                 className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition-colors"
               >
-                ดูรายละเอียด
+                ดูทุนนี้
               </button>
             </div>
           </div>
@@ -147,7 +185,7 @@ export default function MatchPage() {
 
       {filteredScholarships.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">ไม่พบทุนการศึกษาที่ตรงกับเงื่อนไขการค้นหา</p>
+          <p className="text-gray-500 text-lg">ไม่พบทุนที่ตรงกับเงื่อนไขการค้นหา</p>
           <p className="text-gray-400 text-sm mt-2">ลองปรับระดับการศึกษาดูนะครับ</p>
         </div>
       )}
@@ -238,9 +276,6 @@ export default function MatchPage() {
         </div>
       )}
 
-      <Link href="/" className="text-blue-600 hover:text-blue-800 text-sm mb-4 inline-block">
-        ← กลับหน้าหลัก
-      </Link>
     </div>
   );
 }

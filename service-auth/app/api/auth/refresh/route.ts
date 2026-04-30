@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
       email: tokenRecord.user.email,
       firstName: tokenRecord.user.firstName,
       lastName: tokenRecord.user.lastName,
+      tier: tokenRecord.user.tier,
     })
 
     const response = NextResponse.json({

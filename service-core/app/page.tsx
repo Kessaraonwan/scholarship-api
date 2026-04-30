@@ -16,7 +16,7 @@ export default function Home() {
         </div>
 
         <div className="container mx-auto px-4 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold mb-6">
+          <div className="inline-flex iteAms-center gap-2 px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 text-sm font-bold mb-6">
             <Zap className="w-4 h-4" />
             Powered by Scholarship API Gateway
           </div>

@@ -12,7 +12,7 @@ import {
   ExternalLink,
   Clock,
 } from "lucide-react"
-import { getScholarshipById, getRelatedScholarships } from "@/lib/scholarships-data"
+import { prisma } from "@/lib/prisma"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -20,19 +20,31 @@ interface PageProps {
 
 export default async function ScholarshipDetailPage({ params }: PageProps) {
   const { id } = await params
-  const scholarship = getScholarshipById(id)
+
+  const scholarship = await prisma.scholarship.findUnique({
+    where: { id }
+  })
 
   if (!scholarship) {
     notFound()
   }
 
-  const relatedScholarships = getRelatedScholarships(scholarship)
+  const relatedScholarships = await prisma.scholarship.findMany({
+    where: {
+      id: { not: id },
+      OR: [
+        { level: scholarship.level },
+        { country: scholarship.country },
+      ]
+    },
+    take: 3
+  })
 
-  const daysUntilDeadline = Math.ceil(
-    (new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-  )
+  const daysUntilDeadline = scholarship.deadline
+    ? Math.ceil((new Date(scholarship.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
+    : null
 
-  const isUrgent = daysUntilDeadline <= 30 && daysUntilDeadline > 0
+  const isUrgent = daysUntilDeadline !== null && daysUntilDeadline <= 30 && daysUntilDeadline > 0
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 lg:px-8">
@@ -105,7 +117,11 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
             </div>
             <div>
               <p className="text-sm text-muted-foreground">หมดเขต</p>
-              <p className="font-medium text-foreground">{scholarship.deadline}</p>
+              <p className="font-medium text-foreground">
+                {scholarship.deadline
+                  ? new Date(scholarship.deadline).toLocaleDateString('th-TH')
+                  : "ไม่ระบุ"}
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -136,7 +152,7 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
       {/* CTA Button */}
       <div className="mb-12">
         <Button size="lg" className="w-full sm:w-auto" asChild>
-          <a href={scholarship.source} target="_blank" rel="noopener noreferrer">
+          <a href={scholarship.url} target="_blank" rel="noopener noreferrer">
             สมัครทุนนี้
             <ExternalLink className="ml-2 h-4 w-4" />
           </a>
@@ -149,7 +165,7 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
           <h2 className="mb-6 text-2xl font-bold text-foreground">ทุนที่เกี่ยวข้อง</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {relatedScholarships.map((s) => (
-              <Link key={s.id} href={`/scholarships/${s.id}`}>
+              <a key={s.id} href={`http://localhost:3003/scholarships/${s.id}`} target="_blank" rel="noopener noreferrer">
                 <Card className="h-full transition-shadow hover:shadow-md">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base">{s.name}</CardTitle>
@@ -165,7 +181,7 @@ export default async function ScholarshipDetailPage({ params }: PageProps) {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
+              </a>
             ))}
           </div>
         </div>

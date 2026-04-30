@@ -59,8 +59,16 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    // 1. ตรวจบัตรผ่าน (เหมือนตอน POST เป๊ะ)
-    const token = req.cookies.get('accessToken')?.value
+    // 1. ตรวจบัตรผ่าน (รองรับ cookie หรือ Authorization header)
+    let token = req.cookies.get('accessToken')?.value
+
+    // If no cookie, try Authorization header
+    if (!token) {
+      const authHeader = req.headers.get('authorization')
+      if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7).trim()
+      }
+    }
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

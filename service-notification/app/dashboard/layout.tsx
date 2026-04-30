@@ -1,12 +1,17 @@
+'use client'
+import { useSearchParams } from 'next/navigation'
 import { Navbar } from "@/components/navbar"
 import { DashboardSidebar } from "@/components/dashboard/dashboard-sidebar"
 import { Footer } from "@/components/footer"
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const searchParams = useSearchParams()
+  const isEmbed = searchParams.get('embed') === 'true'
+
+  if (isEmbed) {
+    return <>{children}</>
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />

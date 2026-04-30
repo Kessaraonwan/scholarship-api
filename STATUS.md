@@ -18,7 +18,7 @@
 | service-core | 3003 | อีฟ | ✅ Production-ready (5 routes, DB จริง, migrate แล้ว) |
 | service-analytics | 3004 | ภู | ✅ Production-ready (3 routes, verify API key จริง, /api/match และ /api/analytics/overview ดึงข้อมูลจริง) |
 | service-notification | 3005 | ปิ่น | ✅ Production-ready (7 routes, DB จริง, UI 7 หน้าครบ) |
-
+                  
 ---
 
 ## สิ่งที่เสร็จแล้ว ✅
@@ -209,7 +209,7 @@
 
 ## Testing Checklist 🧪 (ผลการทดสอบล่าสุด)
 
-### 1. API Analytics Tier Check
+### 1. API Analytics Tier Check~
 - [x] ยืนยัน user เป็น Pro ก่อน (`service-auth` update user tier)
 - [x] Call `GET /api/analytics/overview` with `x-api-key` → 200 OK ✅
 

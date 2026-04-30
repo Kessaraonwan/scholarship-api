@@ -3,15 +3,24 @@ import { prisma } from '@/lib/prisma'
 import { verifyApiKey } from '@/lib/auth'
 
 export async function GET(request: NextRequest) {
-  const apiKey = request.headers.get('x-api-key')
+  // Get API key from header (x-api-key or Authorization: Bearer)
+  let apiKey = request.headers.get('x-api-key')
+  
+  if (!apiKey) {
+    const authHeader = request.headers.get('authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      apiKey = authHeader.substring(7)
+    }
+  }
 
   if (!apiKey) {
     return NextResponse.json(
-      { error: 'Missing x-api-key header' },
+      { error: 'Missing API key' },
       { status: 401 }
     )
   }
 
+  // Verify API key (works for both Free and Pro)
   const verificationResult = await verifyApiKey(apiKey)
 
   if (!verificationResult.valid) {
@@ -34,7 +43,7 @@ export async function GET(request: NextRequest) {
       },
     },
     orderBy: { deadline: 'asc' },
-    take: 20,
+    take: 100,
   })
 
   return NextResponse.json({

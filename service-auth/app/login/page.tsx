@@ -37,6 +37,11 @@ export default function Login() {
         throw new Error(result.error || 'เข้าสู่ระบบไม่สำเร็จ')
       }
 
+      if (result.user?.id) {
+        localStorage.setItem('userId', result.user.id)
+      }
+      localStorage.setItem('userTier', result.user?.tier || 'free')
+
       // เข้าสู่ระบบสำเร็จ - redirect ไปหน้า keys
       window.location.href = '/dashboard/keys'
     } catch (err) {

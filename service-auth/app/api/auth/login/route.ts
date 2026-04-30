@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      tier: user.tier,
     })
 
     const refreshToken = generateRefreshToken({ userId: user.id })

@@ -104,7 +104,7 @@ export default function PricingPage() {
                 <h2 className="text-2xl font-bold mb-1 text-white">Pro</h2>
                 <p className="text-sm mb-6 text-indigo-200">สำหรับนักพัฒนาที่ต้องการข้อมูลเชิงลึก</p>
                 <div className="mb-8">
-                  <span className="text-3xl font-extrabold text-white">พรีเมียม</span>
+                  <span className="text-3xl font-extrabold text-white">฿299</span>
                   <span className="text-sm text-indigo-200">/เดือน</span>
                 </div>
                 <ul className="space-y-3 mb-8 flex-1 text-sm">

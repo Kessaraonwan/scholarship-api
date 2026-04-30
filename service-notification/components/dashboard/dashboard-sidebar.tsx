@@ -1,28 +1,11 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
 import { Bell, History, Webhook, CreditCard, Settings, Lock } from "lucide-react"
-
-type Tier = "free" | "pro" | null
-
-function getTierFromCookie(): Tier {
-  if (typeof document === "undefined") return null
-  // decode JWT payload เพื่อเอา tier (ไม่ verify — verify จริงที่ API)
-  try {
-    const token = document.cookie
-      .split("; ")
-      .find((c) => c.startsWith("accessToken="))
-      ?.split("=")[1]
-    if (!token) return null
-    const payload = JSON.parse(atob(token.split(".")[1]))
-    return payload.tier ?? "free"
-  } catch {
-    return "free"
-  }
-}
+import { persistTier, readTierFromBrowser, fetchTierFromServer, type Tier } from "@/lib/tier"
 
 const allNavigation = [
   { title: "Notifications", href: "/dashboard/notifications", icon: Bell, proOnly: false },
@@ -34,11 +17,35 @@ const allNavigation = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
-  const [tier, setTier] = useState<Tier>(null)
+  const searchParams = useSearchParams()
+  const [tier, setTier] = useState<Tier | null>(null)
 
   useEffect(() => {
-    setTier(getTierFromCookie())
-  }, [])
+    let mounted = true
+    ;(async () => {
+      const serverTier = await fetchTierFromServer().catch(() => null)
+      if (mounted && serverTier) {
+        setTier(serverTier)
+        persistTier(serverTier)
+        return
+      }
+
+      const resolvedTier = readTierFromBrowser(searchParams)
+      if (mounted) {
+        setTier(resolvedTier)
+        persistTier(resolvedTier)
+      }
+    })()
+
+    return () => {
+      mounted = false
+    }
+  }, [searchParams])
+
+  const withTier = (href: string) => {
+    if (!tier) return href
+    return `${href}${href.includes('?') ? '&' : '?'}tier=${tier}`
+  }
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:block">
@@ -68,7 +75,7 @@ export function DashboardSidebar() {
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={withTier(item.href)}
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
                     isActive
@@ -94,7 +101,7 @@ export function DashboardSidebar() {
             <p className="text-xs font-medium text-indigo-700 mb-1">อัปเกรดเป็น Pro</p>
             <p className="text-xs text-indigo-600 mb-2">ปลดล็อก Webhooks และ Analytics</p>
             <Link
-              href="/dashboard/billing"
+              href={withTier("/dashboard/billing")}
               className="block text-center text-xs font-medium py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition"
             >
               ดูแพ็คเกจ

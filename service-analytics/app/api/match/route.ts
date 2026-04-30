@@ -1,13 +1,18 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { verifyApiKey } from '@/lib/auth'
+import { resolveApiKeyFromRequest } from '@/lib/request-auth'
 
 const CORE_SERVICE_URL = process.env.CORE_SERVICE_URL || 'http://localhost:3003'
 
-export async function POST(request: Request) {
-  // เปลี่ยนจาก Authorization: Bearer → x-api-key
-  const apiKey = request.headers.get('x-api-key')
+export async function POST(request: NextRequest) {
+  const resolved = await resolveApiKeyFromRequest(request)
+  if (resolved.response) {
+    return resolved.response
+  }
+
+  const apiKey = resolved.apiKey
   if (!apiKey) {
-    return NextResponse.json({ error: 'Missing x-api-key header' }, { status: 401 })
+    return NextResponse.json({ error: 'Unable to resolve API key' }, { status: 401 })
   }
 
   // Verify จริงกับ service-auth

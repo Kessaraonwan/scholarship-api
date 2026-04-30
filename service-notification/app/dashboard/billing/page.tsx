@@ -1,7 +1,12 @@
-import { CreditCard, Zap, Shield, Check, ArrowUpRight, Receipt } from "lucide-react"
+"use client"
+
+import { useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { CreditCard, Zap, Shield, Check, ArrowUpRight, Receipt, ExternalLink } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { persistTier, readTierFromBrowser, fetchTierFromServer, type Tier } from "@/lib/tier"
 
 const plans = [
   {
@@ -31,11 +36,56 @@ const invoices = [
 ]
 
 export default function BillingPage() {
+  const searchParams = useSearchParams()
+  const [tier, setTier] = useState<Tier>('free')
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      const serverTier = await fetchTierFromServer().catch(() => null)
+      if (mounted && serverTier) {
+        setTier(serverTier)
+        persistTier(serverTier)
+        return
+      }
+
+      const resolvedTier = readTierFromBrowser(searchParams)
+      if (mounted) {
+        setTier(resolvedTier)
+        persistTier(resolvedTier)
+      }
+    })()
+
+    return () => (mounted = false)
+  }, [searchParams])
+
+  const plans = [
+    {
+      name: "Free",
+      price: "฿0",
+      period: "/เดือน",
+      description: "เหมาะสำหรับเริ่มต้น",
+      icon: Shield,
+      current: tier === 'free',
+      features: ["API Key 1 ชุด", "100 requests/วัน", "ค้นหาทุนพื้นฐาน", "Usage Dashboard"],
+    },
+    {
+      name: "Pro",
+      price: "฿299",
+      period: "/เดือน",
+      description: "สำหรับนักพัฒนาและทีม",
+      icon: Zap,
+      current: tier === 'pro',
+      highlight: true,
+      features: ["API Key 10 ชุด", "10,000 requests/วัน", "Analytics & Smart Match", "Webhook Notifications", "Priority Support"],
+    },
+  ]
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">Billing & Subscription</h1>
-        <p className="text-muted-foreground mt-1">จัดการแพ็คเกจและดูประวัติการชำระเงิน</p>
+        <p className="text-muted-foreground mt-1">Billing Center กลางสำหรับดูแพ็คเกจและอัปเกรดจาก Free {'->'} Pro</p>
       </div>
 
       {/* Current Plan */}
@@ -51,14 +101,14 @@ export default function BillingPage() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">Free Plan</span>
-                  <Badge variant="secondary">Active</Badge>
+                  <span className="font-semibold text-foreground">{tier === 'pro' ? 'Pro Plan' : 'Free Plan'}</span>
+                  <Badge variant={tier === 'pro' ? 'default' : 'secondary'}>{tier === 'pro' ? 'Active' : 'Current'}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">100 requests/วัน · API Key 1 ชุด</p>
+                <p className="text-sm text-muted-foreground">{tier === 'pro' ? '10,000 requests/วัน · API Key 10 ชุด' : '100 requests/วัน · API Key 1 ชุด'}</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-foreground">฿0</p>
+              <p className="text-2xl font-bold text-foreground">{tier === 'pro' ? '฿299' : '฿0'}</p>
               <p className="text-sm text-muted-foreground">/เดือน</p>
             </div>
           </div>
@@ -112,9 +162,9 @@ export default function BillingPage() {
                     </Button>
                   ) : (
                     <Button className="w-full" asChild>
-                      <a href="http://localhost:3000/pricing" target="_blank" rel="noopener noreferrer">
-                        อัปเกรดเป็น {plan.name}
-                        <ArrowUpRight className="h-4 w-4 ml-1" />
+                      <a href="http://localhost:3001/dashboard/billing" target="_blank" rel="noopener noreferrer">
+                        ไปที่ Billing Center เพื่ออัปเกรด
+                        <ExternalLink className="h-4 w-4 ml-1" />
                       </a>
                     </Button>
                   )}
@@ -151,7 +201,7 @@ export default function BillingPage() {
           <div className="mt-4 flex items-center gap-2 p-3 bg-muted/40 rounded-lg">
             <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
             <p className="text-xs text-muted-foreground">
-              การชำระเงินจริงจะเปิดใช้งานเมื่ออัปเกรดเป็นแพ็คเกจ Pro
+              การอัปเกรดจริงเกิดที่ Billing Center ของ service-auth เพื่อให้อัปเดต tier ได้ตรงกลางเพียงจุดเดียว
             </p>
           </div>
         </CardContent>

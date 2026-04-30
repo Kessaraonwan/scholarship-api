@@ -1,6 +1,34 @@
-import Link from 'next/link';
+"use client"
+
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { persistTier, readTierFromBrowser, fetchTierFromServer, type Tier } from '@/lib/tier'
 
 export default function NotificationDashboard() {
+  const searchParams = useSearchParams()
+  const [tier, setTier] = useState<Tier>('free')
+
+  useEffect(() => {
+    let mounted = true
+    ;(async () => {
+      const serverTier = await fetchTierFromServer().catch(() => null)
+      if (mounted && serverTier) {
+        setTier(serverTier)
+        persistTier(serverTier)
+        return
+      }
+
+      const resolvedTier = readTierFromBrowser(searchParams)
+      if (mounted) {
+        setTier(resolvedTier)
+        persistTier(resolvedTier)
+      }
+    })()
+
+    return () => (mounted = false)
+  }, [searchParams])
+
   return (
     <div className="min-h-screen bg-slate-50 p-6 font-sans">
       <div className="max-w-5xl mx-auto">
@@ -32,14 +60,23 @@ export default function NotificationDashboard() {
             </div>
 
             {/* ส่วน Webhook สำหรับ Pro Tier */}
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-indigo-100 bg-indigo-50/30">
-              <h2 className="text-sm font-bold text-indigo-800 uppercase tracking-wider mb-2">Developer Webhook</h2>
+            <div className={`bg-white p-6 rounded-xl shadow-sm border ${tier === 'free' ? 'border-slate-200 bg-slate-50/60' : 'border-indigo-100 bg-indigo-50/30'}`}>
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-sm font-bold text-indigo-800 uppercase tracking-wider">Developer Webhook</h2>
+                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${tier === 'free' ? 'bg-slate-200 text-slate-600' : 'bg-indigo-100 text-indigo-700'}`}>
+                  {tier === 'free' ? 'Pro only' : 'Unlocked'}
+                </span>
+              </div>
               <input 
                 type="text" 
                 placeholder="https://your-api.com/webhook" 
-                className="w-full p-2 border border-indigo-200 rounded-md text-xs mb-2"
+                disabled={tier === 'free'}
+                className="w-full p-2 border border-indigo-200 rounded-md text-xs mb-2 disabled:bg-slate-100 disabled:text-slate-400"
               />
               <p className="text-[10px] text-indigo-600">ระบบจะยิง JSON Payload ไปยัง URL นี้เมื่อพบทุนที่ตรงเงื่อนไข</p>
+              {tier === 'free' && (
+                <p className="mt-3 text-xs text-slate-500">อัปเกรดจาก Billing เพื่อใช้งาน webhook URL</p>
+              )}
             </div>
           </div>
 
@@ -78,7 +115,7 @@ export default function NotificationDashboard() {
         </div>
 
         {/* Navigation Bridge */}
-        <div className="mt-12 flex justify-center space-x-6 border-t border-slate-200 pt-8">
+          <div className="mt-12 flex justify-center space-x-6 border-t border-slate-200 pt-8">
            <a href="http://localhost:3001/dashboard/keys" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">🔑 จัดการ API Key (Service 1)</a>
            <a href="http://localhost:3004/analytics" className="text-sm text-slate-500 hover:text-indigo-600 transition-colors">📊 ดูสถิติทุน (Service 4)</a>
         </div>

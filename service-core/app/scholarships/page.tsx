@@ -1,13 +1,12 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import Link from "next/link"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Calendar, MapPin, GraduationCap, Briefcase, Key, RefreshCw } from "lucide-react"
+import { Search, Calendar, MapPin, GraduationCap, Briefcase, Key, RefreshCw, BarChart3, Bell } from "lucide-react"
 import { type Scholarship } from "@/lib/scholarships-data"
 
 const levels = ["ทุกระดับ", "มัธยม", "ปริญญาตรี", "ปริญญาโท", "ปริญญาเอก"]
@@ -22,7 +21,7 @@ function ScholarshipCard({ scholarship }: { scholarship: Scholarship }) {
     : null;
 
   return (
-    <Link href={`/scholarships/${scholarship.id}`}>
+    <a href={`http://localhost:3003/scholarships/${scholarship.id}`} target="_blank" rel="noopener noreferrer">
       <Card className="h-full transition-shadow hover:shadow-lg">
         <CardHeader>
           <div className="flex items-start justify-between">
@@ -55,7 +54,7 @@ function ScholarshipCard({ scholarship }: { scholarship: Scholarship }) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </a> 
   )
 }
 
@@ -151,7 +150,7 @@ export default function ScholarshipsPage() {
           <div className="p-2 bg-indigo-600 rounded-lg shadow-md"><Key className="h-5 w-5 text-white" /></div>
           <div>
             <h2 className="text-lg font-bold text-gray-900">API Gateway Authentication</h2>
-            <p className="text-sm text-gray-500">ใส่ API Key จากเครื่องแบงค์ (3001) เพื่อดึงข้อมูล</p>
+            <p className="text-sm text-gray-500">ใส่ API Key เพื่อดึงข้อมูล</p>
           </div>
         </div>
 
@@ -177,7 +176,7 @@ export default function ScholarshipsPage() {
 
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">ค้นหาทุนการศึกษา</h1>
-        <p className="mt-2 text-muted-foreground">ระบบกำลังเรียกข้อมูลจากฐานข้อมูลของมิกผ่าน API Gateway</p>
+        <p className="mt-2 text-muted-foreground">ระบบกำลังเรียกข้อมูลจากฐานข้อมูลผ่าน API Gateway</p>
       </div>
 
       {/* Search & Filters */}
@@ -233,6 +232,66 @@ export default function ScholarshipsPage() {
               <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>ถัดไป</Button>
             </div>
           )}
+
+          {/* Next Steps CTA Section */}
+          <div className="mt-16 p-10 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-2xl border border-indigo-100 shadow-lg">
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">📌 ขั้นตอนถัดไป</h2>
+            <p className="text-slate-600 mb-8">เพิ่มเติมคุณสมบัติให้กับแอปของคุณ</p>
+            
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {/* CTA 1: View Analytics */}
+              <a 
+                href="http://localhost:3004/analytics" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-6 bg-white rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-md transition-all group"
+              >
+                <BarChart3 className="h-8 w-8 text-indigo-600 mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-slate-900 mb-1">View Analytics</h3>
+                <p className="text-sm text-slate-500 mb-3">วิเคราะห์แนวโน้มและคู่เทพทุนที่เหมาะสม</p>
+                <span className="text-xs font-medium text-indigo-600">→ ไป Analytics</span>
+              </a>
+
+              {/* CTA 2: Setup Webhooks */}
+              <a 
+                href="http://localhost:3005/dashboard/webhooks" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-6 bg-white rounded-xl border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all group"
+              >
+                <Bell className="h-8 w-8 text-purple-600 mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-slate-900 mb-1">Setup Webhooks</h3>
+                <p className="text-sm text-slate-500 mb-3">รับแจ้งเตือนเมื่อมีทุนใหม่ (Pro only)</p>
+                <span className="text-xs font-medium text-purple-600">→ ไป Webhooks</span>
+              </a>
+
+              {/* CTA 3: Manage API Keys */}
+              <a 
+                href="http://localhost:3001/dashboard/keys" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-6 bg-white rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-md transition-all group"
+              >
+                <Key className="h-8 w-8 text-amber-600 mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-slate-900 mb-1">Manage API Keys</h3>
+                <p className="text-sm text-slate-500 mb-3">สร้าง ดู และลบ API Keys ของคุณ</p>
+                <span className="text-xs font-medium text-amber-600">→ ไป Dashboard</span>
+              </a>
+
+              {/* CTA 4: Upgrade to Pro */}
+              <a 
+                href="http://localhost:3005/dashboard/billing" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-6 bg-white rounded-xl border border-slate-200 hover:border-rose-300 hover:shadow-md transition-all group"
+              >
+                <Briefcase className="h-8 w-8 text-rose-600 mb-3 group-hover:scale-110 transition-transform" />
+                <h3 className="font-semibold text-slate-900 mb-1">Upgrade to Pro</h3>
+                <p className="text-sm text-slate-500 mb-3">ปลดล็อก Webhooks และ Analytics</p>
+                <span className="text-xs font-medium text-rose-600">→ ไป Billing</span>
+              </a>
+            </div>
+          </div>
         </>
       )}
     </div>

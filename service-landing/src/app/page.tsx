@@ -89,6 +89,139 @@ export default function Home() {
           </div>
         </section>
 
+        {/* User Journey - Getting Started */}
+        <section className="py-20 bg-gradient-to-b from-indigo-50 via-white to-white">
+          <div className="container max-w-4xl">
+            <h2 className="text-3xl font-bold text-slate-900 text-center mb-4">🎯 เรียนรู้การใช้งาน</h2>
+            <p className="text-slate-600 text-center mb-12">คำแนะนำทีละขั้นตอนสำหรับเริ่มต้นใช้งาน</p>
+
+            <div className="grid gap-6 mb-12">
+              {/* Step 1: Signup */}
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-lg">1</div>
+                </div>
+                <div className="flex-1 bg-white p-6 rounded-xl border-2 border-indigo-100">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2">📝 สมัครสมาชิก</h3>
+                  <p className="text-slate-600 mb-4">สร้างบัญชีฟรีในเวลาไม่กี่นาที ไม่ต้องใส่บัตรเครดิต</p>
+                  <a href={`${AUTH_BASE_URL}/register`} className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 font-medium transition-all">
+                    สมัครตอนนี้ →
+                  </a>
+                </div>
+              </div>
+
+              {/* Arrow Down */}
+              <div className="flex justify-center">
+                <ArrowRight className="w-6 h-6 text-slate-300 rotate-90" />
+              </div>
+
+              {/* Step 2: Free Tier */}
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-lg">2</div>
+                </div>
+                <div className="flex-1 bg-white p-6 rounded-xl border-2 border-purple-100">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2">🔑 สร้าง API Key</h3>
+                  <p className="text-slate-600 mb-4">เข้าไปยัง Dashboard แล้วสร้าง API Key เพื่อเรียกใช้ API ทั้งหมด (ฟรี)</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <a href={`${AUTH_BASE_URL}/login`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 font-medium transition-all">
+                      ไปสร้าง Key →
+                    </a>
+                    <a href="http://localhost:3003/scholarships" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 font-medium transition-all">
+                      ค้นหาทุน →
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Arrow Down */}
+              <div className="flex justify-center">
+                <ArrowRight className="w-6 h-6 text-slate-300 rotate-90" />
+              </div>
+
+              {/* Step 3: Pro Tier */}
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0">
+                  <div className="w-12 h-12 bg-amber-600 text-white rounded-full flex items-center justify-center font-bold text-lg">3</div>
+                </div>
+                <div className="flex-1 bg-white p-6 rounded-xl border-2 border-amber-100">
+                  <h3 className="font-bold text-lg text-slate-900 mb-2">⭐ อัปเกรดเป็น Pro (ตัวเลือก)</h3>
+                  <p className="text-slate-600 mb-4">อัปเกรดเพื่อปลดล็อก Webhooks, Analytics, และคุณสมบัติขั้นสูงอื่น ๆ</p>
+                  <div className="flex gap-2 flex-wrap">
+                    <a href="/pricing" className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 font-medium transition-all">
+                      ดูแพ็คเกจ →
+                    </a>
+                    <a href="http://localhost:3005/dashboard/billing" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-slate-50 text-slate-600 rounded-lg hover:bg-slate-100 font-medium transition-all">
+                      อัปเกรดเลย →
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="bg-slate-900 text-white p-10 rounded-2xl">
+              <h3 className="text-2xl font-bold mb-8">📚 ฟีเจอร์ที่มี</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <span className="text-2xl">🆓</span> Free Plan
+                  </h4>
+                  <ul className="space-y-3 text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>ค้นหาทุน 10,000+ ทัน</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>API Key ไม่จำกัด</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>Usage Statistics</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-slate-500 text-xl mt-0.5">✗</span>
+                      <span className="text-slate-400">Webhooks (Pro)</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-slate-500 text-xl mt-0.5">✗</span>
+                      <span className="text-slate-400">Analytics (Pro)</span>
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-bold text-lg mb-4 flex items-center gap-2">
+                    <span className="text-2xl">⭐</span> Pro Plan
+                  </h4>
+                  <ul className="space-y-3 text-slate-300">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>ทุกอย่างใน Free</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>Webhook Management</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>Webhook Event Types</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>Advanced Analytics</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 text-xl mt-0.5">✓</span>
+                      <span>Priority Support</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* API Preview */}
         <section className="py-20 bg-slate-50">
           <div className="container max-w-4xl mx-auto">
