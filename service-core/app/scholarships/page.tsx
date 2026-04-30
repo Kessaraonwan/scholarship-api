@@ -88,15 +88,15 @@ export default function ScholarshipsPage() {
   //}, [])
 
   // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
+ // 2. ฟังก์ชันดึงข้อมูล (แยกออกมาเพื่อเรียกใช้ซ้ำได้)
   const fetchScholarships = useCallback(async () => {
-    if (!apiKey) return; // 🛑 ถ้าไม่มีคีย์ ไม่ต้องยิงให้เปลืองแรงและ Error
+    if (!apiKey) return; // ถ้าไม่มีคีย์ ไม่ต้องยิงให้เปลืองแรงและ Error
 
     setIsLoading(true)
     const params = new URLSearchParams();
 
     if (search) params.append("keyword", search);
 
-    // 🛡️ ถ้าเลือก "ทุกระดับ" ไม่ต้องส่งค่าไป ให้หลังบ้านดึงมาทั้งหมด
     if (level !== "ทุกระดับ") params.append("level", level);
     if (field !== "ทุกสาขา") params.append("field", field);
     if (country !== "ทุกประเทศ") params.append("country", country);
@@ -108,8 +108,8 @@ export default function ScholarshipsPage() {
       const response = await fetch(`/api/scholarships?${params.toString()}`, {
         method: 'GET',
         headers: {
-          // ✅ ส่งแค่ API Key อย่างเดียว ป้องกันภาษาไทยหลุดเข้า Header
-          "x-api-key": apiKey.trim()
+          // เปลี่ยนจาก "x-api-key" มาเป็น "Authorization" แบบ Bearer Token
+          "Authorization": `Bearer ${apiKey.trim()}` 
         }
       })
 

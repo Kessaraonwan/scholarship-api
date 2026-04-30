@@ -18,8 +18,7 @@ export async function POST(req: NextRequest) {
             id: true,
             email: true,
             role: true,
-            tier: true,
-            isActive: true,
+            isActive: true, // ลบ tier: true ออกจากตรงนี้
           },
         },
       },
@@ -34,8 +33,7 @@ export async function POST(req: NextRequest) {
       user: {
         id: apiKey.user.id,
         email: apiKey.user.email,
-        role: apiKey.user.role,
-        tier: apiKey.user.tier,
+        role: apiKey.user.role, // ลบ tier: apiKey.user.tier ออกจากตรงนี้
       },
     })
   } catch (error) {

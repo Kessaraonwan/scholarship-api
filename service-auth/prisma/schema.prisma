@@ -6,6 +6,21 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+model Scholarship {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  link        String   @unique
+  provider    String?
+  deadline    DateTime?
+  amount      String?
+  category    String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("scholarships")
+}
 
 model User {
   id        String   @id @default(cuid())

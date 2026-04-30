@@ -1,61 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-/**
- * ตรวจสอบ API key สำหรับ route ที่ต้องการล็อกอิน
- * เรียกไปที่ service-auth เพื่อตรวจสอบ
- */
 export async function withAuth(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader) {
-    return NextResponse.json(
-      { error: 'กรุณาใส่ API key - ส่ง Authorization: Bearer <your-api-key>' },
-      { status: 401 }
-    )
+    return { 
+      isValid: false, 
+      response: NextResponse.json({ error: 'Missing API key' }, { status: 401 }) 
+    }
   }
 
+  const apiKey = authHeader.replace('Bearer ', '').trim()
+
   try {
-    // เรียก service-auth ตรวจสอบ API key
-    const response = await fetch(`${process.env.AUTH_SERVICE_URL || 'http://localhost:3001'}/api/auth/verify`, {
+    const response = await fetch(`${process.env.AUTH_SERVICE_URL || 'http://localhost:3001'}/api/keys/verify`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': authHeader,
-      },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: apiKey }), 
     })
 
     if (!response.ok) {
-      const error = await response.json()
-      return NextResponse.json(error, { status: response.status })
+      const errorData = await response.json()
+      return { 
+        isValid: false, 
+        response: NextResponse.json(errorData, { status: response.status }) 
+      }
     }
 
-    const user = await response.json()
-    return { user, isValid: true }
+    const userData = await response.json()
+    return { user: userData, isValid: true }
+
   } catch (error) {
-    // Fallback: ถ้า service-auth ไม่พร้อม อนุญาตให้ผ่านได้ชั่วคราว (dev mode)
-    console.warn('Auth service unavailable, allowing request:', error)
+    console.warn('Auth service unavailable:', error)
+    // ใน Dev mode อนุญาตให้ผ่านถ้าเซอร์วิสพัง แต่ถ้าใช้งานจริงควรเปลี่ยนเป็น isValid: false
     return { user: null, isValid: true }
   }
 }
 
-/**
- * สร้าง middleware function สำหรับป้องกัน route
- */
 export function createAuthMiddleware(protectedRoutes: string[]) {
   return async function authMiddleware(request: NextRequest) {
     const pathname = request.nextUrl.pathname
-
-    // ตรวจสอบว่า route นี้ต้องการป้องกันหรือไม่
     const needsAuth = protectedRoutes.some(route => pathname.startsWith(route))
 
     if (needsAuth) {
-      const authResult = await withAuth(request)
+      const authResult: any = await withAuth(request)
       
+      // จุดสำคัญ: ถ้าไม่ Valid ต้อง return authResult.response เพื่อหยุด Request ทันที
       if (!authResult.isValid) {
-        return authResult
+        return authResult.response
       }
     }
 
-    return { user: null, isValid: true }
+    return NextResponse.next()
   }
 }
