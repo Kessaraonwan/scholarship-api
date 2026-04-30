@@ -17,121 +17,113 @@ interface APIEndpoint {
 const endpoints: APIEndpoint[] = [
   {
     method: 'GET',
-    path: '/scholarships',
-    description: 'Search for scholarships with filters',
+    path: '/api/scholarships',
+    description: 'ค้นหาทุนพร้อม filter (keyword, level, field, country) + pagination',
     service: 'service-core',
-    example: '/scholarships?country=TH&level=bachelor&min_amount=10000',
+    example: 'curl http://localhost:3003/api/scholarships?country=japan&level=masters \\\n  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
       success: true,
-      data: [
-        {
-          id: '1',
-          name: 'Royal Scholarship',
-          provider: 'Thai Government',
-          amount: 500000,
-          deadline: '2026-05-31',
-          eligibility: ['Thai citizens', 'GPA >= 3.5'],
-        },
-      ],
-      pagination: { total: 1523, page: 1, limit: 20 },
+      data: [{ id: '1', name: 'MEXT Scholarship', country: 'Japan', level: 'masters', deadline: '2026-05-31' }],
+      pagination: { total: 120, page: 1, limit: 20 },
     }, null, 2),
   },
   {
     method: 'GET',
-    path: '/scholarships/:id',
-    description: 'Get detailed information about a specific scholarship',
+    path: '/api/scholarships/:id',
+    description: 'ดูรายละเอียดทุนรายชิ้น',
     service: 'service-core',
-    example: '/scholarships/123',
+    example: 'curl http://localhost:3003/api/scholarships/123 \\\n  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
       success: true,
-      data: {
-        id: '123',
-        name: 'Royal Scholarship 2026',
-        provider: 'Thai Government',
-        amount: 500000,
-        deadline: '2026-05-31',
-        description: 'Full scholarship for Thai students',
-        eligibility: ['Thai citizens', 'GPA >= 3.5', 'Age < 25'],
-        categories: ['Engineering', 'Science'],
-        documents_required: ['Transcript', 'ID', 'Essay'],
-      },
+      data: { id: '123', name: 'MEXT Scholarship', country: 'Japan', level: 'masters', deadline: '2026-05-31' },
     }, null, 2),
   },
   {
     method: 'GET',
-    path: '/scholarships/upcoming',
-    description: 'Get scholarships with upcoming deadlines (next 30 days)',
+    path: '/api/scholarships/upcoming',
+    description: 'ทุนที่กำลังจะหมดเขตใน 30 วัน',
     service: 'service-core',
-    example: '/scholarships/upcoming?limit=10',
+    example: 'curl http://localhost:3003/api/scholarships/upcoming \\\n  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
       success: true,
-      data: [
-        {
-          id: '1',
-          name: 'Quick Opportunity',
-          deadline: '2026-05-01',
-          days_left: 5,
-        },
-      ],
+      data: [{ id: '1', name: 'Quick Opportunity', deadline: '2026-05-01', days_left: 5 }],
     }, null, 2),
   },
   {
     method: 'POST',
-    path: '/auth/register',
-    description: 'Register a new user account',
+    path: '/api/register',
+    description: 'สมัครสมาชิกใหม่',
     service: 'service-auth',
-    example: 'POST /auth/register',
+    example: 'curl -X POST http://localhost:3001/api/register \\\n  -H "Content-Type: application/json" \\\n  -d \'{"email":"user@example.com","password":"pass123"}\'',
     response: JSON.stringify({
       success: true,
-      data: {
-        user_id: 'usr_123',
-        email: 'student@example.com',
-        token: 'eyJhbGciOiJIUzI1NiIs...',
-      },
+      data: { userId: 'usr_123', email: 'user@example.com' },
     }, null, 2),
   },
   {
     method: 'POST',
-    path: '/auth/login',
-    description: 'Login and get authentication token',
+    path: '/api/login',
+    description: 'เข้าสู่ระบบ รับ accessToken cookie',
     service: 'service-auth',
-    example: 'POST /auth/login',
+    example: 'curl -X POST http://localhost:3001/api/login \\\n  -H "Content-Type: application/json" \\\n  -d \'{"email":"user@example.com","password":"pass123"}\'',
     response: JSON.stringify({
       success: true,
-      data: {
-        token: 'eyJhbGciOiJIUzI1NiIs...',
-        user: { id: 'usr_123', email: 'student@example.com' },
-      },
+      data: { accessToken: 'eyJhbGci...', user: { id: 'usr_123', tier: 'free' } },
     }, null, 2),
   },
   {
     method: 'GET',
-    path: '/analytics/dashboard',
-    description: 'Get analytics dashboard data',
+    path: '/api/keys',
+    description: 'ดู API Key ทั้งหมดของ user',
+    service: 'service-auth',
+    example: 'curl http://localhost:3001/api/keys \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    response: JSON.stringify({
+      success: true,
+      data: [{ id: 'key_123', name: 'My Key', key: 'sk_...', isActive: true }],
+    }, null, 2),
+  },
+  {
+    method: 'GET',
+    path: '/api/analytics/overview',
+    description: 'ดู analytics overview — Pro tier เท่านั้น',
     service: 'service-analytics',
-    example: '/analytics/dashboard',
+    example: 'curl http://localhost:3004/api/analytics/overview \\\n  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
       success: true,
-      data: {
-        total_scholarships: 5234,
-        matching_scholarships: 45,
-        success_rate: 0.32,
-        top_categories: ['Engineering', 'Medicine', 'Law'],
-      },
+      data: { totalScholarships: 120, byCountry: { Japan: 40, UK: 30 } },
     }, null, 2),
   },
   {
     method: 'POST',
-    path: '/notifications/subscribe',
-    description: 'Subscribe to notifications for specific criteria',
-    service: 'service-notification',
-    example: 'POST /notifications/subscribe',
+    path: '/api/match',
+    description: 'จับคู่ทุนที่เหมาะกับโปรไฟล์ — Pro tier เท่านั้น',
+    service: 'service-analytics',
+    example: 'curl -X POST http://localhost:3004/api/match \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  -d \'{"level":"masters","field":"engineering"}\'',
     response: JSON.stringify({
       success: true,
-      data: {
-        subscription_id: 'sub_123',
-        criteria: { country: 'TH', min_amount: 100000 },
-      },
+      data: [{ id: '1', name: 'MEXT', matchScore: 0.95 }],
+    }, null, 2),
+  },
+  {
+    method: 'GET',
+    path: '/api/notifications',
+    description: 'ดูการแจ้งเตือนทั้งหมด',
+    service: 'service-notification',
+    example: 'curl http://localhost:3005/api/notifications \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    response: JSON.stringify({
+      success: true,
+      data: [{ id: 'notif_123', message: 'ทุนใหม่ตรงโปรไฟล์คุณ', createdAt: '2026-04-30' }],
+    }, null, 2),
+  },
+  {
+    method: 'GET',
+    path: '/api/webhooks',
+    description: 'ดู Webhook ทั้งหมด — Pro tier เท่านั้น',
+    service: 'service-notification',
+    example: 'curl http://localhost:3005/api/webhooks \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    response: JSON.stringify({
+      success: true,
+      data: [{ id: 'wh_123', url: 'https://example.com/hook', events: ['notification.sent'] }],
     }, null, 2),
   },
 ];
@@ -152,7 +144,6 @@ function MethodBadge({ method }: { method: string }) {
 
 function EndpointCard({ endpoint }: { endpoint: APIEndpoint }) {
   const [isOpen, setIsOpen] = useState(false);
-
   return (
     <div className="bg-white border border-slate-200 rounded-lg overflow-hidden">
       <button
@@ -168,7 +159,6 @@ function EndpointCard({ endpoint }: { endpoint: APIEndpoint }) {
         </div>
         <ChevronDown className={`w-5 h-5 transition ${isOpen ? 'rotate-180' : ''}`} />
       </button>
-
       {isOpen && (
         <div className="border-t border-slate-200 px-6 py-4 bg-slate-50">
           <div className="space-y-4">
@@ -176,19 +166,13 @@ function EndpointCard({ endpoint }: { endpoint: APIEndpoint }) {
               <h4 className="font-semibold text-sm text-slate-700 mb-2">Service</h4>
               <p className="text-sm text-slate-600 font-mono">{endpoint.service}</p>
             </div>
-
             <div>
               <h4 className="font-semibold text-sm text-slate-700 mb-2">Example</h4>
-              <pre className="bg-slate-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                {endpoint.example}
-              </pre>
+              <pre className="bg-slate-900 text-green-400 p-3 rounded text-xs overflow-x-auto">{endpoint.example}</pre>
             </div>
-
             <div>
               <h4 className="font-semibold text-sm text-slate-700 mb-2">Response</h4>
-              <pre className="bg-slate-900 text-green-400 p-3 rounded text-xs overflow-x-auto">
-                {endpoint.response}
-              </pre>
+              <pre className="bg-slate-900 text-green-400 p-3 rounded text-xs overflow-x-auto">{endpoint.response}</pre>
             </div>
           </div>
         </div>
@@ -219,9 +203,7 @@ export default function DocsPage() {
         <section className="bg-gradient-to-b from-slate-900 to-slate-800 text-white py-12">
           <div className="container">
             <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
-            <p className="text-xl text-slate-300">
-              Complete reference for Scholarship API endpoints
-            </p>
+            <p className="text-xl text-slate-300">Complete reference for Scholarship API endpoints</p>
           </div>
         </section>
 
@@ -235,15 +217,10 @@ export default function DocsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
             <div className="flex gap-2 flex-wrap">
               <button
                 onClick={() => setFilterService(null)}
-                className={`px-4 py-2 rounded-lg font-medium transition ${
-                  filterService === null
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
+                className={`px-4 py-2 rounded-lg font-medium transition ${filterService === null ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
               >
                 All Services
               </button>
@@ -251,11 +228,7 @@ export default function DocsPage() {
                 <button
                   key={service}
                   onClick={() => setFilterService(service)}
-                  className={`px-4 py-2 rounded-lg font-medium transition ${
-                    filterService === service
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                  }`}
+                  className={`px-4 py-2 rounded-lg font-medium transition ${filterService === service ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
                 >
                   {service}
                 </button>
@@ -268,9 +241,7 @@ export default function DocsPage() {
         <section className="py-12">
           <div className="container space-y-4">
             {filtered.length > 0 ? (
-              filtered.map((endpoint, idx) => (
-                <EndpointCard key={idx} endpoint={endpoint} />
-              ))
+              filtered.map((endpoint, idx) => <EndpointCard key={idx} endpoint={endpoint} />)
             ) : (
               <div className="text-center py-12">
                 <p className="text-slate-600 text-lg">No endpoints found</p>
@@ -279,19 +250,21 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Authentication Info */}
+        {/* Authentication */}
         <section className="bg-blue-50 py-12">
           <div className="container">
             <h2 className="text-2xl font-bold mb-6">Authentication</h2>
             <div className="bg-white rounded-lg p-6 border border-slate-200">
-              <p className="text-slate-700 mb-4">
-                All API requests require an API key in the Authorization header:
-              </p>
+              <p className="text-slate-700 mb-4">ทุก API request ต้องใส่ API key ใน header:</p>
+              {/* ✅ แก้จาก Authorization: Bearer → x-api-key */}
               <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto">
-                Authorization: Bearer YOUR_API_KEY
+                x-api-key: YOUR_API_KEY
               </pre>
               <p className="text-slate-600 mt-4">
-                Get your API key from the <span className="font-mono bg-slate-100 px-2 py-1 rounded">Dashboard → Keys</span> page.
+                ขอ API key ได้ที่{' '}
+                <a href="http://localhost:3001/dashboard/keys" className="text-indigo-600 font-semibold hover:underline">
+                  Dashboard → Keys
+                </a>
               </p>
             </div>
           </div>
@@ -301,18 +274,15 @@ export default function DocsPage() {
         <section className="bg-white py-12">
           <div className="container">
             <h2 className="text-2xl font-bold mb-6">Rate Limiting</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* ✅ แก้ตัวเลขและตัด Enterprise ออก */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
               <div className="border border-slate-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-2">Free Plan</h3>
-                <p className="text-slate-600">100 requests per day</p>
+                <p className="text-slate-600">1,000 requests / วัน</p>
               </div>
-              <div className="border border-slate-200 rounded-lg p-6">
-                <h3 className="font-semibold mb-2">Pro Plan</h3>
-                <p className="text-slate-600">50,000 requests per month</p>
-              </div>
-              <div className="border border-slate-200 rounded-lg p-6">
-                <h3 className="font-semibold mb-2">Enterprise</h3>
-                <p className="text-slate-600">Unlimited requests</p>
+              <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-6">
+                <h3 className="font-semibold mb-2 text-indigo-700">Pro Plan</h3>
+                <p className="text-slate-600">10,000 requests / วัน</p>
               </div>
             </div>
           </div>

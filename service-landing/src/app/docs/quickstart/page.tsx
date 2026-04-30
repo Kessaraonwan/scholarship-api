@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import { Check } from 'lucide-react';
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Check } from "lucide-react";
 
 export default function QuickstartPage() {
   return (
@@ -29,26 +29,43 @@ export default function QuickstartPage() {
                   1
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Sign Up for an Account</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    Sign Up for an Account
+                  </h2>
                   <p className="text-slate-600 mb-4">
                     Create a free account to get your API key.
                   </p>
                   <div className="bg-slate-100 rounded-lg p-4">
                     <ol className="space-y-2 text-sm text-slate-700">
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">1</span>
-                        Go to the <a href="/register" className="text-blue-600 underline">Sign Up</a> page
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          1
+                        </span>
+                        Go to the{" "}
+                        <a
+                          href="http://localhost:3001/register"
+                          className="text-blue-600 underline"
+                        >
+                          Sign Up
+                        </a>{" "}
+                        page
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">2</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          2
+                        </span>
                         Fill in your email and password
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">3</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          3
+                        </span>
                         Confirm your email
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">4</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          4
+                        </span>
                         You're ready to go!
                       </li>
                     </ol>
@@ -71,19 +88,28 @@ export default function QuickstartPage() {
                   <div className="bg-slate-100 rounded-lg p-4">
                     <ol className="space-y-2 text-sm text-slate-700">
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">1</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          1
+                        </span>
                         Log in to your account
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">2</span>
-                        Go to <span className="font-mono">Dashboard → Keys</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          2
+                        </span>
+                        Go to{" "}
+                        <span className="font-mono">Dashboard → Keys</span>
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">3</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          3
+                        </span>
                         Click "Generate New Key"
                       </li>
                       <li className="flex gap-2">
-                        <span className="font-mono bg-slate-300 rounded px-2">4</span>
+                        <span className="font-mono bg-slate-300 rounded px-2">
+                          4
+                        </span>
                         Copy and save it (you won't see it again!)
                       </li>
                     </ol>
@@ -99,48 +125,44 @@ export default function QuickstartPage() {
                   3
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Make Your First API Request</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    Make Your First API Request
+                  </h2>
                   <p className="text-slate-600 mb-4">
                     Use curl, JavaScript, or your favorite HTTP client:
                   </p>
 
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold text-sm text-slate-700 mb-2">Using cURL</h3>
+                      <h3 className="font-semibold text-sm text-slate-700 mb-2">
+                        Using cURL
+                      </h3>
                       <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
-{`curl -X GET \\
-  'http://localhost:3003/api/scholarships?country=TH' \\
-  -H 'Authorization: Bearer YOUR_API_KEY' \\
-  -H 'Content-Type: application/json'`}
-                      </pre>
-                    </div>
+                        {/* Step 3 — แก้ header ทุก code example */}
 
-                    <div>
-                      <h3 className="font-semibold text-sm text-slate-700 mb-2">Using JavaScript</h3>
-                      <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
-{`const apiKey = 'YOUR_API_KEY';
+                        {/* cURL */}
+                        {`curl -X GET \\
+  'http://localhost:3003/api/scholarships?country=TH' \\
+  -H 'x-api-key: YOUR_API_KEY'`}
+
+                        {/* JavaScript */}
+                        {`const apiKey = 'YOUR_API_KEY';
 
 fetch('http://localhost:3003/api/scholarships?country=TH', {
   method: 'GET',
   headers: {
-    'Authorization': \`Bearer \${apiKey}\`,
-    'Content-Type': 'application/json'
+    'x-api-key': apiKey
   }
 })
   .then(res => res.json())
   .then(data => console.log(data))`}
-                      </pre>
-                    </div>
 
-                    <div>
-                      <h3 className="font-semibold text-sm text-slate-700 mb-2">Using Python</h3>
-                      <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
-{`import requests
+                        {/* Python */}
+                        {`import requests
 
 api_key = 'YOUR_API_KEY'
 headers = {
-    'Authorization': f'Bearer {api_key}',
-    'Content-Type': 'application/json'
+    'x-api-key': api_key
 }
 
 response = requests.get(
@@ -162,12 +184,14 @@ print(response.json())`}
                   4
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold mb-2">Parse the Response</h2>
+                  <h2 className="text-2xl font-bold mb-2">
+                    Parse the Response
+                  </h2>
                   <p className="text-slate-600 mb-4">
                     The API returns JSON with scholarship data:
                   </p>
                   <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
-{`{
+                    {`{
   "success": true,
   "data": [
     {
@@ -226,19 +250,37 @@ print(response.json())`}
 
             {/* Common Issues */}
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-12">
-              <h3 className="font-bold text-yellow-900 mb-4">🔧 Common Issues</h3>
+              <h3 className="font-bold text-yellow-900 mb-4">
+                🔧 Common Issues
+              </h3>
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-yellow-900 text-sm">401 Unauthorized</h4>
-                  <p className="text-sm text-yellow-800">Make sure your API key is correct and included in the Authorization header</p>
+                  {/* Common Issues — แก้ข้อความ 401 */}
+                  <h4 className="font-semibold text-yellow-900 text-sm">
+                    401 Unauthorized
+                  </h4>
+                  <p className="text-sm text-yellow-800">
+                    Make sure your API key is correct and included as{" "}
+                    <code>x-api-key</code> header
+                  </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-yellow-900 text-sm">429 Too Many Requests</h4>
-                  <p className="text-sm text-yellow-800">You've exceeded your rate limit. Check your plan and upgrade if needed.</p>
+                  <h4 className="font-semibold text-yellow-900 text-sm">
+                    429 Too Many Requests
+                  </h4>
+                  <p className="text-sm text-yellow-800">
+                    You've exceeded your rate limit. Check your plan and upgrade
+                    if needed.
+                  </p>
                 </div>
                 <div>
-                  <h4 className="font-semibold text-yellow-900 text-sm">CORS Errors</h4>
-                  <p className="text-sm text-yellow-800">You can use the API from backend services without CORS issues. For frontend use, contact support.</p>
+                  <h4 className="font-semibold text-yellow-900 text-sm">
+                    CORS Errors
+                  </h4>
+                  <p className="text-sm text-yellow-800">
+                    You can use the API from backend services without CORS
+                    issues. For frontend use, contact support.
+                  </p>
                 </div>
               </div>
             </div>
@@ -247,7 +289,11 @@ print(response.json())`}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
               <h3 className="font-bold text-blue-900 mb-2">💡 Need Help?</h3>
               <p className="text-sm text-blue-900 mb-3">
-                Check out the full <a href="/docs" className="underline font-semibold">API Documentation</a> or contact our support team.
+                Check out the full{" "}
+                <a href="/docs" className="underline font-semibold">
+                  API Documentation
+                </a>{" "}
+                or contact our support team.
               </p>
             </div>
           </div>

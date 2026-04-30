@@ -6,7 +6,7 @@ export default function RootPage() {
   const router = useRouter();
   
   useEffect(() => {
-    router.push('/admin/ingestion'); // ดีดไปหน้า Admin ที่สวยๆ ทันที
+    router.push('/admin/ingestion');
   }, [router]);
 
   return (

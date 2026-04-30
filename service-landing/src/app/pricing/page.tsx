@@ -163,55 +163,6 @@ export default function PricingPage() {
             </div>
           </div>
         </section>
-
-        {/* Demo Section */}
-        <section className="py-16 bg-white">
-          <div className="container max-w-3xl mx-auto">
-            <div className="bg-slate-900 rounded-2xl p-8 text-white">
-              <h2 className="text-xl font-bold mb-6">ตอน Demo แสดงแบบนี้</h2>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm">
-                  <span className="text-slate-400 shrink-0">Free →</span>
-                  <span className="text-slate-300">เรียก</span>
-                  <code className="bg-slate-700 text-green-400 px-2 py-0.5 rounded font-mono text-xs">
-                    GET /api/scholarships
-                  </code>
-                  <span className="text-slate-300">ได้ปกติ</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm flex-wrap">
-                  <span className="text-slate-400 shrink-0">Pro →</span>
-                  <span className="text-slate-300">เรียก</span>
-                  <code className="bg-slate-700 text-blue-400 px-2 py-0.5 rounded font-mono text-xs">
-                    GET /api/analytics/overview
-                  </code>
-                  <span className="text-slate-300">ได้เพิ่ม ถ้า Free เรียกตอบ</span>
-                  <code className="bg-slate-700 text-red-400 px-2 py-0.5 rounded font-mono text-xs">
-                    403 Forbidden
-                  </code>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-20 bg-white" id="contact">
-          <div className="container text-center">
-            <div className="max-w-2xl mx-auto p-12 rounded-[3rem] bg-indigo-600 text-white shadow-2xl shadow-indigo-200">
-              <h2 className="text-3xl font-bold mb-4">พร้อมเริ่มต้นแล้วใช่ไหม?</h2>
-              <p className="text-indigo-100 mb-8">สมัครฟรีวันนี้ ไม่ต้องใช้บัตรเครดิต</p>
-              <div className="flex gap-4 justify-center flex-wrap">
-                <a href={`${AUTH_BASE_URL}/register`} className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all">
-                  สมัครฟรี
-                </a>
-                <a href="/docs" className="border border-indigo-400 px-8 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all">
-                  อ่าน Docs
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </main>
       <Footer />
     </>

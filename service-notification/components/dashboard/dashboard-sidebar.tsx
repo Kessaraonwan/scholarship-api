@@ -2,27 +2,69 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import { cn } from "@/lib/utils"
-import { Bell, History, Webhook, CreditCard, Settings } from "lucide-react"
+import { Bell, History, Webhook, CreditCard, Settings, Lock } from "lucide-react"
 
-const navigation = [
-  { title: "Notifications", href: "/dashboard/notifications", icon: Bell },
-  { title: "Notification Logs", href: "/dashboard/notifications/logs", icon: History },
-  { title: "Webhooks", href: "/dashboard/webhooks", icon: Webhook },
-  { title: "Billing", href: "/dashboard/billing", icon: CreditCard },
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+type Tier = "free" | "pro" | null
+
+function getTierFromCookie(): Tier {
+  if (typeof document === "undefined") return null
+  // decode JWT payload เพื่อเอา tier (ไม่ verify — verify จริงที่ API)
+  try {
+    const token = document.cookie
+      .split("; ")
+      .find((c) => c.startsWith("accessToken="))
+      ?.split("=")[1]
+    if (!token) return null
+    const payload = JSON.parse(atob(token.split(".")[1]))
+    return payload.tier ?? "free"
+  } catch {
+    return "free"
+  }
+}
+
+const allNavigation = [
+  { title: "Notifications", href: "/dashboard/notifications", icon: Bell, proOnly: false },
+  { title: "Notification Logs", href: "/dashboard/notifications/logs", icon: History, proOnly: false },
+  { title: "Webhooks", href: "/dashboard/webhooks", icon: Webhook, proOnly: true },
+  { title: "Billing", href: "/dashboard/billing", icon: CreditCard, proOnly: false },
+  { title: "Settings", href: "/dashboard/settings", icon: Settings, proOnly: false },
 ]
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const [tier, setTier] = useState<Tier>(null)
+
+  useEffect(() => {
+    setTier(getTierFromCookie())
+  }, [])
 
   return (
     <aside className="hidden w-64 shrink-0 border-r border-border bg-sidebar lg:block">
       <nav className="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto p-6">
         <h4 className="mb-4 text-sm font-semibold text-sidebar-foreground">Dashboard</h4>
         <ul className="space-y-1">
-          {navigation.map((item) => {
+          {allNavigation.map((item) => {
             const isActive = pathname === item.href
+            const isLocked = item.proOnly && tier === "free"
+
+            if (isLocked) {
+              // แสดงแต่ lock ไว้ — ไม่ให้กด
+              return (
+                <li key={item.href}>
+                  <div
+                    className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/40 cursor-not-allowed select-none"
+                    title="Pro only — อัปเกรดเพื่อใช้งาน"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.title}
+                    <Lock className="h-3 w-3 ml-auto" />
+                  </div>
+                </li>
+              )
+            }
+
             return (
               <li key={item.href}>
                 <Link
@@ -36,11 +78,29 @@ export function DashboardSidebar() {
                 >
                   <item.icon className="h-4 w-4" />
                   {item.title}
+                  {item.proOnly && (
+                    <span className="ml-auto text-[10px] font-medium px-1.5 py-0.5 rounded bg-indigo-100 text-indigo-700">
+                      Pro
+                    </span>
+                  )}
                 </Link>
               </li>
             )
           })}
         </ul>
+
+        {tier === "free" && (
+          <div className="mt-6 rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+            <p className="text-xs font-medium text-indigo-700 mb-1">อัปเกรดเป็น Pro</p>
+            <p className="text-xs text-indigo-600 mb-2">ปลดล็อก Webhooks และ Analytics</p>
+            <Link
+              href="/dashboard/billing"
+              className="block text-center text-xs font-medium py-1.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition"
+            >
+              ดูแพ็คเกจ
+            </Link>
+          </div>
+        )}
       </nav>
     </aside>
   )

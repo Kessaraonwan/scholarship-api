@@ -146,25 +146,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* CTA */}
-        <section className="py-20 bg-white">
-          <div className="container text-center">
-            <div className="max-w-2xl mx-auto p-12 rounded-[3rem] bg-indigo-600 text-white shadow-2xl shadow-indigo-200">
-              <h2 className="text-3xl font-bold mb-4">พร้อมเริ่มต้นแล้วใช่ไหม?</h2>
-              <p className="text-indigo-100 mb-8">สมัครฟรี ไม่ต้องใช้บัตรเครดิต</p>
-              <div className="flex gap-4 justify-center flex-wrap">
-                <a href={`${AUTH_BASE_URL}/register`} className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-bold hover:bg-indigo-50 transition-all">
-                  สมัครฟรี
-                </a>
-                <Link href="/pricing" className="border border-indigo-400 px-8 py-3 rounded-xl font-bold hover:bg-indigo-500 transition-all">
-                  ดูแพ็คเกจ
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-
       </main>
       <Footer />
     </>

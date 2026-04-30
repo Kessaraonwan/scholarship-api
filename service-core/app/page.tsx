@@ -2,10 +2,12 @@ import Link from "next/link"
 import { GraduationCap, Award, Users, ArrowRight, ShieldCheck, Zap, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import Navbar from "@/components/Navbar" // ✅ เพิ่ม
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      <Navbar /> {/* ✅ เพิ่มบรรทัดนี้ */}
       {/* Hero Section - ปรับเป็น Indigo Gradient และเพิ่มลูกเล่น */}
       <section className="relative bg-gradient-to-b from-indigo-50 via-white to-white py-24 overflow-hidden">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full opacity-10 pointer-events-none">

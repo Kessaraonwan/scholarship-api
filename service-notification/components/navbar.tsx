@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { BookOpen, Menu, X, LayoutDashboard, Search, Bell, BarChart3 } from "lucide-react"
+import { BookOpen, Menu, X, LayoutDashboard, Search, Bell } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 
@@ -11,10 +11,8 @@ export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // ฟังก์ชันเช็คว่าเมนูไหน Active อยู่ (Indigo Theme logic)
   const isActive = (url: string) => {
     if (url.startsWith('http')) {
-      // สำหรับลิงก์ข้ามพอร์ต ถ้าอยู่พอร์ตนั้นๆ (เช็คจากหน้าต่าง browser จริง)
       if (typeof window !== 'undefined') {
         return window.location.origin === new URL(url).origin
       }
@@ -26,8 +24,7 @@ export function Navbar() {
   const navLinks = [
     { name: "Documentation", href: "http://localhost:3000/docs", icon: BookOpen },
     { name: "ค้นหาทุน", href: "http://localhost:3003/scholarships", icon: Search },
-    { name: "สถิติ", href: "http://localhost:3004/analytics", icon: BarChart3 },
-    { name: "แจ้งเตือน", href: "http://localhost:3005/dashboard/notifications", icon: Bell },
+    { name: "แจ้งเตือน", href: "/dashboard/notifications", icon: Bell },
   ]
 
   const NavItem = ({ link, mobile = false }: { link: typeof navLinks[0], mobile?: boolean }) => {
@@ -39,14 +36,13 @@ export function Navbar() {
         className={cn(
           "flex items-center gap-2 text-sm font-medium transition-all duration-200",
           mobile ? "px-2 py-2 rounded-md" : "relative py-2",
-          active 
-            ? "text-indigo-600" 
+          active
+            ? "text-indigo-600"
             : "text-muted-foreground hover:text-indigo-500"
         )}
       >
         <link.icon className={cn("h-4 w-4", active ? "text-indigo-600" : "text-muted-foreground")} />
         {link.name}
-        {/* เส้นขีดด้านล่างสำหรับ Desktop เมื่อ Active */}
         {!mobile && active && (
           <span className="absolute inset-x-0 -bottom-[21px] h-0.5 bg-indigo-600" />
         )}
@@ -57,7 +53,7 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo Section */}
+        {/* Logo */}
         <Link href="http://localhost:3000" className="flex items-center gap-2 group">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 shadow-indigo-200 shadow-lg transition-transform group-hover:scale-105">
             <BookOpen className="h-5 w-5 text-white" />
@@ -68,22 +64,21 @@ export function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Nav */}
         <div className="hidden items-center gap-8 md:flex">
           <div className="flex items-center gap-6">
             {navLinks.map((link) => (
               <NavItem key={link.name} link={link} />
             ))}
           </div>
-
           <div className="h-6 w-px bg-slate-200 mx-2" />
-
           <div className="flex items-center gap-3">
             <Button variant="ghost" size="sm" className="text-slate-600 hover:text-indigo-600 hover:bg-indigo-50" asChild>
               <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
             </Button>
             <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100" asChild>
-              <a href="http://localhost:3001/dashboard/keys">
+              {/* แดชบอร์ดอยู่ที่ :3005 ไม่ใช่ :3001 */}
+              <a href="/dashboard">
                 <LayoutDashboard className="mr-2 h-4 w-4" />
                 แดชบอร์ด
               </a>
@@ -100,9 +95,9 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="border-t border-slate-100 bg-white md:hidden animate-in fade-in slide-in-from-top-4">
+        <div className="border-t border-slate-100 bg-white md:hidden">
           <div className="flex flex-col gap-2 px-4 py-4">
             {navLinks.map((link) => (
               <NavItem key={link.name} link={link} mobile />
@@ -112,7 +107,7 @@ export function Navbar() {
                 <a href="http://localhost:3001/login">เข้าสู่ระบบ</a>
               </Button>
               <Button className="w-full bg-indigo-600" asChild>
-                <a href="http://localhost:3001/dashboard/keys">จัดการ API Keys</a>
+                <a href="/dashboard">แดชบอร์ด</a>
               </Button>
             </div>
           </div>
