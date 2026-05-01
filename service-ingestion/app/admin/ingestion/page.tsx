@@ -36,50 +36,70 @@ export default function IngestionPage() {
     }
   };
 
+  const [syncing, setSyncing] = useState(false);
+
   // ✅ ดึงข้อมูลจาก API จริง
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // ดึง logs
+      const logsRes = await fetch('/api/admin/ingestion/logs?limit=10');
+      if (logsRes.ok) {
+        const logsData = await logsRes.json();
+        const logList: LogEntry[] = logsData.data || [];
+        setLogs(logList);
+
+        // คำนวณ stats จาก logs
+        const lastLog = logList[0];
+        const lastSync = lastLog?.completedAt
+          ? new Date(lastLog.completedAt).toLocaleString('th-TH')
+          : null;
+
+        // ดึง total records จาก ingestion status
+        const statusRes = await fetch('/api/admin/ingestion');
+        if (statusRes.ok) {
+          const statusData = await statusRes.json();
+          const total = statusData.data?.totalScholarships ?? 0;
+
+          // newToday = logs ที่ startedAt เป็นวันนี้
+          const today = new Date().toDateString();
+          const newToday = logList
+            .filter(l => new Date(l.startedAt).toDateString() === today)
+            .reduce((sum, l) => sum + (l.recordsNew || 0), 0);
+
+          setStats({ lastSync, totalRecords: total, newToday });
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!isAuthorized) return;
-
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        // ดึง logs
-        const logsRes = await fetch('/api/admin/ingestion/logs?limit=10');
-        if (logsRes.ok) {
-          const logsData = await logsRes.json();
-          const logList: LogEntry[] = logsData.data || [];
-          setLogs(logList);
-
-          // คำนวณ stats จาก logs
-          const lastLog = logList[0];
-          const lastSync = lastLog?.completedAt
-            ? new Date(lastLog.completedAt).toLocaleString('th-TH')
-            : null;
-
-          // ดึง total records จาก ingestion status
-          const statusRes = await fetch('/api/admin/ingestion');
-          if (statusRes.ok) {
-            const statusData = await statusRes.json();
-            const total = statusData.data?.totalScholarships ?? 0;
-
-            // newToday = logs ที่ startedAt เป็นวันนี้
-            const today = new Date().toDateString();
-            const newToday = logList
-              .filter(l => new Date(l.startedAt).toDateString() === today)
-              .reduce((sum, l) => sum + (l.recordsNew || 0), 0);
-
-            setStats({ lastSync, totalRecords: total, newToday });
-          }
-        }
-      } catch (err) {
-        console.error('Failed to fetch data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [isAuthorized]);
+
+  const runSync = async () => {
+    setSyncing(true);
+    try {
+      const res = await fetch('/api/admin/ingestion/sync', { method: 'POST' });
+      if (!res.ok) {
+        const text = await res.text();
+        alert('Sync failed: ' + text);
+      } else {
+        // refresh data after successful sync
+        await fetchData();
+      }
+    } catch (err) {
+      console.error('Sync error:', err);
+      alert('Sync failed, check server logs');
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'sans-serif' }}>
@@ -133,6 +153,24 @@ export default function IngestionPage() {
                 <div style={{ background: '#fff', borderRadius: '20px', border: '1px solid #E2E8F0', padding: '16px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#4F46E5', fontWeight: '600' }}>
                     <RefreshCw size={18} /> System Monitoring Active
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <button
+                      onClick={runSync}
+                      disabled={syncing}
+                      style={{
+                        background: syncing ? '#94A3B8' : '#4F46E5',
+                        color: '#fff',
+                        border: 'none',
+                        padding: '8px 16px',
+                        borderRadius: '12px',
+                        fontWeight: '700',
+                        cursor: syncing ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {syncing ? 'Running…' : 'Run Sync'}
+                    </button>
                   </div>
                 </div>
 

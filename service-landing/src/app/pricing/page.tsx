@@ -67,7 +67,7 @@ export default function PricingPage() {
                 </div>
                 <ul className="space-y-3 mb-8 flex-1 text-sm">
                   {[
-                    [true, '1,000 requests / วัน'],
+                    [true, '100 requests / วัน'],
                     [true, 'API Key 1 ชุด'],
                     [true, 'ค้นหาทุน'],
                     [true, 'ดูรายละเอียดทุน'],

@@ -17,7 +17,7 @@ export class IngestionService {
     // ✅ แก้เป็น "countNew", error_msg, "finishedAt" ตามจริงใน DB
     await pool.query(`
       UPDATE ingestion_logs
-      SET status = $1, "countNew" = $2, error_msg = $3, "finishedAt" = NOW()
+      SET status = $1, "countNew" = $2, "errorMsg" = $3, "finishedAt" = NOW()
       WHERE id = $4
     `, [status, countNew, errorMsg, id])
   }
@@ -28,13 +28,13 @@ export class IngestionService {
     for (const scholarship of scholarships) {
       try {
         const existing = await pool.query(`
-          SELECT id FROM scholarships
+          SELECT id FROM "Scholarship"
           WHERE name = $1 AND source = $2
         `, [scholarship.name, scholarship.source])
 
         if (existing.rows.length === 0) {
           await pool.query(`
-            INSERT INTO scholarships (name, level, field, country, deadline, amount, currency, url, source, description)
+            INSERT INTO "Scholarship" (name, level, field, country, deadline, amount, currency, url, source, description)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           `, [
             scholarship.name,

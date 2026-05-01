@@ -20,11 +20,10 @@ const endpoints: APIEndpoint[] = [
     path: '/api/scholarships',
     description: 'ค้นหาทุนพร้อม filter (keyword, level, field, country) + pagination',
     service: 'service-core',
-    example: 'curl http://localhost:3003/api/scholarships?country=japan&level=masters \\\n  -H "x-api-key: YOUR_API_KEY"',
+    example: 'curl "http://localhost:3003/api/scholarships?keyword=MEXT&country=Japan&level=ปริญญาโท&page=1&limit=10" \\\n+  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
-      success: true,
-      data: [{ id: '1', name: 'MEXT Scholarship', country: 'Japan', level: 'masters', deadline: '2026-05-31' }],
-      pagination: { total: 120, page: 1, limit: 20 },
+      data: [{ id: 'sch_004', name: 'ทุน MEXT', country: 'Japan', level: 'ปริญญาโท', deadline: '2025-04-30' }],
+      pagination: { currentPage: 1, totalPages: 1, totalItems: 1, itemsPerPage: 10 },
     }, null, 2),
   },
   {
@@ -32,9 +31,8 @@ const endpoints: APIEndpoint[] = [
     path: '/api/scholarships/:id',
     description: 'ดูรายละเอียดทุนรายชิ้น',
     service: 'service-core',
-    example: 'curl http://localhost:3003/api/scholarships/123 \\\n  -H "x-api-key: YOUR_API_KEY"',
+    example: 'curl http://localhost:3003/api/scholarships/123 \\\n+  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
-      success: true,
       data: { id: '123', name: 'MEXT Scholarship', country: 'Japan', level: 'masters', deadline: '2026-05-31' },
     }, null, 2),
   },
@@ -43,9 +41,8 @@ const endpoints: APIEndpoint[] = [
     path: '/api/scholarships/upcoming',
     description: 'ทุนที่กำลังจะหมดเขตใน 30 วัน',
     service: 'service-core',
-    example: 'curl http://localhost:3003/api/scholarships/upcoming \\\n  -H "x-api-key: YOUR_API_KEY"',
+    example: 'curl http://localhost:3003/api/scholarships/upcoming \\\n+  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
-      success: true,
       data: [{ id: '1', name: 'Quick Opportunity', deadline: '2026-05-01', days_left: 5 }],
     }, null, 2),
   },
@@ -54,7 +51,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/register',
     description: 'สมัครสมาชิกใหม่',
     service: 'service-auth',
-    example: 'curl -X POST http://localhost:3001/api/register \\\n  -H "Content-Type: application/json" \\\n  -d \'{"email":"user@example.com","password":"pass123"}\'',
+    example: 'curl -X POST http://localhost:3001/api/register \\\n+  -H "Content-Type: application/json" \\\n+  -d \'{"email":"user@example.com","password":"pass123"}\'',
     response: JSON.stringify({
       success: true,
       data: { userId: 'usr_123', email: 'user@example.com' },
@@ -65,7 +62,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/login',
     description: 'เข้าสู่ระบบ รับ accessToken cookie',
     service: 'service-auth',
-    example: 'curl -X POST http://localhost:3001/api/login \\\n  -H "Content-Type: application/json" \\\n  -d \'{"email":"user@example.com","password":"pass123"}\'',
+    example: 'curl -X POST http://localhost:3001/api/login \\\n+  -H "Content-Type: application/json" \\\n+  -d \'{"email":"user@example.com","password":"pass123"}\'',
     response: JSON.stringify({
       success: true,
       data: { accessToken: 'eyJhbGci...', user: { id: 'usr_123', tier: 'free' } },
@@ -76,7 +73,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/keys',
     description: 'ดู API Key ทั้งหมดของ user',
     service: 'service-auth',
-    example: 'curl http://localhost:3001/api/keys \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    example: 'curl http://localhost:3001/api/keys \\\n+  -H "Authorization: Bearer ACCESS_TOKEN"',
     response: JSON.stringify({
       success: true,
       data: [{ id: 'key_123', name: 'My Key', key: 'sk_...', isActive: true }],
@@ -87,7 +84,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/analytics/overview',
     description: 'ดู analytics overview — Pro tier เท่านั้น',
     service: 'service-analytics',
-    example: 'curl http://localhost:3004/api/analytics/overview \\\n  -H "x-api-key: YOUR_API_KEY"',
+    example: 'curl http://localhost:3004/api/analytics/overview \\\n+  -H "x-api-key: YOUR_API_KEY"',
     response: JSON.stringify({
       success: true,
       data: { totalScholarships: 120, byCountry: { Japan: 40, UK: 30 } },
@@ -98,7 +95,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/match',
     description: 'จับคู่ทุนที่เหมาะกับโปรไฟล์ — Pro tier เท่านั้น',
     service: 'service-analytics',
-    example: 'curl -X POST http://localhost:3004/api/match \\\n  -H "x-api-key: YOUR_API_KEY" \\\n  -d \'{"level":"masters","field":"engineering"}\'',
+    example: 'curl -X POST http://localhost:3004/api/match \\\n+  -H "x-api-key: YOUR_API_KEY" \\\n+  -d \'{"level":"masters","field":"engineering"}\'',
     response: JSON.stringify({
       success: true,
       data: [{ id: '1', name: 'MEXT', matchScore: 0.95 }],
@@ -109,7 +106,7 @@ const endpoints: APIEndpoint[] = [
     path: '/api/notifications',
     description: 'ดูการแจ้งเตือนทั้งหมด',
     service: 'service-notification',
-    example: 'curl http://localhost:3005/api/notifications \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    example: 'curl http://localhost:3005/api/notifications \\\n+  -H "Authorization: Bearer ACCESS_TOKEN"',
     response: JSON.stringify({
       success: true,
       data: [{ id: 'notif_123', message: 'ทุนใหม่ตรงโปรไฟล์คุณ', createdAt: '2026-04-30' }],
@@ -120,12 +117,23 @@ const endpoints: APIEndpoint[] = [
     path: '/api/webhooks',
     description: 'ดู Webhook ทั้งหมด — Pro tier เท่านั้น',
     service: 'service-notification',
-    example: 'curl http://localhost:3005/api/webhooks \\\n  -H "Authorization: Bearer ACCESS_TOKEN"',
+    example: 'curl http://localhost:3005/api/webhooks \\\n+  -H "Authorization: Bearer ACCESS_TOKEN"',
     response: JSON.stringify({
       success: true,
       data: [{ id: 'wh_123', url: 'https://example.com/hook', events: ['notification.sent'] }],
     }, null, 2),
   },
+];
+
+const packageComparison = [
+  { feature: 'Requests / วัน', free: '100', pro: '10,000' },
+  { feature: 'API Key', free: '1 key', pro: 'หลาย key' },
+  { feature: 'ค้นหาทุน', free: 'ได้', pro: 'ได้' },
+  { feature: 'ดูรายละเอียดทุน', free: 'ได้', pro: 'ได้' },
+  { feature: 'ทุนใกล้หมดเขต', free: 'ได้', pro: 'ได้' },
+  { feature: 'Analytics', free: 'ไม่ได้', pro: 'ได้' },
+  { feature: 'Match ทุนกับโปรไฟล์', free: 'ไม่ได้', pro: 'ได้' },
+  { feature: 'Webhook URL', free: 'ไม่ได้', pro: 'ได้' },
 ];
 
 function MethodBadge({ method }: { method: string }) {
@@ -185,7 +193,7 @@ export default function DocsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterService, setFilterService] = useState<string | null>(null);
 
-  const filtered = endpoints.filter(ep => {
+  const filtered = endpoints.filter((ep) => {
     const matchesSearch =
       ep.path.toLowerCase().includes(searchTerm.toLowerCase()) ||
       ep.description.toLowerCase().includes(searchTerm.toLowerCase());
@@ -193,13 +201,12 @@ export default function DocsPage() {
     return matchesSearch && matchesService;
   });
 
-  const services = Array.from(new Set(endpoints.map(ep => ep.service)));
+  const services = Array.from(new Set(endpoints.map((ep) => ep.service)));
 
   return (
     <>
       <Navbar />
       <main className="pt-20">
-        {/* Header */}
         <section className="bg-gradient-to-b from-slate-900 to-slate-800 text-white py-12">
           <div className="container">
             <h1 className="text-4xl font-bold mb-4">API Documentation</h1>
@@ -207,7 +214,6 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Search and Filter */}
         <section className="bg-white border-b border-slate-200 py-6">
           <div className="container space-y-4">
             <input
@@ -224,7 +230,7 @@ export default function DocsPage() {
               >
                 All Services
               </button>
-              {services.map(service => (
+              {services.map((service) => (
                 <button
                   key={service}
                   onClick={() => setFilterService(service)}
@@ -237,7 +243,6 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Endpoints */}
         <section className="py-12">
           <div className="container space-y-4">
             {filtered.length > 0 ? (
@@ -250,16 +255,62 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Authentication */}
+        <section className="bg-slate-50 py-12 border-y border-slate-200">
+          <div className="container">
+            <h2 className="text-2xl font-bold mb-6">Postman Quick Tests</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+                <p className="text-sm font-semibold text-indigo-600 mb-2">1. ค้นหาทุน</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">ใช้ request นี้ใน Postman</h3>
+                <p className="text-slate-600 mb-4">
+                  ตัวอย่างนี้ค้นหา MEXT ในญี่ปุ่น พร้อม pagination และใช้ header เดียวกับ API จริง
+                </p>
+                <pre className="bg-slate-900 text-green-400 p-4 rounded-lg text-xs overflow-x-auto mb-4">
+GET http://localhost:3003/api/scholarships?keyword=MEXT&country=Japan&level=ปริญญาโท&page=1&limit=10
+x-api-key: YOUR_API_KEY</pre>
+                <p className="text-sm text-slate-600">
+                  ค่าที่จะเห็นกลับมา: <span className="font-semibold text-slate-800">data</span> และ{' '}
+                  <span className="font-semibold text-slate-800">pagination</span>
+                </p>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm">
+                <p className="text-sm font-semibold text-indigo-600 mb-2">2. ดูข้อแตกต่างของแพ็คเกจ</p>
+                <h3 className="text-xl font-bold text-slate-900 mb-3">Free vs Pro</h3>
+                <p className="text-slate-600 mb-4">
+                  การค้นหาทุนใช้งานได้ทั้งสองแพ็คเกจ แต่ Pro จะเพิ่ม analytics, match และ webhook พร้อมโควตา request ที่สูงกว่า
+                </p>
+                <div className="overflow-hidden rounded-lg border border-slate-200">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-50">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-semibold text-slate-600">Feature</th>
+                        <th className="text-center px-4 py-3 font-semibold text-slate-600">Free</th>
+                        <th className="text-center px-4 py-3 font-semibold text-indigo-600">Pro</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {packageComparison.map((row) => (
+                        <tr key={row.feature}>
+                          <td className="px-4 py-3 text-slate-700 font-medium">{row.feature}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{row.free}</td>
+                          <td className="px-4 py-3 text-center text-slate-700">{row.pro}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="bg-blue-50 py-12">
           <div className="container">
             <h2 className="text-2xl font-bold mb-6">Authentication</h2>
             <div className="bg-white rounded-lg p-6 border border-slate-200">
               <p className="text-slate-700 mb-4">ทุก API request ต้องใส่ API key ใน header:</p>
-              {/* ✅ แก้จาก Authorization: Bearer → x-api-key */}
-              <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto">
-                x-api-key: YOUR_API_KEY
-              </pre>
+              <pre className="bg-slate-900 text-green-400 p-4 rounded overflow-x-auto">x-api-key: YOUR_API_KEY</pre>
               <p className="text-slate-600 mt-4">
                 ขอ API key ได้ที่{' '}
                 <a href="http://localhost:3001/dashboard/keys" className="text-indigo-600 font-semibold hover:underline">
@@ -270,15 +321,13 @@ export default function DocsPage() {
           </div>
         </section>
 
-        {/* Rate Limiting */}
         <section className="bg-white py-12">
           <div className="container">
             <h2 className="text-2xl font-bold mb-6">Rate Limiting</h2>
-            {/* ✅ แก้ตัวเลขและตัด Enterprise ออก */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl">
               <div className="border border-slate-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-2">Free Plan</h3>
-                <p className="text-slate-600">1,000 requests / วัน</p>
+                <p className="text-slate-600">100 requests / วัน</p>
               </div>
               <div className="border border-indigo-200 bg-indigo-50 rounded-lg p-6">
                 <h3 className="font-semibold mb-2 text-indigo-700">Pro Plan</h3>

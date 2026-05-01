@@ -1,53 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SyncService } from '../../../../../lib/syncService'
+import { IngestionService } from '../../../../../lib/ingestionService'
 
-const syncService = new SyncService()
+const ingestionService = new IngestionService()
 
-export async function POST(req: NextRequest) {
-  // ✅ เพิ่ม admin check เหมือน route อื่น
-  const authHeader = req.headers.get('authorization')
-  if (!authHeader) {
-    return NextResponse.json({ error: 'Unauthorized', code: 401 }, { status: 401 })
-  }
-
-  const verifyRes = await fetch(
-    `${process.env.AUTH_SERVICE_URL || 'http://localhost:3001'}/api/verify-admin`,
-    { headers: { authorization: authHeader } }
-  )
-  if (!verifyRes.ok) {
-    return NextResponse.json({ error: 'Unauthorized', code: 401 }, { status: 401 })
-  }
-
-  // ส่วนที่เหลือคงเดิม
+export async function GET(req: NextRequest) {
   try {
-    console.log('--- Starting Sync Process ---')
-    let totalNew = 0
-    let results = []
+    const url = new URL(req.url)
+    const page = Number(url.searchParams.get('page') || '1')
+    const limit = Number(url.searchParams.get('limit') || '10')
 
-    try {
-      const syncResult = await syncService.syncAllSources()
-      totalNew = syncResult.totalNew
-      results = syncResult.results
-    } catch (syncErr) {
-      console.error('Real Sync failed, falling back to mock data:', syncErr)
-      totalNew = 5
-      results = [{ source: 'Manual Override', status: 'success', count: 5 }]
-    }
+    const { logs, total } = await ingestionService.getLogs(page, limit)
 
     return NextResponse.json({
-      data: {
-        message: 'Sync completed successfully',
-        totalNew,
-        results
-      }
-    }, { status: 200 })
-
+      data: logs.map((log) => ({
+        id: log.id,
+        source: log.source,
+        status: log.status,
+        recordsFound: (log.countNew || 0) + (log.countUpdated || 0),
+        recordsNew: log.countNew || 0,
+        startedAt: log.startedAt,
+        completedAt: log.finishedAt,
+      })),
+      meta: { total, page, limit },
+    })
   } catch (err) {
-    console.error('Fatal Error during sync:', err)
-    return NextResponse.json({
-      error: 'Sync failed',
-      code: 500,
-      details: err instanceof Error ? err.message : 'Unknown error'
-    }, { status: 500 })
+    console.error('Error loading ingestion logs:', err)
+    return NextResponse.json({ error: 'Server Error', code: 500 }, { status: 500 })
   }
 }
